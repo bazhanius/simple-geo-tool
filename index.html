@@ -1,34 +1,24 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
 
     <title>Simple Geographic Tool</title>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700&amp;subset=cyrillic,cyrillic-ext,latin-ext" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css?family=Barlow:100,100i,200,200i,300,300i,400,400i,500,500i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css?family=Oswald:100,100i,200,200i,300,300i,400,400i,500,500i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css?family=Inconsolata&display=swap" rel="stylesheet">
-
-    <!--
-    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
-    -->
 
     <!-- MDI Fonts -->
     <link rel="stylesheet" href="https://cdn.materialdesignicons.com/3.6.95/css/materialdesignicons.min.css">
-
 
     <link rel="stylesheet" href="https://unpkg.com/normalize.css@8.0.1/normalize.css">
 
     <!-- Leaflet -->
     <script type="text/javascript" src="https://unpkg.com/leaflet@1.5.1/dist/leaflet.js"></script>
     <link href="https://unpkg.com/leaflet@1.5.1/dist/leaflet.css" rel="stylesheet">
-
-    <!-- Leaflet Draw
-    <link rel="stylesheet" href="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.css" />
-    <script src="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw-src.js"></script>
-    -->
 
     <!-- Material Components -->
     <link rel="stylesheet" href="https://unpkg.com/material-components-web@0.38.2/dist/material-components-web.min.css" />
@@ -188,12 +178,9 @@
                 <span class="mdc-button__label">Clear All</span>
             </button>
 
-
-
             <hr class="divider">
 
             <h3>Objects</h3>
-
 
             <div class="b-all-objects-management">
 
@@ -223,22 +210,23 @@
                 </tbody>
             </table>
 
+        </div>
 
+        <div class="footer">
+            <a class="mdc-button mdc-ripple-upgraded" data-mdc-auto-init="MDCRipple" href="https://github.com/bazhanius/simple-geo-tool/">
+                <span class="mdi mdi-github-circle mdi-24px"></span>
+                <span class="mdc-button__label">View on GitHub</span>
+            </a>
         </div>
 
     </div>
 
 </div>
 
+
 <script type="text/javascript">
 
     window.mdc.autoInit();
-
-    /*
-    [].forEach.call(document.querySelectorAll('.mdc-tab-bar'), function(el) {
-        mdc.tabBar.MDCTabBar.attachTo(el);
-    });
-    */
 
     let tabBar = new mdc.tabBar.MDCTabBar(document.querySelector('.mdc-tab-bar'));
     let contentEls = document.querySelectorAll('.mdc-tab-content');
@@ -250,14 +238,6 @@
         contentEls[event.detail.index].classList.add('mdc-tab-content--active');
     });
 
-
-    //[].forEach.call(document.querySelectorAll('.mdc-text-field'), function(el) {
-    //mdc.textField.MDCTextField.attachTo(el);
-    //});
-
-    //[].forEach.call(document.querySelectorAll('.mdc-button'), function(el) {
-    //mdc.MDCRipple.attachTo(el);
-    //});
 </script>
 
 </body>

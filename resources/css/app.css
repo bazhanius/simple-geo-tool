@@ -77,6 +77,14 @@ h3 {
 
 .b-objects-management-container > .wrapper {
     padding: 0 2vw;
+    min-height: calc(100vh - 101px);
+}
+
+.footer {
+    display: flex;
+    height: 100px;
+    justify-content: center;
+    align-items: center;
 }
 
 .b-all-objects-management {
@@ -211,8 +219,12 @@ h3 {
     outline: none !important;
 }
 
-button > .mdi {
+button > .mdi, a > .mdi {
     margin-right: 5px;
+}
+
+a > .mdc-button__label {
+    text-transform: none;
 }
 
 .mdi-icon-button {

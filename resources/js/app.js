@@ -9,6 +9,30 @@ function ready() {
         '<span class="mdi mdi-icon-button mdi-delete-forever mdi-18px"></span></button>';
 
     let objectsList = document.querySelector('#objects-list > tbody');
+    let counter = 0;
+    let objects = [];
+
+    // Create the map
+    // https://wiki.openstreetmap.org/wiki/Zoom_levels
+    let map = L.map('map');
+
+    // Set up the OSM layer
+    L.tileLayer(
+        'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors'
+        }).addTo(map);
+
+    // Add scale control
+    L.control.scale().addTo(map);
+
+
+
+    /**
+     *
+     * Trying to get user location
+     *
+     */
 
     let userCoords = [];
 
@@ -35,25 +59,6 @@ function ready() {
     }
 
     navigator.geolocation.getCurrentPosition(success, error, options);
-
-
-
-    let counter = 0;
-    let objects = [];
-
-    // Create the map
-    // https://wiki.openstreetmap.org/wiki/Zoom_levels
-    let map = L.map('map');
-
-    // Set up the OSM layer
-    L.tileLayer(
-        'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            maxZoom: 19,
-            attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors'
-        }).addTo(map);
-
-    // Add scale control
-    L.control.scale().addTo(map);
 
 
 
@@ -160,7 +165,11 @@ function ready() {
 
 
 
-
+    /**
+     *
+     * Different functions
+     *
+     */
 
     const numberWithSpaces = (x) => {
         if (typeof x === 'undefined') {
@@ -173,6 +182,15 @@ function ready() {
     const getActiveTabName = () => {
         return document.querySelector('.mdc-tab--active').getAttribute('data-tab-name');
     };
+
+
+
+
+    /**
+     *
+     * All buttons controller
+     *
+     */
 
     const buttons = (function() {
 
@@ -272,6 +290,14 @@ function ready() {
 
     }());
 
+
+
+
+    /**
+     *
+     * All inputs controller
+     *
+     */
 
     const inputFields = (function() {
 
@@ -416,6 +442,11 @@ function ready() {
 
 
 
+    /**
+     *
+     * Almost all objects controller
+     *
+     */
 
     const manageObjects = (function() {
 
@@ -572,6 +603,13 @@ function ready() {
     }());
 
 
+
+    /**
+     *
+     * Different listeners
+     *
+     */
+
     tabsNodeList.forEach(function(el){
         el.addEventListener('click', function () {
             let currentTabName = getActiveTabName();
@@ -610,13 +648,10 @@ function ready() {
 
 
 
-
-
     /**
      * Initialize App
      */
-
-
+    
     buttons.applyClickEvents();
     buttons.toggleAddToMapButtons(getActiveTabName());
     buttons.toggleObjectListButton();
