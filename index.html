@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+    <title>Simple Geographic Tool</title>
+    <meta charset="utf-8" />
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700&amp;subset=cyrillic,cyrillic-ext,latin-ext" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Barlow:100,100i,200,200i,300,300i,400,400i,500,500i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Oswald:100,100i,200,200i,300,300i,400,400i,500,500i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Inconsolata&display=swap" rel="stylesheet">
+
+    <!--
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    -->
+
+    <!-- MDI Fonts -->
+    <link rel="stylesheet" href="https://cdn.materialdesignicons.com/3.6.95/css/materialdesignicons.min.css">
+
+
+    <link rel="stylesheet" href="https://unpkg.com/normalize.css@8.0.1/normalize.css">
+
+    <!-- Leaflet -->
+    <script type="text/javascript" src="https://unpkg.com/leaflet@1.5.1/dist/leaflet.js"></script>
+    <link href="https://unpkg.com/leaflet@1.5.1/dist/leaflet.css" rel="stylesheet">
+
+    <!-- Leaflet Draw
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.css" />
+    <script src="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw-src.js"></script>
+    -->
+
+    <!-- Material Components -->
+    <link rel="stylesheet" href="https://unpkg.com/material-components-web@0.38.2/dist/material-components-web.min.css" />
+    <script type="text/javascript" src="https://unpkg.com/material-components-web@0.38.2/dist/material-components-web.min.js"></script>
+
+    <link rel="stylesheet" href="resources/css/app.css">
+    <script type="text/javascript" src="resources/js/app.js"></script>
+
+</head>
+
+<body>
+
+<div class="b-page">
+
+    <div class="b-map-container">
+        <div id="map"></div>
+    </div>
+
+    <div class="b-objects-management-container">
+
+        <div class="wrapper">
+
+            <h3>Add object</h3>
+
+            <div class="mdc-tab-bar" role="tablist">
+
+                <div class="mdc-tab-scroller">
+                    <div class="mdc-tab-scroller__scroll-area">
+                        <div class="mdc-tab-scroller__scroll-content">
+
+                            <button class="mdc-tab mdc-tab--active" data-tab-name="point" role="tab" aria-selected="true">
+                                <span class="mdc-tab__content">
+                                    <span class="mdc-tab__icon mdi mdi-map-marker mdi-24px" aria-hidden="true"></span>
+                                    <span class="mdc-tab__text-label">Point</span>
+                                </span>
+                                <span class="mdc-tab-indicator mdc-tab-indicator--active">
+                                    <span class="mdc-tab-indicator__content mdc-tab-indicator__content--underline"></span>
+                                </span>
+                                <span class="mdc-tab__ripple"></span>
+                            </button>
+
+                            <button class="mdc-tab" data-tab-name="circle" role="tab" aria-selected="false" tabindex="-1">
+                                <span class="mdc-tab__content">
+                                    <span class="mdc-tab__icon mdi mdi-map-marker-radius mdi-24px" aria-hidden="true"></span>
+                                    <span class="mdc-tab__text-label">Circle</span>
+                                </span>
+                                <span class="mdc-tab-indicator">
+                                    <span class="mdc-tab-indicator__content mdc-tab-indicator__content--underline"></span>
+                                </span>
+                                <span class="mdc-tab__ripple"></span>
+                            </button>
+
+                            <button class="mdc-tab" data-tab-name="line" role="tab" aria-selected="false" tabindex="-1">
+                                <span class="mdc-tab__content">
+                                    <span class="mdc-tab__icon mdi mdi-map-marker-distance mdi-24px" aria-hidden="true"></span>
+                                    <span class="mdc-tab__text-label">Line</span>
+                                </span>
+                                <span class="mdc-tab-indicator">
+                                    <span class="mdc-tab-indicator__content mdc-tab-indicator__content--underline"></span>
+                                </span>
+                                <span class="mdc-tab__ripple"></span>
+                            </button>
+
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="mdc-tab-content mdc-tab-content--active">
+
+                <div>
+
+                    <div class="mdc-text-field" data-mdc-auto-init="MDCTextField">
+                        <input class="mdc-text-field__input" type="text" id="point-lat" pattern="^(-?[1-8]?\d(?:\.\d{1,8})?|90(?:\.0{1,8})?)$">
+                        <label for="point-lat" class="mdc-floating-label">Latitude</label>
+                        <div class="mdc-line-ripple"></div>
+                    </div>
+
+                    <div class="mdc-text-field" data-mdc-auto-init="MDCTextField">
+                        <input class="mdc-text-field__input" type="text" id="point-lon" pattern="^(-?(?:1[0-7]|[1-9])?\d(?:\.\d{1,8})?|180(?:\.0{1,8})?)$">
+                        <label for="point-lon" class="mdc-floating-label">Longitude</label>
+                        <div class="mdc-line-ripple"></div>
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="mdc-tab-content">
+
+                <div>
+
+                    <div class="mdc-text-field" data-mdc-auto-init="MDCTextField">
+                        <input class="mdc-text-field__input" type="text" id="circle-lat" pattern="^(-?[1-8]?\d(?:\.\d{1,8})?|90(?:\.0{1,8})?)$">
+                        <label for="circle-lat" class="mdc-floating-label">Latitude</label>
+                        <div class="mdc-line-ripple"></div>
+                    </div>
+
+                    <div class="mdc-text-field" data-mdc-auto-init="MDCTextField">
+                        <input class="mdc-text-field__input" type="text" id="circle-lon" pattern="^(-?(?:1[0-7]|[1-9])?\d(?:\.\d{1,8})?|180(?:\.0{1,8})?)$">
+                        <label for="circle-lon" class="mdc-floating-label">Longitude</label>
+                        <div class="mdc-line-ripple"></div>
+                    </div>
+
+                    <div class="mdc-text-field" data-mdc-auto-init="MDCTextField">
+                        <input class="mdc-text-field__input" type="text" id="circle-radius" pattern="[0-9]{1,6}">
+                        <label for="circle-radius" class="mdc-floating-label">Accuracy in meters</label>
+                        <div class="mdc-line-ripple"></div>
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="mdc-tab-content">
+
+                <div>
+
+                    <div class="mdc-text-field" data-mdc-auto-init="MDCTextField">
+                        <input class="mdc-text-field__input" type="text" id="line-lat-1" pattern="^(-?[1-8]?\d(?:\.\d{1,8})?|90(?:\.0{1,8})?)$">
+                        <label for="line-lat-1" class="mdc-floating-label">Latitude One</label>
+                        <div class="mdc-line-ripple"></div>
+                    </div>
+
+                    <div class="mdc-text-field" data-mdc-auto-init="MDCTextField">
+                        <input class="mdc-text-field__input" type="text" id="line-lon-1" pattern="^(-?(?:1[0-7]|[1-9])?\d(?:\.\d{1,8})?|180(?:\.0{1,8})?)$">
+                        <label for="line-lon-1" class="mdc-floating-label">Longitude One</label>
+                        <div class="mdc-line-ripple"></div>
+                    </div>
+
+                    <br>
+
+                    <div class="mdc-text-field" data-mdc-auto-init="MDCTextField">
+                        <input class="mdc-text-field__input" type="text" id="line-lat-2" pattern="^(-?[1-8]?\d(?:\.\d{1,8})?|90(?:\.0{1,8})?)$">
+                        <label for="line-lat-2" class="mdc-floating-label">Latitude Two</label>
+                        <div class="mdc-line-ripple"></div>
+                    </div>
+
+                    <div class="mdc-text-field" data-mdc-auto-init="MDCTextField">
+                        <input class="mdc-text-field__input" type="text" id="line-lon-2" pattern="^(-?(?:1[0-7]|[1-9])?\d(?:\.\d{1,8})?|180(?:\.0{1,8})?)$">
+                        <label for="line-lon-2" class="mdc-floating-label">Longitude Two</label>
+                        <div class="mdc-line-ripple"></div>
+                    </div>
+
+                </div>
+
+            </div>
+
+            <button id="button-add-to-map" class="mdc-button mdc-ripple-upgraded mdc-button--raised" data-mdc-auto-init="MDCRipple" disabled>
+                <span class="mdi mdi-map-marker-plus mdi-18px"></span>
+                <span class="mdc-button__label">Add to Map</span>
+            </button>
+
+            <button id="button-clear-fields" class="mdc-button mdc-ripple-upgraded mdc-button--outlined" data-mdc-auto-init="MDCRipple" disabled>
+                <span class="mdi mdi-close mdi-18px"></span>
+                <span class="mdc-button__label">Clear All</span>
+            </button>
+
+
+
+            <hr class="divider">
+
+            <h3>Objects</h3>
+
+
+            <div class="b-all-objects-management">
+
+                <button id="button-objects-zoom-all" class="mdc-button mdc-ripple-upgraded mdc-button--raised" data-mdc-auto-init="MDCRipple" disabled>
+                    <span class="mdi mdi-select-all mdi-18px"></span>
+                    <span class="mdc-button__label">Zoom All</span>
+                </button>
+
+                <button id="button-objects-delete-all" class="mdc-button mdc-ripple-upgraded mdc-button--outlined" data-mdc-auto-init="MDCRipple" disabled>
+                    <span class="mdi mdi-delete-forever mdi-18px"></span>
+                    <span class="mdc-button__label">Delete All</span>
+                </button>
+
+            </div>
+
+            <table id="objects-list">
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Type</th>
+                    <th colspan="2">Parameters</th>
+                    <th>Manage</th>
+                </tr>
+                </thead>
+                <tbody>
+
+                </tbody>
+            </table>
+
+
+        </div>
+
+    </div>
+
+</div>
+
+<script type="text/javascript">
+
+    window.mdc.autoInit();
+
+    /*
+    [].forEach.call(document.querySelectorAll('.mdc-tab-bar'), function(el) {
+        mdc.tabBar.MDCTabBar.attachTo(el);
+    });
+    */
+
+    let tabBar = new mdc.tabBar.MDCTabBar(document.querySelector('.mdc-tab-bar'));
+    let contentEls = document.querySelectorAll('.mdc-tab-content');
+
+    tabBar.listen('MDCTabBar:activated', function(event) {
+        // Hide currently-active content
+        document.querySelector('.mdc-tab-content--active').classList.remove('mdc-tab-content--active');
+        // Show content for newly-activated tab
+        contentEls[event.detail.index].classList.add('mdc-tab-content--active');
+    });
+
+
+    //[].forEach.call(document.querySelectorAll('.mdc-text-field'), function(el) {
+    //mdc.textField.MDCTextField.attachTo(el);
+    //});
+
+    //[].forEach.call(document.querySelectorAll('.mdc-button'), function(el) {
+    //mdc.MDCRipple.attachTo(el);
+    //});
+</script>
+
+</body>
+
+</html>

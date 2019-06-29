@@ -1,0 +1,231 @@
+html, body, * {
+    font-family: "Barlow", "Roboto", Arial;
+    font-size: small;
+}
+
+button {
+    margin-right: 5px;
+}
+
+h3 {
+    font-family: "Barlow";
+    font-size: 1.75rem;
+    font-weight: 500;
+    padding: 1vw 0 1vh;
+    margin: 0;
+    color: #999;
+}
+
+.divider {
+    margin: 3rem 0 0;
+    padding: 0;
+    border: 0;
+}
+
+
+
+/* Main layout */
+
+.b-page {
+    height: calc(100vh - 0.5px);
+    margin: 0;
+    padding: 0;
+}
+
+@media only screen and (orientation : landscape) {
+    .b-map-container, .b-objects-management-container {
+        /* height: 100%;
+        display: table-cell; */
+        overflow: auto;
+        position: relative;
+        float: left;
+        height: 100%;
+    }
+    .b-map-container {
+        width: calc(60% - 0.5px);
+    }
+    .b-objects-management-container {
+        width: calc(40% - 0.5px);
+    }
+    #map {
+        height: calc(100vh - 0.5px);
+    }
+}
+
+@media only screen and (orientation : portrait) {
+    .b-map-container, .b-objects-management-container {
+        width: 100%;
+        overflow: auto;
+        position: relative;
+        float: left;
+        height: 100%;
+    }
+    .b-map-container {
+        height: calc(50% - 0.5px);
+    }
+    .b-objects-management-container {
+        height: calc(50% - 0.5px);
+    }
+    #map {
+        height: calc(100% - 1px);
+    }
+}
+
+.b-objects-management-container {
+    vertical-align: top;
+}
+
+.b-objects-management-container > .wrapper {
+    padding: 0 2vw;
+}
+
+.b-all-objects-management {
+    margin: 20px 0;
+}
+
+
+
+/* Inputs */
+
+.search_field {
+    width: 200px;
+}
+
+.mdc-text-field__input {
+    font-family: 'Inconsolata', monospace;
+    font-size: 14px;
+    font-weight: 400;
+}
+
+.mdc-text-field {
+    width: 100px;
+    margin-right: 10px;
+}
+
+.mdc-text-field--upgraded:not(.mdc-text-field--fullwidth):not(.mdc-text-field--box) {
+    margin-top: 0;
+}
+
+
+
+/* Table with list of objects */
+
+#objects-list {
+    width: 100%;
+    border-collapse: collapse;
+    visibility: hidden;
+}
+
+#objects-list > thead > tr > th {
+    color: rgba(0,0,0,0.37);
+}
+
+#objects-list > tbody > tr > td, th {
+    border-bottom: 1px solid #ccc;
+    padding: 6px 10px;
+    line-height: 1.4em;
+}
+
+#objects-list > tbody > tr > td:nth-child(1), td:nth-child(2), td:nth-child(5) {
+    text-align: center;
+}
+
+#objects-list > tbody > tr > td:nth-child(4) {
+    text-align: right;
+}
+
+#objects-list > tbody > tr > td:nth-child(3), td:nth-child(4) {
+    font-family: 'Inconsolata', monospace;
+    font-size: 14px;
+    font-weight: 400;
+}
+
+
+
+/* Marker */
+
+.marker-pin {
+    width: 30px;
+    height: 30px;
+    border-radius: 50% 50% 50% 0;
+    background: rgba(51, 136, 255,0.95);
+    /* background:linear-gradient(135deg, #007991 0%, #78ffd6 100%); */
+    position: absolute;
+    transform: rotate(-45deg);
+    left: 50%;
+    top: 50%;
+    margin: -22px 0 0 -16px;
+    border: 1px solid #fff;
+    box-shadow: 0 0 10px rgba(0,0,0,0.3);
+}
+
+.marker-icon-dot {
+    background:rgba(51, 136, 255,0.95);
+    border-radius: 50% 50% 50% 50%;
+    border: 1px solid #fff;
+    box-shadow: 0 0 5px rgba(0,0,0,0.5);
+}
+
+.marker-icon-pin b {
+    position: absolute;
+    color: #fff;
+    width: 22px;
+    font-size: 14px;
+    font-weight: 500;
+    left: 0;
+    right: 0;
+    margin: 5px auto;
+    text-align: center;
+}
+
+.marker-line-color {
+    background:rgba(255, 51, 51,0.95);
+}
+
+.marker-point-color {
+    background:rgba(110, 20, 239,0.95);
+}
+
+.marker-point-temp-color {
+    background:rgba(255, 255, 51,0.45);
+}
+
+.marker-circle-color {
+    background:rgba(51, 136, 255,0.95);
+}
+
+
+
+/* MDC Tabs */
+
+.mdc-tab-content {
+    display: none;
+    padding: 10px 0;
+}
+
+.mdc-tab-content--active {
+    display: block;
+}
+
+.mdc-tab {
+    outline: none !important;
+}
+
+button > .mdi {
+    margin-right: 5px;
+}
+
+.mdi-icon-button {
+    margin-right: 0 !important;
+}
+
+.mdc-button {
+    min-width: 36px;
+}
+
+
+
+
+.leaflet-container.crosshair-cursor-enabled {
+    cursor:crosshair;
+}
