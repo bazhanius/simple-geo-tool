@@ -14,7 +14,8 @@ function ready() {
 
     // Create the map
     // https://wiki.openstreetmap.org/wiki/Zoom_levels
-    let map = L.map('map');
+    let latLonExample = [55.752318, 37.619814];
+    let map = L.map('map').setView(latLonExample, 10);
 
     // Set up the OSM layer
     L.tileLayer(
@@ -49,12 +50,13 @@ function ready() {
             pos.coords.accuracy
         ];
         map.setView([userCoords[0], userCoords[1]], 10);
-        manageObjects.add( 'circle', {'latOne': userCoords[0], 'lonOne': userCoords[1], 'rad': userCoords[2]} );
+        let userLocObjID = manageObjects.add( 'circle', {'latOne': userCoords[0], 'lonOne': userCoords[1], 'rad': userCoords[2]} );
+        manageObjects.locateByObjectID(userLocObjID);
+
     }
 
     function error(err) {
         console.warn(`ERROR(${err.code}): ${err.message}`);
-        map.setView([55.752318, 37.619814], 10);
 
     }
 
@@ -68,8 +70,26 @@ function ready() {
      *
      */
 
+    const Coordinates = L.Control.extend({
+        onAdd: map => {
+            const container = L.DomUtil.create("div");
+            container.innerHTML = '<div class="mouse-cursor-helper">' +
+                '<p id="mouse-coordinates">0, 0</p>' +
+                '<p id="temp-object-summary"></p>' +
+                '</div>';
+            return container;
+        }
+    });
+
+    map.addControl(new Coordinates({ position: "topright" }));
+
+    let mouseCoordinates = document.querySelector('#mouse-coordinates');
+    let tempObjectSummary = document.querySelector('#temp-object-summary');
+
     let tempCoords = [];
-    let tempMarker = new L.featureGroup().addTo(map);;
+    let tempMarker = new L.featureGroup().addTo(map);
+    let tempSecondMarkerPin, tempSecondMarkerDot;
+    let tempCircle, tempLine;
     let tempIconPin = L.divIcon({
         className: 'marker-icon-pin',
         html: "<div class='marker-pin marker-point-temp-color'></div><b>+</b>",
@@ -83,82 +103,148 @@ function ready() {
         iconAnchor: [3, 3]
     });
 
-    document.addEventListener ("keydown", function (ev) {
-        if (ev.shiftKey) {
+    // Shift key pressed handler
+    let shift = false;
+    function shiftHandler(event) {
+        shift = event.shiftKey;
+        if (shift) {
             L.DomUtil.addClass(map._container,'crosshair-cursor-enabled');
         } else {
             L.DomUtil.removeClass(map._container,'crosshair-cursor-enabled');
         }
-    });
+    };
+    window.addEventListener("keydown", shiftHandler, false);
+    window.addEventListener("keypress", shiftHandler, false);
+    window.addEventListener("keyup", shiftHandler, false);
 
     map.on('click', function(e) {
 
-        let currentTabName = getActiveTabName();
+        if (shift) {
 
-        tempCoords.push(e.latlng.lat, e.latlng.lng);
-        //console.log(tempCoords.length);
+            let currentTabName = getActiveTabName();
 
-        if ( currentTabName === 'point' && event.shiftKey) {
-            manageObjects.add('point', {
-                'latOne': tempCoords[0],
-                'lonOne': tempCoords[1]
-            });
-            tempCoords = [];
-        }
+            tempCoords.push(e.latlng.lat, e.latlng.lng);
 
-
-        if ( currentTabName === 'circle' && event.shiftKey) {
-            if ( tempCoords.length === 2 ) {
-                tempMarker.addLayer(
-                    L.marker([tempCoords[0], tempCoords[1]], {
-                        icon: tempIconPin
-                    })
-                );
-
-                tempMarker.addLayer(
-                    L.marker([tempCoords[0], tempCoords[1]], {
-                        icon: tempIconDot
-                    })
-                );
-            } else if ( tempCoords.length >= 4 ) {
-                manageObjects.add('circle', {
+            if ( currentTabName === 'point' && shift) {
+                manageObjects.add('point', {
                     'latOne': tempCoords[0],
-                    'lonOne': tempCoords[1],
-                    'rad':
-                    L.latLng([tempCoords[0], tempCoords[1]]).distanceTo([tempCoords[2], tempCoords[3]]).toFixed(0)
+                    'lonOne': tempCoords[1]
                 });
-                tempMarker.clearLayers();
                 tempCoords = [];
+            }
+
+
+            if ( currentTabName === 'circle' && shift) {
+                if ( tempCoords.length === 2 ) {
+
+                    tempCircle = L.circle([tempCoords[0], tempCoords[1]], {
+                        radius: 0,
+                        weight: 2,
+                        color: '#ff3',
+                        opacity: 0.8,
+                        fillOpacity: 0.1
+                    }).addTo(map);
+
+                    tempMarker.addLayer(
+                        L.marker([tempCoords[0], tempCoords[1]], {
+                            icon: tempIconPin
+                        })
+                    );
+
+                    tempMarker.addLayer(
+                        L.marker([tempCoords[0], tempCoords[1]], {
+                            icon: tempIconDot
+                        })
+                    );
+
+                } else if ( tempCoords.length >= 4 ) {
+                    manageObjects.add('circle', {
+                        'latOne': tempCoords[0],
+                        'lonOne': tempCoords[1],
+                        'rad':
+                            L.latLng([tempCoords[0], tempCoords[1]]).distanceTo([tempCoords[2], tempCoords[3]]).toFixed(0)
+                    });
+                    tempMarker.clearLayers();
+                    tempCoords = [];
+                    tempCircle.remove();
+                }
+            }
+
+            if ( currentTabName === 'line' && shift) {
+
+                if ( tempCoords.length === 2 ) {
+
+                    tempLine = L.polyline([ [tempCoords[0], tempCoords[1]], [tempCoords[0], tempCoords[1]] ], {
+                        color: '#ff3',
+                        weight: 2,
+                        opacity: 0.6
+                    }).addTo(map);
+
+                    tempMarker.addLayer(
+                        L.marker([tempCoords[0], tempCoords[1]], {
+                            icon: tempIconPin
+                        })
+                    );
+
+                    tempMarker.addLayer(
+                        L.marker([tempCoords[0], tempCoords[1]], {
+                            icon: tempIconDot
+                        })
+                    );
+
+                    tempSecondMarkerPin = L.marker([tempCoords[0], tempCoords[1]], {
+                        icon: tempIconPin
+                    }).addTo(map);
+
+                    tempSecondMarkerDot = L.marker([tempCoords[0], tempCoords[1]], {
+                        icon: tempIconDot
+                    }).addTo(map);
+
+                } else if ( tempCoords.length >= 4 ) {
+
+                    manageObjects.add('line', {
+                        'latOne': tempCoords[0],
+                        'lonOne': tempCoords[1],
+                        'latTwo': tempCoords[2],
+                        'lonTwo': tempCoords[3]
+                    });
+                    tempMarker.clearLayers();
+                    tempCoords = [];
+                    tempSecondMarkerPin.remove();
+                    tempSecondMarkerDot.remove();
+                    tempLine.remove();
+                }
             }
         }
 
-        if ( currentTabName === 'line' && event.shiftKey) {
+    });
 
-            if ( tempCoords.length === 2 ) {
+    map.on("mousemove", e => {
 
-                tempMarker.addLayer(
-                    L.marker([tempCoords[0], tempCoords[1]], {
-                        icon: tempIconPin
-                    })
-                );
+        if (!tempCoords[0] && shift) {
+            tempSecondMarkerPin.setLatLng([e.latlng.lat.toFixed(6), e.latlng.lng.toFixed(6)]);
+            tempSecondMarkerDot.setLatLng([e.latlng.lat.toFixed(6), e.latlng.lng.toFixed(6)]);
+        }
 
-                tempMarker.addLayer(
-                    L.marker([tempCoords[0], tempCoords[1]], {
-                        icon: tempIconDot
-                    })
-                );
+        if (tempCoords[0]) {
 
-            } else if ( tempCoords.length >= 4 ) {
+            let tempDist = L.latLng([tempCoords[0].toFixed(6), tempCoords[1].toFixed(6)]).distanceTo([e.latlng.lat.toFixed(6), e.latlng.lng.toFixed(6)]).toFixed(0);
 
-                manageObjects.add('line', {
-                    'latOne': tempCoords[0],
-                    'lonOne': tempCoords[1],
-                    'latTwo': tempCoords[2],
-                    'lonTwo': tempCoords[3]
-                });
-                tempMarker.clearLayers();
-                tempCoords = [];
+            mouseCoordinates.innerHTML = `<span class="mdi mdi-map-marker mdi-12px"></span> ${tempCoords[0].toFixed(6)}, ${tempCoords[1].toFixed(6)}`;
+            tempObjectSummary.innerHTML = `<span class="mdi mdi-crosshairs mdi-12px"></span> ${e.latlng.lat.toFixed(6)}, ${e.latlng.lng.toFixed(6)}`;
+            tempObjectSummary.innerHTML += `<br>${numberWithSpaces(tempDist)} m`;
+
+            if (tempCircle) {
+                tempCircle.setRadius(tempDist);
             }
+            if (tempLine) {
+                tempSecondMarkerPin.setLatLng([e.latlng.lat.toFixed(6), e.latlng.lng.toFixed(6)]);
+                tempSecondMarkerDot.setLatLng([e.latlng.lat.toFixed(6), e.latlng.lng.toFixed(6)]);
+                tempLine.setLatLngs([ [tempCoords[0], tempCoords[1]], [e.latlng.lat.toFixed(6), e.latlng.lng.toFixed(6)] ])
+            }
+        } else {
+            mouseCoordinates.innerHTML = `<span class="mdi mdi-crosshairs mdi-12px"></span> ${e.latlng.lat.toFixed(6)}, ${e.latlng.lng.toFixed(6)}`;
+            tempObjectSummary.innerHTML = '';
         }
 
     });
@@ -185,7 +271,6 @@ function ready() {
 
 
 
-
     /**
      *
      * All buttons controller
@@ -209,13 +294,15 @@ function ready() {
                 _addToMapButton.addEventListener('click', function () {
                     let currentTabName = getActiveTabName();
                     let values = inputFields.getValues(currentTabName);
+                    let objLocID;
                     if ( currentTabName === 'point' ) {
-                        manageObjects.add( 'point', {'latOne': values.lat, 'lonOne': values.lon} );
+                        objLocID = manageObjects.add( 'point', {'latOne': values.lat, 'lonOne': values.lon} );
                     } else if ( currentTabName === 'circle' ) {
-                        manageObjects.add( 'circle', {'latOne': values.lat, 'lonOne': values.lon, 'rad': values.rad} );
+                        objLocID = manageObjects.add( 'circle', {'latOne': values.lat, 'lonOne': values.lon, 'rad': values.rad} );
                     } else if ( currentTabName === 'line' ) {
-                        manageObjects.add( 'line', {'latOne': values.latOne, 'lonOne': values.lonOne, 'latTwo': values.latTwo, 'lonTwo': values.lonTwo} );
+                        objLocID = manageObjects.add( 'line', {'latOne': values.latOne, 'lonOne': values.lonOne, 'latTwo': values.latTwo, 'lonTwo': values.lonTwo} );
                     }
+                    manageObjects.locateByObjectID(objLocID);
                 });
 
                 _clearFieldsButton.addEventListener('click', function() {
@@ -242,7 +329,7 @@ function ready() {
 
                 _objectLocateButtons.forEach(function(el){
                     el.addEventListener('click', function () {
-                        manageObjects.locate(this);
+                        manageObjects.locateByNode(this);
                     });
                 });
 
@@ -456,18 +543,16 @@ function ready() {
 
                 counter++;
 
-                console.log(typeof params.latOne, typeof params.latTwo, typeof params.rad);
-
                 let _latOne = isNaN(params.latOne) ? params.latOne : parseFloat(params.latOne).toFixed(6);
                 let _lonOne = isNaN(params.lonOne) ? params.lonOne : parseFloat(params.lonOne).toFixed(6);
                 let _latTwo = isNaN(params.latTwo) ? params.latTwo : parseFloat(params.latTwo).toFixed(6);
                 let _lonTwo = isNaN(params.lonTwo) ? params.lonTwo : parseFloat(params.lonTwo).toFixed(6);
                 let _rad = params.rad;
 
-
-
                 let list = [];
                 let group;
+
+                let markerOnePin;
 
                 let iconPin = L.divIcon({
                     className: 'marker-icon-pin',
@@ -486,9 +571,9 @@ function ready() {
                 // Add a markerOne in the given location
                 if ( typeof _latOne !== 'undefined' && typeof _lonOne !== 'undefined' ) {
                     list.push(
-                        L.marker([_latOne,_lonOne], {
+                        markerOnePin = L.marker([_latOne,_lonOne], {
                             icon: iconPin
-                        }).bindPopup(`${_latOne}°N, ${_lonOne}°E`),
+                        }),
 
                         L.marker([_latOne,_lonOne], {
                             icon: iconDot
@@ -522,14 +607,15 @@ function ready() {
                         L.circle([_latOne,_lonOne], {
                             radius: _rad,
                             weight: 1
-                        }).bindPopup(`Radius: ${numberWithSpaces(_rad)} m`)
+                        })
                     );
+
+                    markerOnePin.bindPopup(`${_latOne}°N, ${_lonOne}°E<br>Radius: ${numberWithSpaces(_rad)} m`)
+                } else {
+                    markerOnePin.bindPopup(`${_latOne}°N, ${_lonOne}°E`)
                 }
 
                 group = new L.featureGroup(list).addTo(map);
-
-                if ( type !== 'point' ) map.flyToBounds(group.getBounds(), {padding: L.point(100, 100)});
-
 
                 // Add tooltips to markers
 
@@ -554,11 +640,10 @@ function ready() {
 
                 objects.push(objectOnMap);
 
-                console.log(objects);
-
                 buttons.updateObjectsManagementButtons();
                 buttons.toggleObjectListButton();
 
+                return counter;
 
             },
 
@@ -571,11 +656,20 @@ function ready() {
                 row.remove();
             },
 
-            locate: function(obj) {
+            locateByNode: function(obj) {
                 let row = obj.parentNode.parentNode;
                 let id = parseInt(row.firstChild.textContent);
                 let index = objects.findIndex(x => x.id === id);
                 map.flyToBounds(objects[index].object.getBounds(), {padding: L.point(100, 100)});
+            },
+
+            locateByObjectID: function(id) {
+                let index = objects.findIndex(x => x.id === id);
+                if ( objects[index].type === 'point' ) {
+                    map.flyToBounds(objects[index].object.getBounds(), {maxZoom: 12});
+                } else {
+                    map.flyToBounds(objects[index].object.getBounds(), {padding: L.point(200, 200)});
+                }
             },
 
             deleteAll: function() {
@@ -635,15 +729,6 @@ function ready() {
         el.addEventListener('keyup', function() {
             buttons.toggleAddToMapButtons('line');
         });
-    });
-
-
-    document.addEventListener('keyup', (event) => {
-        if (event.key === 16 || event.charCode === 16) {
-            L.DomUtil.addClass(map._container,'crosshair-cursor-enabled');
-        } else {
-            L.DomUtil.removeClass(map._container,'crosshair-cursor-enabled');
-        }
     });
 
 
