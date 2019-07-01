@@ -1,4 +1,5 @@
 ## simple-geo-tool
+![img](https://repository-images.githubusercontent.com/194441323/d5adf980-9c0c-11e9-883a-083f24c7ad96)
 
 #### Description
 Yet another (supposed to be simple) tool to add geo objects on map.
