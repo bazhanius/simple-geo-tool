@@ -1,5 +1,5 @@
 ## simple-geo-tool
-![img](https://repository-images.githubusercontent.com/194441323/d5adf980-9c0c-11e9-883a-083f24c7ad96)
+![img](https://repository-images.githubusercontent.com/194441323/39f32f00-a1b2-11e9-879d-89f8fc50f4b1)
 
 #### Description
 Yet another (supposed to be simple) tool to add geo objects on map.
@@ -17,6 +17,9 @@ Try it on GitHub Pages: https://bazhanius.github.io/simple-geo-tool/
   - delete certain object
   - show  all objects
   - delete all objects
+- Map controls:
+  - selecting tile layers
+  - geolocating current position of the device
 
 #### Dependencies
 - [Leaflet](https://github.com/Leaflet/Leaflet)
