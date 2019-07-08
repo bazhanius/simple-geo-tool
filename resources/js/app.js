@@ -12,17 +12,48 @@ function ready() {
     let counter = 0;
     let objects = [];
 
-    // Create the map
-    // https://wiki.openstreetmap.org/wiki/Zoom_levels
-    let latLonExample = [55.752318, 37.619814];
-    let map = L.map('map').setView(latLonExample, 10);
 
-    // Set up the OSM layer
-    L.tileLayer(
-        'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            maxZoom: 19,
+
+    /**
+     *
+     * Create the map
+     *
+     */
+
+    let latLonExample = [55.752318, 37.619814];
+
+
+    // Define free tile providers https://github.com/leaflet-extras/leaflet-providers
+    let OSM = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors'
-        }).addTo(map);
+        }),
+        Wikimedia = L.tileLayer('https://maps.wikimedia.org/osm-intl/{z}/{x}/{y}{r}.png', {
+            attribution: '<a href="https://wikimediafoundation.org/wiki/Maps_Terms_of_Use">Wikimedia</a>'
+        }),
+        CartoDB_Positron = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
+        });
+        Esri_WorldImagery = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+            attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
+        });
+
+    let map = L.map('map', {
+        center: latLonExample,
+        maxZoom: 19,
+        zoom: 10,
+        detectRetina: true,
+        layers: [OSM]
+    });
+
+    let baseMaps = {
+        "OpenStreetMap": OSM,
+        "Wikimedia": Wikimedia,
+        "CartoDB.Positron": CartoDB_Positron,
+        "Esri.WorldImagery": Esri_WorldImagery
+    };
+
+    // Add layer control
+    L.control.layers(baseMaps, null, { position: 'bottomright' }).addTo(map);
 
     // Add scale control
     L.control.scale().addTo(map);
@@ -35,33 +66,54 @@ function ready() {
      *
      */
 
-    let userCoords = [];
+    const getUserLocation = () => {
 
-    let options = {
-        enableHighAccuracy: true,
-        timeout: 5000,
-        maximumAge: 0
+        let userCoords = [];
+
+        let options = {
+            enableHighAccuracy: true,
+            timeout: 5000,
+            maximumAge: 0
+        };
+
+        function success(pos) {
+            userCoords = [
+                pos.coords.latitude,
+                pos.coords.longitude,
+                pos.coords.accuracy
+            ];
+            map.setView([userCoords[0], userCoords[1]], 10);
+            let userLocObjID = manageObjects.add( 'circle', {'latOne': userCoords[0], 'lonOne': userCoords[1], 'rad': userCoords[2]} );
+            manageObjects.locateByObjectID(userLocObjID);
+
+        }
+
+        function error(err) {
+            console.warn(`ERROR(${err.code}): ${err.message}`);
+
+        }
+
+        navigator.geolocation.getCurrentPosition(success, error, options);
+
     };
 
-    function success(pos) {
-        userCoords = [
-            pos.coords.latitude,
-            pos.coords.longitude,
-            pos.coords.accuracy
-        ];
-        map.setView([userCoords[0], userCoords[1]], 10);
-        let userLocObjID = manageObjects.add( 'circle', {'latOne': userCoords[0], 'lonOne': userCoords[1], 'rad': userCoords[2]} );
-        manageObjects.locateByObjectID(userLocObjID);
+    const UserLocation = L.Control.extend({
+        onAdd: map => {
+            const container = L.DomUtil.create("div");
+            container.innerHTML = '<div class="user-location-control">' +
+                '<span class="mdi mdi-near-me mdi-18px" title="My location"></span>' +
+                '</div>';
+            return container;
+        }
+    });
 
-    }
+    map.addControl(new UserLocation({ position: "topleft" }));
 
-    function error(err) {
-        console.warn(`ERROR(${err.code}): ${err.message}`);
+    let userLocationButton = document.querySelector('.user-location-control');
 
-    }
-
-    navigator.geolocation.getCurrentPosition(success, error, options);
-
+    userLocationButton.addEventListener('click', function () {
+        getUserLocation();
+    });
 
 
     /**
@@ -112,7 +164,7 @@ function ready() {
         } else {
             L.DomUtil.removeClass(map._container,'crosshair-cursor-enabled');
         }
-    };
+    }
     window.addEventListener("keydown", shiftHandler, false);
     window.addEventListener("keypress", shiftHandler, false);
     window.addEventListener("keyup", shiftHandler, false);

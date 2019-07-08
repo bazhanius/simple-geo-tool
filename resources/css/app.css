@@ -237,14 +237,30 @@ a > .mdc-button__label {
     max-width: calc(60vh);
 }
 
+
+
+/* Leaflet Controls */
+
+.leaflet-touch .leaflet-control-layers-toggle {
+    width: 30px;
+    height: 30px;
+}
+
+.leaflet-retina .leaflet-control-layers-toggle {
+    background-size: 20px 20px;
+}
+
+
 .mouse-cursor-helper {
     display: block;
     padding: 2px 5px;
     font-family: 'Inconsolata', monospace;
-    border: 2px solid rgba(0, 0, 0, 0.2);
+    color: #333;
+    /* text-shadow: #fff 1px 1px; */
     background-clip: padding-box;
-    background-color: #fff;
-    border-radius: 4px;
+    background-color: rgba(255, 255, 255, 0.5);
+    /* border: 2px solid rgba(0, 0, 0, 0.2); */
+    /* border-radius: 4px; */
     margin-top: 0;
     text-align: right;
 }
@@ -255,8 +271,24 @@ a > .mdc-button__label {
     margin: 0;
 }
 
+.user-location-control {
+    display: flex;
+    height: 100px;
+    justify-content: center;
+    align-items: center;
+    width: 30px;
+    height: 30px;
+    border: 2px solid rgba(0, 0, 0, 0.2);
+    border-radius: 4px;
+    background-clip: padding-box;
+    background-color: rgba(255, 255, 255, 1.0);
+}
 
+.user-location-control:hover {
+    background-color: #f4f4f4;
+    cursor: pointer;
+}
 
 .leaflet-container.crosshair-cursor-enabled {
-    cursor:crosshair;
+    cursor: crosshair;
 }
