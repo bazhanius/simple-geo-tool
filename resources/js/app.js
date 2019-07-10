@@ -273,7 +273,7 @@ function ready() {
 
     map.on("mousemove", e => {
 
-        if (!tempCoords[0] && shift) {
+        if (!tempCoords[0] && shift && tempLine) {
             tempSecondMarkerPin.setLatLng([e.latlng.lat.toFixed(6), e.latlng.lng.toFixed(6)]);
             tempSecondMarkerDot.setLatLng([e.latlng.lat.toFixed(6), e.latlng.lng.toFixed(6)]);
         }
@@ -720,7 +720,7 @@ function ready() {
                 if ( objects[index].type === 'point' ) {
                     map.flyToBounds(objects[index].object.getBounds(), {maxZoom: 12});
                 } else {
-                    map.flyToBounds(objects[index].object.getBounds(), {padding: L.point(200, 200)});
+                    map.flyToBounds(objects[index].object.getBounds(), {padding: L.point(100, 100)});
                 }
             },
 

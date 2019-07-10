@@ -5,6 +5,7 @@ html, body, * {
 
 button {
     margin-right: 5px;
+    margin-bottom: 5px;
 }
 
 h3 {
@@ -41,6 +42,9 @@ h3 {
     .b-objects-management-container {
         width: calc(40% - 0.5px);
     }
+    .b-objects-management-container > .wrapper {
+        min-height: calc(100vh - 101px);
+    }
     #map {
         height: calc(100vh - 0.5px);
     }
@@ -60,6 +64,9 @@ h3 {
     .b-objects-management-container {
         height: calc(50% - 0.5px);
     }
+    .b-objects-management-container > .wrapper {
+        min-height: calc(50vh - 101px);
+    }
     #map {
         height: calc(100% - 1px);
     }
@@ -71,7 +78,6 @@ h3 {
 
 .b-objects-management-container > .wrapper {
     padding: 0 2vw;
-    min-height: calc(100vh - 101px);
 }
 
 .footer {
@@ -250,7 +256,6 @@ a > .mdc-button__label {
     background-size: 20px 20px;
 }
 
-
 .mouse-cursor-helper {
     display: block;
     padding: 2px 5px;
@@ -273,7 +278,6 @@ a > .mdc-button__label {
 
 .user-location-control {
     display: flex;
-    height: 100px;
     justify-content: center;
     align-items: center;
     width: 30px;
