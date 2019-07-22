@@ -25,7 +25,14 @@ function ready() {
 
     // Define free tile providers https://github.com/leaflet-extras/leaflet-providers
     let OSM = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors'
+            attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors',
+            maxZoom: 19,
+            detectRetina: true
+        }),
+        OSM_BW = L.tileLayer('http://{s}.tiles.wmflabs.org/bw-mapnik/{z}/{x}/{y}.png', {
+            attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors',
+            maxZoom: 19,
+            detectRetina: true
         }),
         Wikimedia = L.tileLayer('https://maps.wikimedia.org/osm-intl/{z}/{x}/{y}{r}.png', {
             attribution: '<a href="https://wikimediafoundation.org/wiki/Maps_Terms_of_Use">Wikimedia</a>'
@@ -39,14 +46,14 @@ function ready() {
 
     let map = L.map('map', {
         center: latLonExample,
-        maxZoom: 19,
+        maxZoom: 18,
         zoom: 10,
-        detectRetina: true,
         layers: [OSM]
     });
 
     let baseMaps = {
         "OpenStreetMap": OSM,
+        "OpenStreetMap Black And White": OSM_BW,
         "Wikimedia": Wikimedia,
         "CartoDB.Positron": CartoDB_Positron,
         "Esri.WorldImagery": Esri_WorldImagery
@@ -642,7 +649,7 @@ function ready() {
                             color: '#f33',
                             weight: 3,
                             opacity: 0.6,
-                        }).bindPopup(`Distance: ${numberWithSpaces(_distance)} m`),
+                        }).bindPopup(`Distance: ${_distance} m`),
 
                         L.marker([_latTwo, _lonTwo], {
                             icon: iconPin
@@ -669,18 +676,14 @@ function ready() {
 
                 group = new L.featureGroup(list).addTo(map);
 
-                // Add tooltips to markers
-
+                // Add table row in list of objects
                 if ( type === 'point' ) {
-                    //group.bindTooltip(`<b>Object ID: ${counter}</b> (${type})<br>lat: ${_latOne}<br>lon: ${_lonOne}`);
                     objectsList.innerHTML += `<tr><td>${counter}</td><td>${type}</td><td>${_latOne} ${_lonOne}</td><td></td><td>${buttonsHTML}</td></tr>`;
                 } else if ( type === 'circle' ) {
-                    //group.bindTooltip(`<b>Object ID: ${counter}</b> (${type})<br>lat: ${_latOne}<br>lon: ${_lonOne}<br>rad: ${numberWithSpaces(_rad)} m`);
-                    objectsList.innerHTML += `<tr><td>${counter}</td><td>${type}</td><td>${_latOne} ${_lonOne}</td><td>${numberWithSpaces(_rad)}</td><td>${buttonsHTML}</td></tr>`;
+                    objectsList.innerHTML += `<tr><td>${counter}</td><td>${type}</td><td>${_latOne} ${_lonOne}</td><td><span style="white-space: nowrap;">${numberWithSpaces(_rad)}</span></td><td>${buttonsHTML}</td></tr>`;
                 } else if ( type === 'line' ) {
                     let _distance = numberWithSpaces(L.latLng([_latOne, _lonOne]).distanceTo([_latTwo, _lonTwo]).toFixed(0));
-                    //group.bindTooltip(`<b>Object ID: ${counter}</b> (${type})<br>lat1: ${_latOne}<br>lon1: ${_lonOne}<br>lat2: ${_latTwo}<br>lon2: ${_lonTwo}<br>dis: ${distance} m`);
-                    objectsList.innerHTML += `<tr><td>${counter}</td><td>${type}</td><td>${_latOne} ${_lonOne}<br>${_latTwo} ${_lonTwo}</td><td>${numberWithSpaces(_distance)}</td><td>${buttonsHTML}</td></tr>`;
+                    objectsList.innerHTML += `<tr><td>${counter}</td><td>${type}</td><td>${_latOne} ${_lonOne}<br>${_latTwo} ${_lonTwo}</td><td><span style="white-space: nowrap;">${_distance}</span></td><td>${buttonsHTML}</td></tr>`;
                 }
 
 
@@ -696,7 +699,6 @@ function ready() {
                 buttons.toggleObjectListButton();
 
                 return counter;
-
             },
 
             delete: function(obj) {
@@ -760,8 +762,14 @@ function ready() {
         el.addEventListener('click', function () {
             let currentTabName = getActiveTabName();
             buttons.toggleAddToMapButtons(currentTabName);
+
+            // Clear all temp objects on map
             tempCoords = [];
             tempMarker.clearLayers();
+            if (tempCircle) tempCircle.remove();
+            if (tempLine) tempLine.remove();
+            if (tempSecondMarkerPin) tempSecondMarkerPin.remove();
+            if (tempSecondMarkerDot) tempSecondMarkerDot.remove();
         });
     });
 
