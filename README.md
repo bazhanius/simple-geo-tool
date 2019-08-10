@@ -18,10 +18,12 @@ Try it on GitHub Pages: https://bazhanius.github.io/simple-geo-tool/
   - show  all objects
   - delete all objects
 - Map controls:
-  - selecting tile layers
+  - selecting tile layers (OpenStreetMap, Wikimedia etc.)
   - geolocating current position of the device
+  - show address (geocoding) in popup of object's markers
 
 #### Dependencies
 - [Leaflet](https://github.com/Leaflet/Leaflet)
+- [Nominatim](https://github.com/openstreetmap/Nominatim)
 - [MDC](https://github.com/material-components/material-components-web) (Material Design Components)
 - [MDI](https://github.com/Templarian/MaterialDesign) (Material Design Icons from the Community)

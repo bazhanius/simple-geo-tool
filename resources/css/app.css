@@ -1,5 +1,5 @@
 html, body, * {
-    font-family: "Barlow", "Roboto", Arial;
+    font-family: "Barlow", sans-serif;
     font-size: small;
 }
 
@@ -9,7 +9,7 @@ button {
 }
 
 h3 {
-    font-family: "Barlow";
+    font-family: "Barlow", sans-serif;
     font-size: 1.75rem;
     font-weight: 500;
     padding: 1vw 0 1vh;
@@ -296,3 +296,27 @@ a > .mdc-button__label {
 .leaflet-container.crosshair-cursor-enabled {
     cursor: crosshair;
 }
+
+
+
+/* Leaflet Controls */
+
+.leaflet-popup-content {
+    width: 200px;
+}
+
+.popup-address {
+    display: block;
+    font-family: 'Noto Sans', sans-serif;
+    font-size: x-small;
+    color: #999;
+    padding: 0.2em 0 0.6em;
+}
+
+/*
+.popup-coords {
+    font-family: 'Inconsolata', monospace;
+    font-weight: 600;
+    font-size: larger;
+}
+*/

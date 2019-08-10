@@ -11,6 +11,88 @@ function ready() {
     let objectsList = document.querySelector('#objects-list > tbody');
     let counter = 0;
     let objects = [];
+    let addressesDB = [];
+
+    function generatePopupText(lat, lon, addr = '', rad = 0) {
+        let radius = ( rad !== 0 ) ? `Radius: <span class="popup-coords">${numberWithSpaces(rad)}</span> m` : '';
+        return `<span class="popup-coords">${lat}</span>°N`
+            +`, <span class="popup-coords">${lon}</span>°E`
+            +`<div class="popup-address">${addr}</div>`
+            + `${radius}`;
+    }
+
+
+    /**
+     *
+     * Trying to get address from nominatim.openstreetmap.org
+     *
+     */
+
+    // https://jsfiddle.net/dandv/47cbj/
+    function RateLimit(fn, delay, context) {
+        let queue = [], timer = null;
+
+        function processQueue() {
+            let item = queue.shift();
+            if (item)
+                fn.apply(item.context, item.arguments);
+            if (queue.length === 0)
+                clearInterval(timer), timer = null;
+        }
+
+        return function limited() {
+            queue.push({
+                context: context || this,
+                arguments: [].slice.call(arguments)
+            });
+            if (!timer) {
+                //processQueue();  // start immediately on the first invocation
+                timer = setInterval(processQueue, delay);
+            }
+        }
+
+    }
+
+    function reverseGeocode(lat, lon) {
+
+        lat = isNaN(lat) ? lat : parseFloat(lat).toFixed(6);
+        lon = isNaN(lat) ? lon : parseFloat(lon).toFixed(6);
+
+        // check cached address data
+        let cachedAddress = addressesDB.filter(a => a.lat === lat).find(a => a.lon === lon);
+
+        if ( !cachedAddress ) {
+            fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lon}`)
+                .then(function(response) {
+                    return response.json();
+                })
+                .then(function(myJson) {
+                    let item = {
+                        'lat': lat,
+                        'lon': lon,
+                        'address': myJson.display_name //+ '<br>' + myJson.licence
+                    };
+
+                    // add address to cache
+                    addressesDB.push(item);
+                });
+        }
+    }
+
+    function popupUpdate(el) {
+        let index = objects.findIndex(x => x.id === el);
+        objects[index].object.getLayers().filter(l=>l instanceof L.Marker).forEach(l => {
+            let lat = l.options.latLon[0];
+            let lon = l.options.latLon[1];
+            let addr = addressesDB.filter(a => a.lat === lat).find(a => a.lon === lon).address;
+            if ( addr ) {
+                l.getPopup().setContent(generatePopupText(lat, lon, addr, l.options.rad));
+            }
+        });
+    }
+
+    let addAddressToDB = RateLimit(reverseGeocode, 1100);
+    let addAddressToPopup = RateLimit(popupUpdate, 3300);
 
 
 
@@ -25,14 +107,10 @@ function ready() {
 
     // Define free tile providers https://github.com/leaflet-extras/leaflet-providers
     let OSM = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors',
-            maxZoom: 19,
-            detectRetina: true
+            attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors'
         }),
         OSM_BW = L.tileLayer('http://{s}.tiles.wmflabs.org/bw-mapnik/{z}/{x}/{y}.png', {
-            attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors',
-            maxZoom: 19,
-            detectRetina: true
+            attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors'
         }),
         Wikimedia = L.tileLayer('https://maps.wikimedia.org/osm-intl/{z}/{x}/{y}{r}.png', {
             attribution: '<a href="https://wikimediafoundation.org/wiki/Maps_Terms_of_Use">Wikimedia</a>'
@@ -46,15 +124,15 @@ function ready() {
 
     let map = L.map('map', {
         center: latLonExample,
-        maxZoom: 18,
+        maxZoom: 19,
         zoom: 10,
-        layers: [OSM]
+        layers: [Wikimedia]
     });
 
     let baseMaps = {
+        "Wikimedia": Wikimedia,
         "OpenStreetMap": OSM,
         "OpenStreetMap Black And White": OSM_BW,
-        "Wikimedia": Wikimedia,
         "CartoDB.Positron": CartoDB_Positron,
         "Esri.WorldImagery": Esri_WorldImagery
     };
@@ -72,6 +150,20 @@ function ready() {
      * Trying to get user location
      *
      */
+
+    const UserLocation = L.Control.extend({
+        onAdd: map => {
+            const container = L.DomUtil.create("div");
+            container.innerHTML = '<div class="user-location-control">' +
+                '<span class="mdi mdi-near-me mdi-18px" title="My location"></span>' +
+                '</div>';
+            return container;
+        }
+    });
+
+    map.addControl(new UserLocation({ position: "topleft" }));
+
+    let userLocationButton = document.querySelector('.user-location-control');
 
     const getUserLocation = () => {
 
@@ -92,31 +184,33 @@ function ready() {
             map.setView([userCoords[0], userCoords[1]], 10);
             let userLocObjID = manageObjects.add( 'circle', {'latOne': userCoords[0], 'lonOne': userCoords[1], 'rad': userCoords[2]} );
             manageObjects.locateByObjectID(userLocObjID);
-
         }
 
         function error(err) {
             console.warn(`ERROR(${err.code}): ${err.message}`);
 
+            /*
+            // https://developer.mozilla.org/ru/docs/Web/API/PositionError
+            switch(error.code) {
+                case error.PERMISSION_DENIED:
+                    document.getElementById("status").innerHTML = "You did not share geolocation data.";
+                    break;
+                case error.POSITION_UNAVAILABLE:
+                    document.getElementById("status").innerHTML = "Could not detect your current position.";
+                    break;
+                case error.TIMEOUT:
+                    document.getElementById("status").innerHTML = "Your browser has timed out.";
+                    break;
+                default:
+                    document.getElementById("status").innerHTML = "An unknown error has occurred.";
+                    break;
+            }
+            */
+
         }
 
         navigator.geolocation.getCurrentPosition(success, error, options);
-
     };
-
-    const UserLocation = L.Control.extend({
-        onAdd: map => {
-            const container = L.DomUtil.create("div");
-            container.innerHTML = '<div class="user-location-control">' +
-                '<span class="mdi mdi-near-me mdi-18px" title="My location"></span>' +
-                '</div>';
-            return container;
-        }
-    });
-
-    map.addControl(new UserLocation({ position: "topleft" }));
-
-    let userLocationButton = document.querySelector('.user-location-control');
 
     userLocationButton.addEventListener('click', function () {
         getUserLocation();
@@ -631,13 +725,18 @@ function ready() {
                 if ( typeof _latOne !== 'undefined' && typeof _lonOne !== 'undefined' ) {
                     list.push(
                         markerOnePin = L.marker([_latOne,_lonOne], {
+                            id: 'first-marker-pin-' + counter,
+                            latLon: [_latOne,_lonOne],
                             icon: iconPin
                         }),
 
                         L.marker([_latOne,_lonOne], {
+                            id: 'first-marker-dot-' + counter,
+                            latLon: [_latOne,_lonOne],
                             icon: iconDot
-                        }).bindPopup(`${_latOne}°N, ${_lonOne}°E`)
+                        }).bindPopup(generatePopupText(_latOne, _lonOne))
                     );
+                    addAddressToDB(_latOne, _lonOne);
                 }
 
 
@@ -652,13 +751,18 @@ function ready() {
                         }).bindPopup(`Distance: ${_distance} m`),
 
                         L.marker([_latTwo, _lonTwo], {
+                            id: 'second-marker-pin-' + counter,
+                            latLon: [_latTwo, _lonTwo],
                             icon: iconPin
-                        }).bindPopup(`${_latTwo}°N, ${_lonTwo}°E`),
+                        }).bindPopup(generatePopupText(_latTwo, _lonTwo)),
 
                         L.marker([_latTwo, _lonTwo], {
+                            id: 'second-marker-dot-' + counter,
+                            latLon: [_latTwo, _lonTwo],
                             icon: iconDot
-                        }).bindPopup(`${_latTwo}°N, ${_lonTwo}°E`)
+                        }).bindPopup(generatePopupText(_latTwo, _lonTwo))
                     );
+                    addAddressToDB(_latTwo, _lonTwo);
                 }
 
                 if ( typeof _rad !== 'undefined' ) {
@@ -669,9 +773,10 @@ function ready() {
                         })
                     );
 
-                    markerOnePin.bindPopup(`${_latOne}°N, ${_lonOne}°E<br>Radius: ${numberWithSpaces(_rad)} m`)
+                    markerOnePin.options.rad = _rad;
+                    markerOnePin.bindPopup(generatePopupText(_latOne, _lonOne, '', _rad));
                 } else {
-                    markerOnePin.bindPopup(`${_latOne}°N, ${_lonOne}°E`)
+                    markerOnePin.bindPopup(generatePopupText(_latOne, _lonOne));
                 }
 
                 group = new L.featureGroup(list).addTo(map);
@@ -697,6 +802,8 @@ function ready() {
 
                 buttons.updateObjectsManagementButtons();
                 buttons.toggleObjectListButton();
+
+                addAddressToPopup(counter);
 
                 return counter;
             },
