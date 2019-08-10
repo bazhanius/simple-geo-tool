@@ -235,28 +235,40 @@
                 <span class="mdi mdi-github-circle mdi-24px"></span>
                 <span class="mdc-button__label">View on GitHub</span>
             </a>
+            <button id="dialog-login">Open Login Dialog</button>
         </div>
 
     </div>
 
+    <aside id="b-mdc-modal-window"
+           class="mdc-dialog"
+           role="alertdialog"
+           aria-labelledby="mdc-dialog-login-label"
+           aria-describedby="mdc-dialog-login-description">
+        <div class="mdc-dialog__surface">
+            <header class="mdc-dialog__header">
+                <h2 id="mdc-dialog-login-label" class="mdc-dialog__header__title">
+                    Share your geolocation
+                </h2>
+            </header>
+            <section id="mdc-dialog-login-description" class="mdc-dialog__body">
+                You have prevented site from using location data. Change your browser settings and try again.
+            </section>
+            <footer class="mdc-dialog__footer">
+                <button type="button" class="mdc-button mdc-dialog__footer__button--accept mdc-ripple-upgraded mdc-button--raised" data-mdc-auto-init="MDCRipple">
+                    <span class="mdi mdi-file-document mdi-18px"></span>
+                    Learn More
+                </button>
+                <button type="button" class="mdc-button mdc-dialog__footer__button--cancel mdc-ripple-upgraded mdc-button--outlined" data-mdc-auto-init="MDCRipple">
+                    <span class="mdi mdi-close mdi-18px"></span>
+                    Next Time
+                </button>
+            </footer>
+        </div>
+        <div class="mdc-dialog__backdrop"></div>
+    </aside>
+
 </div>
-
-
-<script type="text/javascript">
-
-    window.mdc.autoInit();
-
-    let tabBar = new mdc.tabBar.MDCTabBar(document.querySelector('.mdc-tab-bar'));
-    let contentEls = document.querySelectorAll('.mdc-tab-content');
-
-    tabBar.listen('MDCTabBar:activated', function(event) {
-        // Hide currently-active content
-        document.querySelector('.mdc-tab-content--active').classList.remove('mdc-tab-content--active');
-        // Show content for newly-activated tab
-        contentEls[event.detail.index].classList.add('mdc-tab-content--active');
-    });
-
-</script>
 
 </body>
 

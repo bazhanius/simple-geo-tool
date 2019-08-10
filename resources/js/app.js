@@ -22,6 +22,7 @@ function ready() {
     }
 
 
+
     /**
      *
      * Trying to get address from nominatim.openstreetmap.org
@@ -219,6 +220,7 @@ function ready() {
             */
             userLocationButtonIcon.classList.remove('mdi-loading', 'mdi-spin');
             userLocationButtonIcon.classList.add('mdi-near-me');
+            modalBackground.show();
 
         }
 
@@ -418,6 +420,11 @@ function ready() {
      * Different functions
      *
      */
+
+    function openInNewTab(url) {
+        let win = window.open(url, '_blank');
+        win.focus();
+    }
 
     const numberWithSpaces = (x) => {
         if (typeof x === 'undefined') {
@@ -910,7 +917,38 @@ function ready() {
 
 
     /**
+     *
+     * MDC different stuff
+     *
+     */
+
+    window.mdc.autoInit();
+
+    let tabBar = new mdc.tabBar.MDCTabBar(document.querySelector('.mdc-tab-bar'));
+    let contentEls = document.querySelectorAll('.mdc-tab-content');
+
+    tabBar.listen('MDCTabBar:activated', function(event) {
+        // Hide currently-active content
+        document.querySelector('.mdc-tab-content--active').classList.remove('mdc-tab-content--active');
+        // Show content for newly-activated tab
+        contentEls[event.detail.index].classList.add('mdc-tab-content--active');
+    });
+
+    const modalBackground = new mdc.dialog.MDCDialog(document.getElementById('b-mdc-modal-window'));
+    modalBackground.listen('MDCDialog:accept', function() {
+        //console.log('accepted');
+        openInNewTab('https://yandex.com/support/common/browsers-settings/')
+    });
+    modalBackground.listen('MDCDialog:cancel', function() {
+        //console.log('canceled');
+    });
+
+
+
+    /**
+     *
      * Initialize App
+     *
      */
     
     buttons.applyClickEvents();
