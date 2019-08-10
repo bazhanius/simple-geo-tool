@@ -124,7 +124,7 @@ function ready() {
 
     let map = L.map('map', {
         center: latLonExample,
-        maxZoom: 19,
+        maxZoom: 18,
         zoom: 10,
         layers: [Wikimedia]
     });
@@ -163,9 +163,17 @@ function ready() {
 
     map.addControl(new UserLocation({ position: "topleft" }));
 
-    let userLocationButton = document.querySelector('.user-location-control');
+    const userLocationButton = document.querySelector('.user-location-control');
+    const userLocationButtonIcon = userLocationButton.getElementsByTagName('SPAN')[0];
+
+    userLocationButton.addEventListener('click', function () {
+        getUserLocation();
+    });
 
     const getUserLocation = () => {
+
+        userLocationButtonIcon.classList.remove('mdi-near-me');
+        userLocationButtonIcon.classList.add('mdi-loading', 'mdi-spin');
 
         let userCoords = [];
 
@@ -184,6 +192,9 @@ function ready() {
             map.setView([userCoords[0], userCoords[1]], 10);
             let userLocObjID = manageObjects.add( 'circle', {'latOne': userCoords[0], 'lonOne': userCoords[1], 'rad': userCoords[2]} );
             manageObjects.locateByObjectID(userLocObjID);
+
+            userLocationButtonIcon.classList.remove('mdi-loading', 'mdi-spin');
+            userLocationButtonIcon.classList.add('mdi-near-me');
         }
 
         function error(err) {
@@ -206,15 +217,13 @@ function ready() {
                     break;
             }
             */
+            userLocationButtonIcon.classList.remove('mdi-loading', 'mdi-spin');
+            userLocationButtonIcon.classList.add('mdi-near-me');
 
         }
 
         navigator.geolocation.getCurrentPosition(success, error, options);
     };
-
-    userLocationButton.addEventListener('click', function () {
-        getUserLocation();
-    });
 
 
     /**
