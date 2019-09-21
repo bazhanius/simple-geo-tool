@@ -71,7 +71,7 @@ function ready() {
                     let item = {
                         'lat': lat,
                         'lon': lon,
-                        'address': myJson.display_name //+ '<br>' + myJson.licence
+                        'address': myJson.display_name //+ '<br>' + myJson.licence // will be undefilend if nominatim return error
                     };
 
                     // add address to cache
@@ -82,14 +82,16 @@ function ready() {
 
     function popupUpdate(el) {
         let index = objects.findIndex(x => x.id === el);
-        objects[index].object.getLayers().filter(l=>l instanceof L.Marker).forEach(l => {
-            let lat = l.options.latLon[0];
-            let lon = l.options.latLon[1];
-            let addr = addressesDB.filter(a => a.lat === lat).find(a => a.lon === lon).address;
-            if ( addr ) {
-                l.getPopup().setContent(generatePopupText(lat, lon, addr, l.options.rad));
-            }
-        });
+        if ( index >= 0 ) {
+            objects[index].object.getLayers().filter(l=>l instanceof L.Marker).forEach(l => {
+                let lat = l.options.latLon[0];
+                let lon = l.options.latLon[1];
+                let addr = addressesDB.filter(a => a.lat === lat).find(a => a.lon === lon).address;
+                if ( addr ) {
+                    l.getPopup().setContent(generatePopupText(lat, lon, addr, l.options.rad));
+                }
+            });
+        }
     }
 
     let addAddressToDB = RateLimit(reverseGeocode, 1100);
