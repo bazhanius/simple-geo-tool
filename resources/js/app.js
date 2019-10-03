@@ -71,7 +71,7 @@ function ready() {
                     let item = {
                         'lat': lat,
                         'lon': lon,
-                        'address': myJson.display_name //+ '<br>' + myJson.licence // will be undefilend if nominatim return error
+                        'address': myJson.display_name //+ '<br>' + myJson.licence // will be undefined if nominatim returns error
                     };
 
                     // add address to cache
@@ -928,13 +928,26 @@ function ready() {
 
     let tabBar = new mdc.tabBar.MDCTabBar(document.querySelector('.mdc-tab-bar'));
     let contentEls = document.querySelectorAll('.mdc-tab-content');
-
+    let tabNames = ['point', 'circle', 'line'];
     tabBar.listen('MDCTabBar:activated', function(event) {
         // Hide currently-active content
         document.querySelector('.mdc-tab-content--active').classList.remove('mdc-tab-content--active');
         // Show content for newly-activated tab
         contentEls[event.detail.index].classList.add('mdc-tab-content--active');
+        // Change the URL's hash with the tab name
+        history.pushState('','','?tab=' + tabNames[event.detail.index]);
     });
+    // Check if tab set to "point", "circle" or "line"
+    let searchParamValue = new URLSearchParams(location.search).get('tab');
+    if (searchParamValue === "point") {
+        tabBar.activateTab(0);
+    } else if (searchParamValue === "circle") {
+        tabBar.activateTab(1);
+    } else if (searchParamValue === "line") {
+        tabBar.activateTab(2);
+    } else {
+        history.replaceState(null, null, ' ');
+    }
 
     const modalBackground = new mdc.dialog.MDCDialog(document.getElementById('b-mdc-modal-window'));
     modalBackground.listen('MDCDialog:accept', function() {
