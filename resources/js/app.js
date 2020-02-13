@@ -129,14 +129,14 @@ function ready() {
         center: latLonExample,
         maxZoom: 18,
         zoom: 10,
-        layers: [Wikimedia]
+        layers: [OSM]
     });
 
     let baseMaps = {
-        "Wikimedia": Wikimedia,
         "OpenStreetMap": OSM,
         "OpenStreetMap Black And White": OSM_BW,
         "CartoDB.Positron": CartoDB_Positron,
+        "Wikimedia": Wikimedia,
         "Esri.WorldImagery": Esri_WorldImagery
     };
 
