@@ -30,7 +30,7 @@
     <link href="https://fonts.googleapis.com/css?family=Inconsolata&display=swap" rel="stylesheet">
 
     <!-- MDI Fonts -->
-    <link rel="stylesheet" href="https://cdn.materialdesignicons.com/3.6.95/css/materialdesignicons.min.css">
+    <link rel="stylesheet" href="https://cdn.materialdesignicons.com/5.0.45/css/materialdesignicons.min.css">
 
     <link rel="stylesheet" href="https://unpkg.com/normalize.css@8.0.1/normalize.css">
 
@@ -39,8 +39,8 @@
     <link href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css" rel="stylesheet">
 
     <!-- Material Components -->
-    <link rel="stylesheet" href="https://unpkg.com/material-components-web@0.38.2/dist/material-components-web.min.css" />
-    <script type="text/javascript" src="https://unpkg.com/material-components-web@0.38.2/dist/material-components-web.min.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/material-components-web@5.1.0/dist/material-components-web.min.css" />
+    <script type="text/javascript" src="https://unpkg.com/material-components-web@5.1.0/dist/material-components-web.min.js"></script>
 
     <link rel="stylesheet" href="resources/css/app.css">
     <script type="text/javascript" src="resources/js/app.js"></script>
@@ -110,42 +110,26 @@
 
                 <div>
 
-                    <div class="mdc-text-field" data-mdc-auto-init="MDCTextField">
-                        <input class="mdc-text-field__input" type="text" id="point-lat" pattern="^(-?[1-8]?\d(?:\.\d{1,8})?|90(?:\.0{1,8})?)$">
-                        <label for="point-lat" class="mdc-floating-label">Latitude</label>
-                        <div class="mdc-line-ripple"></div>
+                    <div class="mdc-text-field mdc-text-field--outlined" data-mdc-auto-init="MDCTextField">
+                        <input class="mdc-text-field__input" id="point-lat">
+                        <div class="mdc-notched-outline">
+                            <div class="mdc-notched-outline__leading"></div>
+                            <div class="mdc-notched-outline__notch">
+                                <label for="point-lat" class="mdc-floating-label">Latitude</label>
+                            </div>
+                            <div class="mdc-notched-outline__trailing"></div>
+                        </div>
                     </div>
 
-                    <div class="mdc-text-field" data-mdc-auto-init="MDCTextField">
-                        <input class="mdc-text-field__input" type="text" id="point-lon" pattern="^(-?(?:1[0-7]|[1-9])?\d(?:\.\d{1,8})?|180(?:\.0{1,8})?)$">
-                        <label for="point-lon" class="mdc-floating-label">Longitude</label>
-                        <div class="mdc-line-ripple"></div>
-                    </div>
-
-                </div>
-
-            </div>
-
-            <div class="mdc-tab-content">
-
-                <div>
-
-                    <div class="mdc-text-field" data-mdc-auto-init="MDCTextField">
-                        <input class="mdc-text-field__input" type="text" id="circle-lat" pattern="^(-?[1-8]?\d(?:\.\d{1,8})?|90(?:\.0{1,8})?)$">
-                        <label for="circle-lat" class="mdc-floating-label">Latitude</label>
-                        <div class="mdc-line-ripple"></div>
-                    </div>
-
-                    <div class="mdc-text-field" data-mdc-auto-init="MDCTextField">
-                        <input class="mdc-text-field__input" type="text" id="circle-lon" pattern="^(-?(?:1[0-7]|[1-9])?\d(?:\.\d{1,8})?|180(?:\.0{1,8})?)$">
-                        <label for="circle-lon" class="mdc-floating-label">Longitude</label>
-                        <div class="mdc-line-ripple"></div>
-                    </div>
-
-                    <div class="mdc-text-field" data-mdc-auto-init="MDCTextField">
-                        <input class="mdc-text-field__input" type="text" id="circle-radius" pattern="[0-9]{1,6}">
-                        <label for="circle-radius" class="mdc-floating-label">Accuracy in meters</label>
-                        <div class="mdc-line-ripple"></div>
+                    <div class="mdc-text-field mdc-text-field--outlined" data-mdc-auto-init="MDCTextField">
+                        <input class="mdc-text-field__input" id="point-lon">
+                        <div class="mdc-notched-outline">
+                            <div class="mdc-notched-outline__leading"></div>
+                            <div class="mdc-notched-outline__notch">
+                                <label for="point-lon" class="mdc-floating-label">Longitude</label>
+                            </div>
+                            <div class="mdc-notched-outline__trailing"></div>
+                        </div>
                     </div>
 
                 </div>
@@ -156,44 +140,105 @@
 
                 <div>
 
-                    <div class="mdc-text-field" data-mdc-auto-init="MDCTextField">
-                        <input class="mdc-text-field__input" type="text" id="line-lat-1" pattern="^(-?[1-8]?\d(?:\.\d{1,8})?|90(?:\.0{1,8})?)$">
-                        <label for="line-lat-1" class="mdc-floating-label">Latitude One</label>
-                        <div class="mdc-line-ripple"></div>
+                    <div class="mdc-text-field mdc-text-field--outlined" data-mdc-auto-init="MDCTextField">
+                        <input class="mdc-text-field__input" id="circle-lat">
+                        <div class="mdc-notched-outline">
+                            <div class="mdc-notched-outline__leading"></div>
+                            <div class="mdc-notched-outline__notch">
+                                <label for="circle-lat" class="mdc-floating-label">Latitude</label>
+                            </div>
+                            <div class="mdc-notched-outline__trailing"></div>
+                        </div>
                     </div>
 
-                    <div class="mdc-text-field" data-mdc-auto-init="MDCTextField">
-                        <input class="mdc-text-field__input" type="text" id="line-lon-1" pattern="^(-?(?:1[0-7]|[1-9])?\d(?:\.\d{1,8})?|180(?:\.0{1,8})?)$">
-                        <label for="line-lon-1" class="mdc-floating-label">Longitude One</label>
-                        <div class="mdc-line-ripple"></div>
+                    <div class="mdc-text-field mdc-text-field--outlined" data-mdc-auto-init="MDCTextField">
+                        <input class="mdc-text-field__input" id="circle-lon">
+                        <div class="mdc-notched-outline">
+                            <div class="mdc-notched-outline__leading"></div>
+                            <div class="mdc-notched-outline__notch">
+                                <label for="circle-lon" class="mdc-floating-label">Longitude</label>
+                            </div>
+                            <div class="mdc-notched-outline__trailing"></div>
+                        </div>
+                    </div>
+
+                    <div class="mdc-text-field mdc-text-field--outlined" data-mdc-auto-init="MDCTextField">
+                        <input class="mdc-text-field__input" id="circle-radius">
+                        <div class="mdc-notched-outline">
+                            <div class="mdc-notched-outline__leading"></div>
+                            <div class="mdc-notched-outline__notch">
+                                <label for="circle-radius" class="mdc-floating-label">Radius, meters</label>
+                            </div>
+                            <div class="mdc-notched-outline__trailing"></div>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="mdc-tab-content">
+
+                <div>
+
+                    <div class="mdc-text-field mdc-text-field--outlined" data-mdc-auto-init="MDCTextField">
+                        <input class="mdc-text-field__input" id="line-lat-1">
+                        <div class="mdc-notched-outline">
+                            <div class="mdc-notched-outline__leading"></div>
+                            <div class="mdc-notched-outline__notch">
+                                <label for="line-lat-1" class="mdc-floating-label">1st Latitude</label>
+                            </div>
+                            <div class="mdc-notched-outline__trailing"></div>
+                        </div>
+                    </div>
+
+                    <div class="mdc-text-field mdc-text-field--outlined" data-mdc-auto-init="MDCTextField">
+                        <input class="mdc-text-field__input" id="line-lon-1">
+                        <div class="mdc-notched-outline">
+                            <div class="mdc-notched-outline__leading"></div>
+                            <div class="mdc-notched-outline__notch">
+                                <label for="line-lon-1" class="mdc-floating-label">1st Longitude</label>
+                            </div>
+                            <div class="mdc-notched-outline__trailing"></div>
+                        </div>
                     </div>
 
                     <br>
 
-                    <div class="mdc-text-field" data-mdc-auto-init="MDCTextField">
-                        <input class="mdc-text-field__input" type="text" id="line-lat-2" pattern="^(-?[1-8]?\d(?:\.\d{1,8})?|90(?:\.0{1,8})?)$">
-                        <label for="line-lat-2" class="mdc-floating-label">Latitude Two</label>
-                        <div class="mdc-line-ripple"></div>
+                    <div class="mdc-text-field mdc-text-field--outlined" data-mdc-auto-init="MDCTextField">
+                        <input class="mdc-text-field__input" id="line-lat-2">
+                        <div class="mdc-notched-outline">
+                            <div class="mdc-notched-outline__leading"></div>
+                            <div class="mdc-notched-outline__notch">
+                                <label for="line-lat-2" class="mdc-floating-label">2nd Latitude</label>
+                            </div>
+                            <div class="mdc-notched-outline__trailing"></div>
+                        </div>
                     </div>
 
-                    <div class="mdc-text-field" data-mdc-auto-init="MDCTextField">
-                        <input class="mdc-text-field__input" type="text" id="line-lon-2" pattern="^(-?(?:1[0-7]|[1-9])?\d(?:\.\d{1,8})?|180(?:\.0{1,8})?)$">
-                        <label for="line-lon-2" class="mdc-floating-label">Longitude Two</label>
-                        <div class="mdc-line-ripple"></div>
+                    <div class="mdc-text-field mdc-text-field--outlined" data-mdc-auto-init="MDCTextField">
+                        <input class="mdc-text-field__input" id="line-lon-2">
+                        <div class="mdc-notched-outline">
+                            <div class="mdc-notched-outline__leading"></div>
+                            <div class="mdc-notched-outline__notch">
+                                <label for="line-lon-2" class="mdc-floating-label">2nd Longitude</label>
+                            </div>
+                            <div class="mdc-notched-outline__trailing"></div>
+                        </div>
                     </div>
 
                 </div>
 
             </div>
 
-            <button id="button-add-to-map" class="mdc-button mdc-ripple-upgraded mdc-button--raised" data-mdc-auto-init="MDCRipple" disabled>
+            <button id="button-add-to-map" class="mdc-button mdc-button--raised" data-mdc-auto-init="MDCRipple" disabled>
                 <span class="mdi mdi-map-marker-plus mdi-18px"></span>
-                <span class="mdc-button__label">Add to Map</span>
+                <span class="mdc-button__ripple"></span> Add to Map
             </button>
 
-            <button id="button-clear-fields" class="mdc-button mdc-ripple-upgraded mdc-button--outlined" data-mdc-auto-init="MDCRipple" disabled>
+            <button id="button-clear-fields" class="mdc-button mdc-button--outlined" data-mdc-auto-init="MDCRipple" disabled>
                 <span class="mdi mdi-close mdi-18px"></span>
-                <span class="mdc-button__label">Clear All</span>
+                <span class="mdc-button__ripple"></span> Clear All
             </button>
 
             <div class="meta">Hint: Alternatively, you can add object by selecting type of object in the tab bar, then hold down the shift key while left-clicking on the map. Click once to add point, and twice for others.</div>
@@ -202,14 +247,14 @@
 
             <div class="b-all-objects-management">
 
-                <button id="button-objects-zoom-all" class="mdc-button mdc-ripple-upgraded mdc-button--raised" data-mdc-auto-init="MDCRipple" disabled>
+                <button id="button-objects-zoom-all" class="mdc-button mdc-button--raised" data-mdc-auto-init="MDCRipple" disabled>
                     <span class="mdi mdi-select-all mdi-18px"></span>
-                    <span class="mdc-button__label">Zoom All</span>
+                    <span class="mdc-button__ripple"></span> Zoom All
                 </button>
 
-                <button id="button-objects-delete-all" class="mdc-button mdc-ripple-upgraded mdc-button--outlined" data-mdc-auto-init="MDCRipple" disabled>
+                <button id="button-objects-delete-all" class="mdc-button mdc-button--outlined" data-mdc-auto-init="MDCRipple" disabled>
                     <span class="mdi mdi-delete-forever mdi-18px"></span>
-                    <span class="mdc-button__label">Delete All</span>
+                    <span class="mdc-button__ripple"></span> Delete All
                 </button>
 
             </div>
@@ -231,41 +276,40 @@
         </div>
 
         <div class="footer">
-            <a class="mdc-button mdc-ripple-upgraded" data-mdc-auto-init="MDCRipple" href="https://github.com/bazhanius/simple-geo-tool/">
-                <span class="mdi mdi-github-circle mdi-24px"></span>
-                <span class="mdc-button__label">View on GitHub</span>
+            <a class="mdc-button" href="https://github.com/bazhanius/simple-geo-tool/" data-mdc-auto-init="MDCRipple">
+                <span class="mdi mdi-github mdi-24px"></span>
+                <span class="mdc-button__ripple"></span> View on GitHub
             </a>
         </div>
 
     </div>
 
-    <aside id="b-mdc-modal-window"
-           class="mdc-dialog"
-           role="alertdialog"
-           aria-labelledby="mdc-dialog-login-label"
-           aria-describedby="mdc-dialog-login-description">
-        <div class="mdc-dialog__surface">
-            <header class="mdc-dialog__header">
-                <h2 id="mdc-dialog-login-label" class="mdc-dialog__header__title">
-                    Share your geolocation
-                </h2>
-            </header>
-            <section id="mdc-dialog-login-description" class="mdc-dialog__body">
-                You have prevented site from using location data. Change your browser settings and try again.
-            </section>
-            <footer class="mdc-dialog__footer">
-                <button type="button" class="mdc-button mdc-dialog__footer__button--accept mdc-ripple-upgraded mdc-button--raised" data-mdc-auto-init="MDCRipple">
-                    <span class="mdi mdi-file-document mdi-18px"></span>
-                    Learn More
-                </button>
-                <button type="button" class="mdc-button mdc-dialog__footer__button--cancel mdc-ripple-upgraded mdc-button--outlined" data-mdc-auto-init="MDCRipple">
-                    <span class="mdi mdi-close mdi-18px"></span>
-                    Next Time
-                </button>
-            </footer>
+
+    <div id="b-mdc-modal-window" class="mdc-dialog">
+        <div class="mdc-dialog__container">
+            <div class="mdc-dialog__surface"
+                 role="alertdialog"
+                 aria-modal="true"
+                 aria-labelledby="my-dialog-title"
+                 aria-describedby="my-dialog-content">
+                <h2 class="mdc-dialog__title" id="my-dialog-title">Share your geolocation</h2>
+                <div class="mdc-dialog__content" id="my-dialog-content">
+                    You have prevented site from using location data. Change your browser settings and try again.
+                </div>
+                <footer class="mdc-dialog__actions">
+                    <button id="dialog-confirm" type="button" class="mdc-button mdc-dialog__button mdc-dialog__button--default mdc-button--raised" data-mdc-dialog-action="accept">
+                        <span class="mdi mdi-file-document mdi-18px"></span>
+                        Learn more
+                    </button>
+                    <button id="dialog-cancel" type="button" class="mdc-button mdc-dialog__button mdc-button--outlined" data-mdc-dialog-action="close">
+                        <span class="mdi mdi-close mdi-18px"></span>
+                        Next time
+                    </button>
+                </footer>
+            </div>
         </div>
-        <div class="mdc-dialog__backdrop"></div>
-    </aside>
+        <div class="mdc-dialog__scrim"></div>
+    </div>
 
 </div>
 

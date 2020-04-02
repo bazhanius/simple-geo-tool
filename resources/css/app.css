@@ -107,7 +107,7 @@ h3 {
 
 .mdc-text-field {
     width: 100px;
-    margin-right: 10px;
+    margin: 10px 10px 5px 0;
 }
 
 .mdc-text-field--upgraded:not(.mdc-text-field--fullwidth):not(.mdc-text-field--box) {

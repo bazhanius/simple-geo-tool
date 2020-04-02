@@ -222,7 +222,7 @@ function ready() {
             */
             userLocationButtonIcon.classList.remove('mdi-loading', 'mdi-spin');
             userLocationButtonIcon.classList.add('mdi-near-me');
-            modalBackground.show();
+            modalBackground.open();
 
         }
 
@@ -436,10 +436,6 @@ function ready() {
         }
     };
 
-    const getActiveTabName = () => {
-        return document.querySelector('.mdc-tab--active').getAttribute('data-tab-name');
-    };
-
 
 
     /**
@@ -628,42 +624,15 @@ function ready() {
                 if ( type === 'point' ) {
                     _pointFieldLat.value = '';
                     _pointFieldLon.value = '';
-                    _pointFieldLat.parentNode.getElementsByTagName('label')[0].classList.remove('mdc-floating-label--float-above');
-                    _pointFieldLon.parentNode.getElementsByTagName('label')[0].classList.remove('mdc-floating-label--float-above');
-                    _pointFieldLat.parentNode.classList.remove('mdc-text-field--invalid');
-                    _pointFieldLon.parentNode.classList.remove('mdc-text-field--invalid');
-                    //_pointFieldLat.parentNode.classList.remove('mdc-text-field--focused');
-                    //_pointFieldLon.parentNode.classList.remove('mdc-text-field--focused');
                 } else if ( type === 'circle' ) {
                     _circleFieldLat.value = '';
                     _circleFieldLon.value = '';
                     _circleFieldRad.value = '';
-                    _circleFieldLat.parentNode.getElementsByTagName('label')[0].classList.remove('mdc-floating-label--float-above');
-                    _circleFieldLon.parentNode.getElementsByTagName('label')[0].classList.remove('mdc-floating-label--float-above');
-                    _circleFieldRad.parentNode.getElementsByTagName('label')[0].classList.remove('mdc-floating-label--float-above');
-                    _circleFieldLat.parentNode.classList.remove('mdc-text-field--invalid');
-                    _circleFieldLon.parentNode.classList.remove('mdc-text-field--invalid');
-                    _circleFieldRad.parentNode.classList.remove('mdc-text-field--invalid');
-                    //_circleFieldLat.parentNode.classList.remove('mdc-text-field--focused');
-                    //_circleFieldLon.parentNode.classList.remove('mdc-text-field--focused');
-                    //_circleFieldRad.parentNode.classList.remove('mdc-text-field--focused');
                 } else if ( type === 'line' ) {
                     _lineFieldLatOne.value = '';
                     _lineFieldLonOne.value = '';
                     _lineFieldLatTwo.value = '';
                     _lineFieldLonTwo.value = '';
-                    _lineFieldLatOne.parentNode.getElementsByTagName('label')[0].classList.remove('mdc-floating-label--float-above');
-                    _lineFieldLonOne.parentNode.getElementsByTagName('label')[0].classList.remove('mdc-floating-label--float-above');
-                    _lineFieldLatTwo.parentNode.getElementsByTagName('label')[0].classList.remove('mdc-floating-label--float-above');
-                    _lineFieldLonTwo.parentNode.getElementsByTagName('label')[0].classList.remove('mdc-floating-label--float-above');
-                    _lineFieldLatOne.parentNode.classList.remove('mdc-text-field--invalid');
-                    _lineFieldLonOne.parentNode.classList.remove('mdc-text-field--invalid');
-                    _lineFieldLatTwo.parentNode.classList.remove('mdc-text-field--invalid');
-                    _lineFieldLonTwo.parentNode.classList.remove('mdc-text-field--invalid');
-                    //_lineFieldLatOne.parentNode.classList.remove('mdc-text-field--focused');
-                    //_lineFieldLonOne.parentNode.classList.remove('mdc-text-field--focused');
-                    //_lineFieldLatTwo.parentNode.classList.remove('mdc-text-field--focused');
-                    //_lineFieldLonTwo.parentNode.classList.remove('mdc-text-field--focused');
                 }
             },
 
@@ -885,7 +854,7 @@ function ready() {
 
     tabsNodeList.forEach(function(el){
         el.addEventListener('click', function () {
-            let currentTabName = getActiveTabName();
+            let currentTabName = this.getAttribute('data-tab-name');
             buttons.toggleAddToMapButtons(currentTabName);
 
             // Clear all temp objects on map
@@ -929,7 +898,9 @@ function ready() {
     let tabBar = new mdc.tabBar.MDCTabBar(document.querySelector('.mdc-tab-bar'));
     let contentEls = document.querySelectorAll('.mdc-tab-content');
     let tabNames = ['point', 'circle', 'line'];
+    let currentTab = 'point';
     tabBar.listen('MDCTabBar:activated', function(event) {
+        currentTab = tabNames[event.detail.index];
         // Hide currently-active content
         document.querySelector('.mdc-tab-content--active').classList.remove('mdc-tab-content--active');
         // Show content for newly-activated tab
@@ -937,26 +908,35 @@ function ready() {
         // Change the URL's hash with the tab name
         history.pushState('','','?tab=' + tabNames[event.detail.index]);
     });
+    const getActiveTabName = () => {
+        return currentTab;
+    };
     // Check if tab set to "point", "circle" or "line"
     let searchParamValue = new URLSearchParams(location.search).get('tab');
-    if (searchParamValue === "point") {
+    if (searchParamValue === 'point') {
         tabBar.activateTab(0);
-    } else if (searchParamValue === "circle") {
+        currentTab = 'point';
+    } else if (searchParamValue === 'circle') {
         tabBar.activateTab(1);
-    } else if (searchParamValue === "line") {
+        currentTab = 'circle';
+    } else if (searchParamValue === 'line') {
         tabBar.activateTab(2);
+        currentTab = 'line';
     } else {
         history.replaceState(null, null, ' ');
     }
 
-    const modalBackground = new mdc.dialog.MDCDialog(document.getElementById('b-mdc-modal-window'));
-    modalBackground.listen('MDCDialog:accept', function() {
-        //console.log('accepted');
+    const dialogElement = document.querySelector('#b-mdc-modal-window');
+    const modalBackground = new mdc.dialog.MDCDialog(dialogElement);
+
+    dialogElement.querySelector('#dialog-confirm').onclick = function () {
         openInNewTab('https://yandex.com/support/common/browsers-settings/')
-    });
-    modalBackground.listen('MDCDialog:cancel', function() {
-        //console.log('canceled');
-    });
+        modalBackground.close();
+    };
+
+    dialogElement.querySelector('#dialog-cancel').onclick = function () {
+        modalBackground.close();
+    };
 
 
 
