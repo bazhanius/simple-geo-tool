@@ -230,6 +230,152 @@ function ready() {
     };
 
 
+
+    /**
+     *
+     * Add ruler control
+     *
+     */
+
+    const ruler = L.Control.extend({
+        onAdd: map => {
+            const container = L.DomUtil.create('div');
+            L.DomEvent.disableClickPropagation(container);
+            container.innerHTML = '<div class="ruler-control">' +
+                '<div class="ruler-control-polyline mdi mdi-vector-line mdi-18px" title="Ruler"></div>' +
+                //'<div class="ruler-control-polygon mdi mdi-vector-polygon mdi-18px" title="Area"></div>' +
+                '</div>';
+            return container;
+        }
+    });
+
+    map.addControl(new ruler({ position: "topleft" }));
+
+    const rulerButtonPolyline = document.querySelector('.ruler-control-polyline');
+    let rulerButtonEnabled = false;
+    let rulerPolyline = new L.featureGroup().addTo(map);
+    let rulerPolylineLatLngs = [];
+
+    rulerButtonPolyline.addEventListener('click', function () {
+        if (rulerButtonEnabled === false) {
+            rulerButtonPolyline.classList.add("ruler-control__active");
+            L.DomUtil.addClass(map._container,'crosshair-cursor-enabled');
+            rulerButtonEnabled = true;
+        } else {
+            rulerButtonPolyline.classList.remove("ruler-control__active");
+            L.DomUtil.removeClass(map._container,'crosshair-cursor-enabled');
+            rulerButtonEnabled = false;
+            rulerPolyline.clearLayers();
+            rulerPolylineLatLngs = [];
+        }
+    });
+
+    const getMarkersInFeatureGroup = (obj) => {
+        let arr = [];
+        obj.eachLayer(function (layer) {
+            if (layer instanceof L.Marker) {
+                arr.push(layer.getLatLng());
+            }
+        });
+        return [arr]
+    };
+
+    const drawRulerPolyline = (lat, lon) => {
+
+        if (lat && lon) {
+            let IconDot = L.divIcon({
+                className: 'marker-icon-pin',
+                html: "<div class='ruler-marker-pin'></div>",
+                iconSize: [15, 15],
+                iconAnchor: [0, 0]
+            });
+
+            let marker = L.marker([lat, lon], {
+                icon: IconDot,
+                draggable: true,
+                autoPan: true
+            })
+                .addTo(map)
+                .on('drag', drawRulerPolyline)
+                .on('dragend', measureDistanceInPolyline);
+
+            rulerPolyline.addLayer(marker);
+        }
+
+        rulerPolylineLatLngs = getMarkersInFeatureGroup(rulerPolyline);
+
+        if (rulerPolylineLatLngs.length === 1) {
+            rulerPolyline.addLayer(
+                L.polyline(rulerPolylineLatLngs, {
+                    fillColor: '#fff',
+                    fillOpacity: 0.5,
+                    weight: 3,
+                    opacity: 0.9,
+                    color: '#838996'
+                }).addTo(map)
+            );
+        }
+
+        rulerPolyline.eachLayer(function (layer) {
+
+            if (layer instanceof L.Polyline) {
+                layer.setLatLngs(rulerPolylineLatLngs);
+            }
+
+        });
+
+        measureDistanceInPolyline();
+
+    };
+
+    const measureDistanceInPolyline = () => {
+        let _distance = 0;
+        let _previousPoint = null;
+        rulerPolyline.eachLayer(function (layer) {
+            if (layer instanceof L.Marker) {
+                let _latLng = layer.getLatLng();
+                if (_previousPoint) {
+                    _distance += _previousPoint.distanceTo(_latLng);
+                }
+                _previousPoint = _latLng;
+                layer.bindPopup('<strong>' +
+                    numberWithSpaces(_distance.toFixed(0))
+                    + ' m</strong>' +
+                    `<span id="ruler-id-${layer._leaflet_id}" class="mdi mdi-icon-button mdi-delete-forever mdi-12px"></span>`,{
+                    className : 'ruler-marker-pin-popup',
+                    offset: [0, -12],
+                    minWidth: 20,
+                    closeButton: false
+                })
+                    .addTo(map)
+                    .openPopup();
+            }
+        });
+    };
+
+    //rulerPolyline.on("click", (e) => {
+        //console.log("Clicked on marker " + e.layer._leaflet_id);
+    //});
+
+    map.on('popupopen', (e) => {
+        let _popupID = e.popup._source._leaflet_id;
+        let _popupDelButton = document.getElementById('ruler-id-' + _popupID);
+        if (_popupDelButton) {
+            _popupDelButton.addEventListener('click', function () {
+                rulerPolyline.removeLayer(_popupID);
+                drawRulerPolyline();
+            });
+        }
+    });
+
+    map.on('click', function(e) {
+        if (rulerButtonEnabled && !shift) {
+            drawRulerPolyline(e.latlng.lat, e.latlng.lng);
+        }
+    });
+
+
+
     /**
      *
      * Add object by clicking on map
@@ -300,7 +446,7 @@ function ready() {
             }
 
 
-            if ( currentTabName === 'circle' && shift) {
+            if ( currentTabName === 'circle' && shift ) {
                 if ( tempCoords.length === 2 ) {
 
                     tempCircle = L.circle([tempCoords[0], tempCoords[1]], {

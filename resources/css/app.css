@@ -202,6 +202,60 @@ h3 {
     background:rgba(51, 136, 255,0.95);
 }
 
+.ruler-marker-pin {
+    position: absolute;
+    width: 13px;
+    height: 13px;
+    top: -8.5px;
+    left: -8.5px;
+    border: 1px solid #fff;
+    background-color: #fff;
+    border-radius: 50% 50% 50% 50%;
+    box-shadow: inset 0 0 0 2px #838996;
+}
+
+.ruler-marker-pin-popup {
+    font-size: 14px;
+    line-height: 16px;
+    border: 1px solid #fff;
+    background-color: #fff;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px 0 rgba(0, 0, 0, .3);
+    padding: 3px 6px;
+    margin: 0;
+}
+
+.ruler-marker-pin-popup strong {
+    font-weight: 600;
+}
+
+.ruler-marker-pin-popup span {
+    width: 14px;
+    height: 14px;
+    margin-left: 6px;
+    padding: 2px 2px 0 2px;
+    color: var(--mdc-theme-primary, #6200ee);
+}
+
+.ruler-marker-pin-popup span:hover {
+    color: red;
+    cursor: pointer;
+}
+
+.ruler-marker-pin-popup .leaflet-popup-tip,
+.ruler-marker-pin-popup .leaflet-popup-tip-container {
+    opacity: 0;
+}
+.ruler-marker-pin-popup .leaflet-popup-content,
+.ruler-marker-pin-popup .leaflet-popup-content-wrapper {
+    width: auto;
+    background: transparent;
+    border: 0;
+    border-radius: unset;
+    box-shadow: none;
+    padding: 0;
+    margin: 0;
+}
 
 
 /* MDC Tabs */
@@ -291,6 +345,48 @@ a > .mdc-button__label {
 .user-location-control:hover {
     background-color: #f4f4f4;
     cursor: pointer;
+}
+
+.ruler-control {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    border: 2px solid rgba(0, 0, 0, 0.2);
+    border-radius: 4px;
+    background-clip: padding-box;
+    background-color: rgba(255, 255, 255, 1.0);
+}
+
+.ruler-control div {
+    width: 30px;
+    height: 30px;
+    border-bottom: 1px solid #ccc;
+    background-position: 50% 50%;
+    background-repeat: no-repeat;
+    display: block;
+    text-align: center;
+    line-height: 30px;
+}
+
+.ruler-control div:first-child {
+    border-top-left-radius: 2px;
+    border-top-right-radius: 2px;
+}
+
+.ruler-control div:last-child {
+    border-bottom-left-radius: 2px;
+    border-bottom-right-radius: 2px;
+    border-bottom: 0;
+}
+
+.ruler-control div:hover {
+    background-color: #f4f4f4;
+    cursor: pointer;
+}
+
+.ruler-control__active {
+    color: var(--mdc-theme-primary, #6200ee);
 }
 
 .leaflet-container.crosshair-cursor-enabled {
