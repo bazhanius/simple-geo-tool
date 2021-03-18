@@ -157,6 +157,7 @@ function ready() {
     const UserLocation = L.Control.extend({
         onAdd: map => {
             const container = L.DomUtil.create("div");
+            L.DomEvent.disableClickPropagation(container);
             container.innerHTML = '<div class="user-location-control">' +
                 '<span class="mdi mdi-near-me mdi-18px" title="My location"></span>' +
                 '</div>';
