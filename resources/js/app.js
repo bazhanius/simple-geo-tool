@@ -157,6 +157,7 @@ function ready() {
     const UserLocation = L.Control.extend({
         onAdd: map => {
             const container = L.DomUtil.create("div");
+            L.DomEvent.disableClickPropagation(container);
             container.innerHTML = '<div class="user-location-control">' +
                 '<span class="mdi mdi-near-me mdi-18px" title="My location"></span>' +
                 '</div>';
@@ -786,23 +787,23 @@ function ready() {
                 if ( type === 'point' ) {
                     let allGood = [0,0];
                     let v = inputFields.getValues('point');
-                    v.lat && !isNaN(v.lat) && v.lat >= -90  && v.lat <= 90  ? allGood[0] = 1 : allGood[0] = 0;
-                    v.lon && !isNaN(v.lon) && v.lon >= -180 && v.lon <= 180 ? allGood[1] = 1 : allGood[1] = 0;
+                    v.lat && !isNaN(v.lat) && Math.abs(v.lat) <= 90  ? allGood[0] = 1 : allGood[0] = 0;
+                    v.lon && !isNaN(v.lon) && Math.abs(v.lon) <= 180 ? allGood[1] = 1 : allGood[1] = 0;
                     return allGood;
                 } else if ( type === 'circle' ) {
                     let allGood = [0,0,0];
                     let v = inputFields.getValues('circle');
-                    v.lat && !isNaN(v.lat) && v.lat >= -90  && v.lat <= 90  ? allGood[0] = 1 : allGood[0] = 0;
-                    v.lon && !isNaN(v.lon) && v.lon >= -180 && v.lon <= 180 ? allGood[1] = 1 : allGood[1] = 0;
+                    v.lat && !isNaN(v.lat) && Math.abs(v.lat) <= 90  ? allGood[0] = 1 : allGood[0] = 0;
+                    v.lon && !isNaN(v.lon) && Math.abs(v.lon) <= 180 ? allGood[1] = 1 : allGood[1] = 0;
                     v.rad && !isNaN(v.rad) && v.rad > 0 && v.rad <=1000000  ? allGood[2] = 1 : allGood[2] = 0;
                     return allGood;
                 } else if ( type === 'line' ) {
                     let allGood = [0,0,0,0];
                     let v = inputFields.getValues('line');
-                    v.latOne && !isNaN(v.latOne) && v.latOne >= -90  && v.latOne <= 90  ? allGood[0] = 1 : allGood[0] = 0;
-                    v.lonOne && !isNaN(v.lonOne) && v.lonOne >= -180 && v.lonOne <= 180 ? allGood[1] = 1 : allGood[1] = 0;
-                    v.latTwo && !isNaN(v.latTwo) && v.latTwo >= -90  && v.latTwo <= 90  ? allGood[2] = 1 : allGood[2] = 0;
-                    v.lonTwo && !isNaN(v.lonTwo) && v.lonTwo >= -180 && v.lonTwo <= 180 ? allGood[3] = 1 : allGood[3] = 0;
+                    v.latOne && !isNaN(v.latOne) && Math.abs(v.latOne) <= 90  ? allGood[0] = 1 : allGood[0] = 0;
+                    v.lonOne && !isNaN(v.lonOne) && Math.abs(v.lonOne) <= 180 ? allGood[1] = 1 : allGood[1] = 0;
+                    v.latTwo && !isNaN(v.latTwo) && Math.abs(v.latTwo) <= 90  ? allGood[2] = 1 : allGood[2] = 0;
+                    v.lonTwo && !isNaN(v.lonTwo) && Math.abs(v.lonTwo) <= 180 ? allGood[3] = 1 : allGood[3] = 0;
                     return allGood;
                 } else {
                     return [];
