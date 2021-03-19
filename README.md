@@ -21,6 +21,7 @@ Try it on GitHub Pages: https://bazhanius.github.io/simple-geo-tool/
   - selecting tile layers (OpenStreetMap, Wikimedia etc.)
   - geolocating current position of the device
   - show address (geocoding) in popup of object's markers
+  - ruler for measure distance
 
 #### Dependencies
 - [Leaflet](https://github.com/Leaflet/Leaflet)
