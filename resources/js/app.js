@@ -111,7 +111,11 @@ function ready() {
      *
      */
 
-    let latLonExample = [55.752318, 37.619814];
+    let lastLanStored = localStorage.getItem('lastClickLat');
+    let lastLonStored = localStorage.getItem('lastClickLon');
+    let latLonExample = lastLanStored && lastLonStored
+        ? [lastLanStored, lastLonStored]
+        : [55.752318, 37.619814];
 
 
     // Define free tile providers https://github.com/leaflet-extras/leaflet-providers
@@ -151,6 +155,11 @@ function ready() {
 
     // Add scale control
     L.control.scale().addTo(map);
+
+    map.on('click', (e) => {
+        localStorage.setItem('lastClickLat', e.latlng.lat);
+        localStorage.setItem('lastClickLon', e.latlng.lng);
+    });
 
 
 
