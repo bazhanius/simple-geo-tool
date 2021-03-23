@@ -67,7 +67,7 @@
                     <div class="mdc-tab-scroller__scroll-area">
                         <div class="mdc-tab-scroller__scroll-content">
 
-                            <button class="mdc-tab mdc-tab--active" data-tab-name="point" role="tab" aria-selected="true">
+                            <button class="mdc-tab mdc-tab--stacked mdc-tab--active" data-tab-name="point" role="tab" aria-selected="true">
                                 <span class="mdc-tab__content">
                                     <span class="mdc-tab__icon mdi mdi-map-marker mdi-24px" aria-hidden="true"></span>
                                     <span class="mdc-tab__text-label">Point</span>
@@ -78,7 +78,7 @@
                                 <span class="mdc-tab__ripple"></span>
                             </button>
 
-                            <button class="mdc-tab" data-tab-name="circle" role="tab" aria-selected="false" tabindex="-1">
+                            <button class="mdc-tab mdc-tab--stacked" data-tab-name="circle" role="tab" aria-selected="false" tabindex="-1">
                                 <span class="mdc-tab__content">
                                     <span class="mdc-tab__icon mdi mdi-map-marker-radius mdi-24px" aria-hidden="true"></span>
                                     <span class="mdc-tab__text-label">Circle</span>
@@ -89,10 +89,21 @@
                                 <span class="mdc-tab__ripple"></span>
                             </button>
 
-                            <button class="mdc-tab" data-tab-name="line" role="tab" aria-selected="false" tabindex="-1">
+                            <button class="mdc-tab mdc-tab--stacked" data-tab-name="line" role="tab" aria-selected="false" tabindex="-1">
                                 <span class="mdc-tab__content">
                                     <span class="mdc-tab__icon mdi mdi-map-marker-distance mdi-24px" aria-hidden="true"></span>
                                     <span class="mdc-tab__text-label">Line</span>
+                                </span>
+                                <span class="mdc-tab-indicator">
+                                    <span class="mdc-tab-indicator__content mdc-tab-indicator__content--underline"></span>
+                                </span>
+                                <span class="mdc-tab__ripple"></span>
+                            </button>
+
+                            <button class="mdc-tab mdc-tab--stacked" data-tab-name="array" role="tab" aria-selected="false" tabindex="-1">
+                                <span class="mdc-tab__content">
+                                    <span class="mdc-tab__icon mdi mdi-code-brackets mdi-24px" aria-hidden="true"></span>
+                                    <span class="mdc-tab__text-label">Array</span>
                                 </span>
                                 <span class="mdc-tab-indicator">
                                     <span class="mdc-tab-indicator__content mdc-tab-indicator__content--underline"></span>
@@ -231,6 +242,27 @@
 
             </div>
 
+            <div class="mdc-tab-content">
+
+                <div>
+
+                    <div class="mdc-text-field mdc-text-field--outlined mdc-text-field--fullwidth mdc-text-field--textarea" data-mdc-auto-init="MDCTextField">
+                        <span class="mdc-text-field__resizer">
+                            <textarea class="mdc-text-field__input" id="array-of-coordinates" rows="4" aria-label="Array"></textarea>
+                        </span>
+                        <div class="mdc-notched-outline">
+                            <div class="mdc-notched-outline__leading"></div>
+                            <div class="mdc-notched-outline__notch">
+                                <label for="array-of-coordinates" class="mdc-floating-label">Array of coordinates</label>
+                            </div>
+                            <div class="mdc-notched-outline__trailing"></div>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+
             <button id="button-add-to-map" class="mdc-button mdc-button--raised" data-mdc-auto-init="MDCRipple" disabled>
                 <span class="mdi mdi-map-marker-plus mdi-18px"></span>
                 <span class="mdc-button__ripple"></span> Add to Map
@@ -241,7 +273,14 @@
                 <span class="mdc-button__ripple"></span> Clear All
             </button>
 
-            <div class="meta">Hint: Alternatively, you can add object by selecting type of object in the tab bar, then hold down the shift key while left-clicking on the map. Click once to add point, and twice for others.</div>
+            <div class="meta">
+                <div id="hint-about-shift-key" class="meta-content"><strong>Hint:</strong> Alternatively, you can add object by selecting type of object in the tab bar, then hold down the shift key while left-clicking on the map. Click once to add point, and twice for circle and line.</div>
+                <div id="hint-about-array-of-coords" class="meta-content meta-content__hidden">
+                    <strong>Hint:</strong> One or more array of coordinates comma separated in square brackets.<br>
+                    Type <code>[lat, lon]</code> for point, <code>[lat, lon, rad]</code> for circle, and <code>[[lat1, lon1], [lat2, lon2]]</code> for line.
+                    Use any combination of these, such as <code>[[lat, lon, rad], [lat, lon]]</code>, to add circle and point at the same time.
+                </div>
+            </div>
 
             <h3>Objects</h3>
 
@@ -309,6 +348,21 @@
             </div>
         </div>
         <div class="mdc-dialog__scrim"></div>
+    </div>
+
+    <div id="b-mdc-snackbar" class="mdc-snackbar">
+        <div class="mdc-snackbar__surface" role="status" aria-relevant="additions">
+            <div id="b-mdc-snackbar-content" class="mdc-snackbar__label" aria-atomic="false">
+                Added <strong>10</strong> point(s), <strong>100</strong> circle(s) and <strong>1</strong> line(s).<br>
+                Skipped <strong>3</strong> elements.
+            </div>
+            <div class="mdc-snackbar__actions" aria-atomic="true">
+                <button type="button" class="mdc-button mdc-snackbar__action">
+                    <div class="mdc-button__ripple"></div>
+                    <span class="mdc-button__label">NICE</span>
+                </button>
+            </div>
+        </div>
     </div>
 
 </div>

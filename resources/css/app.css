@@ -114,6 +114,27 @@ h3 {
     margin-top: 0;
 }
 
+.mdc-text-field.mdc-text-field--fullwidth {
+    width: 100%;
+}
+
+.mdc-text-field+.mdc-text-field-helper-line {
+    padding: 0;
+}
+
+.mdc-text-field-helper-text {
+    padding: 0 0 6px 0;
+}
+
+code {
+    font-family: 'Inconsolata', monospace;
+    font-weight: 400;
+    background-color: #eee;
+    border-radius: 3px;
+    padding: 0 3px;
+    white-space: nowrap;
+}
+
 
 
 /* Table with list of objects */
@@ -302,11 +323,25 @@ a > .mdc-button__label {
 }
 
 .meta {
-    color: #999;
-    padding: 1.2rem 0 1.8rem 0;
-    font-size: smaller;
+    color: #555;
+    border: 1px solid rgba(255, 255, 0, 0.3);
+    background-color: rgba(255, 255, 0, 0.1);
+    border-radius: 4px;
+    padding: 8px 16px;
+    margin: 10px 0 16px;
     font-weight: 300;
-    max-width: calc(60vh);
+    line-height: 1.5rem;
+}
+.meta:hover {
+    color: #333;
+}
+
+.meta-content {
+    display: block;
+}
+
+.meta-content.meta-content__hidden {
+    display: none;
 }
 
 
@@ -452,4 +487,26 @@ a > .mdc-button__label {
 
 .mdc-dialog__footer > button {
     outline: none !important;
+}
+
+
+/* MDC Snackbar*/
+.mdc-snackbar {
+    z-index: 9999;
+    margin-bottom: 40px;
+}
+
+.mdc-snackbar__label {
+    font-size: unset;
+    margin-right: 10px;
+    line-height: 1.5rem;
+}
+
+.mdc-snackbar__action {
+    color: white;
+}
+
+.mdc-snackbar__action:hover {
+    color: white;
+    background-color: rgb(59,59,59);
 }
