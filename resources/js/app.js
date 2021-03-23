@@ -493,7 +493,7 @@ function ready() {
 
     map.on('click', function(e) {
 
-        if (shift) {
+        if (shift && currentTab !== 'array') {
 
             let currentTabName = getActiveTabName();
 
@@ -594,7 +594,7 @@ function ready() {
 
     map.on("mousemove", e => {
 
-        if (!tempCoords[0] && shift && tempLine) {
+        if (!tempCoords[0] && shift && tempLine && currentTab !== 'array') {
             tempSecondMarkerPin.setLatLng([e.latlng.lat.toFixed(6), e.latlng.lng.toFixed(6)]);
             tempSecondMarkerDot.setLatLng([e.latlng.lat.toFixed(6), e.latlng.lng.toFixed(6)]);
         }
@@ -651,6 +651,37 @@ function ready() {
         }
     };
 
+    const isLatitude  = num => !isNaN(num) && num !== '' && Math.abs(num) <= 90;
+    const isLongitude = num => !isNaN(num) && num !== '' && Math.abs(num) <= 180;
+
+    const isJSON = (str) => {
+        if (str.length < 5) {
+            return false;
+        }
+        try {
+            return (JSON.parse(str));
+        } catch (e) {
+            return false;
+        }
+    };
+
+    // Check [lat1, lon1] or [lat1, lon1, rad] or [[lat1, lon1], [lat2, lon2]] -> point or circle or line
+    const typeOfObject = (arr) => {
+        let objectsInArray = arr.length;
+        if (objectsInArray === 2) {
+            if (isLatitude(arr[0]) && isLongitude(arr[1])) {
+                return 'point';
+            } else if (typeOfObject(arr[0]) === 'point' && typeOfObject(arr[1]) === 'point') {
+                return 'line';
+            }
+        }
+        if (objectsInArray === 3 && isLatitude(arr[0]) && isLongitude(arr[1])
+            && !isNaN(arr[2]) && arr[2] > 0 && arr[2] <= 1000000) {
+            return 'circle';
+        }
+        return 'undefined';
+    };
+
 
 
     /**
@@ -677,14 +708,53 @@ function ready() {
                     let currentTabName = getActiveTabName();
                     let values = inputFields.getValues(currentTabName);
                     let objLocID;
+                    let counters = {'points': 0, 'circles': 0, 'lines': 0, 'skipped': 0};
                     if ( currentTabName === 'point' ) {
                         objLocID = manageObjects.add( 'point', {'latOne': values.lat, 'lonOne': values.lon} );
                     } else if ( currentTabName === 'circle' ) {
                         objLocID = manageObjects.add( 'circle', {'latOne': values.lat, 'lonOne': values.lon, 'rad': values.rad} );
                     } else if ( currentTabName === 'line' ) {
                         objLocID = manageObjects.add( 'line', {'latOne': values.latOne, 'lonOne': values.lonOne, 'latTwo': values.latTwo, 'lonTwo': values.lonTwo} );
+                    } else if ( currentTabName === 'array' ) {
+                        let arr = JSON.parse(values.arrayList);
+                        let type = typeOfObject(arr);
+                        if (type === 'point') {
+                            manageObjects.add( 'point', {'latOne': arr[0], 'lonOne': arr[1]} );
+                            counters.points += 1;
+                        } else if (type === 'circle') {
+                            manageObjects.add( 'circle', {'latOne': arr[0], 'lonOne': arr[1], 'rad': arr[2]} );
+                            counters.circles += 1;
+                        } else if (type === 'point') {
+                            manageObjects.add( 'line', {'latOne': arr[0][0], 'lonOne': arr[0][1], 'latTwo': arr[1][0], 'lonTwo': arr[1][1]} );
+                            counters.lines += 1;
+                        } else if (arr[0][0]) {
+                            arr.forEach(el => {
+                                let type = typeOfObject(el);
+                                if (type === 'point') {
+                                    manageObjects.add( 'point', {'latOne': el[0], 'lonOne': el[1]} );
+                                    counters.points += 1;
+                                } else if (type === 'circle') {
+                                    manageObjects.add( 'circle', {'latOne': el[0], 'lonOne': el[1], 'rad': el[2]} );
+                                    counters.circles += 1;
+                                } else if (type === 'line') {
+                                    manageObjects.add( 'line', {'latOne': el[0][0], 'lonOne': el[0][1], 'latTwo': el[1][0], 'lonTwo': el[1][1]} );
+                                    counters.lines += 1;
+                                } else {
+                                    counters.skipped += 1;
+                                }
+                            });
+                        } else {
+                            counters.skipped += 1;
+                        }
                     }
-                    manageObjects.locateByObjectID(objLocID);
+                    if ( currentTabName !== 'array' ) {
+                        manageObjects.locateByObjectID(objLocID);
+                    } else {
+                        manageObjects.showAll();
+                        setSnackbarContent(counters);
+                        snackbar.close();
+                        snackbar.open();
+                    }
                 });
 
                 _clearFieldsButton.addEventListener('click', function() {
@@ -737,7 +807,6 @@ function ready() {
                     _clearFieldsButton.disabled = false
                 } else {
                     _clearFieldsButton.disabled = true;
-                    inputFields.clearValues(type);
                 }
             },
 
@@ -784,27 +853,20 @@ function ready() {
         let _lineFieldLatTwo = document.querySelector('#line-lat-2');
         let _lineFieldLonTwo = document.querySelector('#line-lon-2');
 
+        // Array
+        let _arrayList = document.querySelector('#array-of-coordinates');
+
         return {
 
             getNodeList: function(type) {
                 if ( type === 'point' ) {
-                    return [
-                        _pointFieldLat,
-                        _pointFieldLon
-                    ];
+                    return [_pointFieldLat, _pointFieldLon];
                 } else if ( type === 'circle' ) {
-                    return [
-                        _circleFieldLat,
-                        _circleFieldLon,
-                        _circleFieldRad
-                    ];
+                    return [_circleFieldLat, _circleFieldLon, _circleFieldRad];
                 } else if ( type === 'line' ) {
-                    return [
-                        _lineFieldLatOne,
-                        _lineFieldLonOne,
-                        _lineFieldLatTwo,
-                        _lineFieldLonTwo
-                    ];
+                    return [_lineFieldLatOne, _lineFieldLonOne, _lineFieldLatTwo, _lineFieldLonTwo];
+                } else if ( type === 'array' ) {
+                    return [_arrayList];
                 } else {
                     return [];
                 }
@@ -829,6 +891,10 @@ function ready() {
                         'latTwo': _lineFieldLatTwo.value,
                         'lonTwo': _lineFieldLonTwo.value
                     };
+                } else if ( type === 'array' ) {
+                    return {
+                        'arrayList': _arrayList.value
+                    };
                 } else {
                     return {};
                 }
@@ -847,30 +913,43 @@ function ready() {
                     _lineFieldLonOne.value = '';
                     _lineFieldLatTwo.value = '';
                     _lineFieldLonTwo.value = '';
+                } else if ( type === 'array' ) {
+                    _arrayList.value = '';
                 }
             },
 
             validateValues: function(type) {
                 if ( type === 'point' ) {
-                    let allGood = [0,0];
+                    let allGood = [0,0,0];
                     let v = inputFields.getValues('point');
-                    v.lat && !isNaN(v.lat) && Math.abs(v.lat) <= 90  ? allGood[0] = 1 : allGood[0] = 0;
-                    v.lon && !isNaN(v.lon) && Math.abs(v.lon) <= 180 ? allGood[1] = 1 : allGood[1] = 0;
+                    isLatitude(v.lat)  ? allGood[0] = 1 : allGood[0] = 0;
+                    isLongitude(v.lon) ? allGood[1] = 1 : allGood[1] = 0;
+                    v.lat || v.lon ? allGood[2] = 1 : allGood[2] = 0;
                     return allGood;
                 } else if ( type === 'circle' ) {
-                    let allGood = [0,0,0];
+                    let allGood = [0,0,0,0];
                     let v = inputFields.getValues('circle');
-                    v.lat && !isNaN(v.lat) && Math.abs(v.lat) <= 90  ? allGood[0] = 1 : allGood[0] = 0;
-                    v.lon && !isNaN(v.lon) && Math.abs(v.lon) <= 180 ? allGood[1] = 1 : allGood[1] = 0;
-                    v.rad && !isNaN(v.rad) && v.rad > 0 && v.rad <=1000000  ? allGood[2] = 1 : allGood[2] = 0;
+                    isLatitude(v.lat)  ? allGood[0] = 1 : allGood[0] = 0;
+                    isLongitude(v.lon)  ? allGood[1] = 1 : allGood[1] = 0;
+                    v.rad && !isNaN(v.rad) && v.rad > 0 && v.rad <= 1000000  ? allGood[2] = 1 : allGood[2] = 0;
+                    v.lat || v.lon || v.rad ? allGood[3] = 1 : allGood[3] = 0;
                     return allGood;
                 } else if ( type === 'line' ) {
-                    let allGood = [0,0,0,0];
+                    let allGood = [0,0,0,0,0];
                     let v = inputFields.getValues('line');
-                    v.latOne && !isNaN(v.latOne) && Math.abs(v.latOne) <= 90  ? allGood[0] = 1 : allGood[0] = 0;
-                    v.lonOne && !isNaN(v.lonOne) && Math.abs(v.lonOne) <= 180 ? allGood[1] = 1 : allGood[1] = 0;
-                    v.latTwo && !isNaN(v.latTwo) && Math.abs(v.latTwo) <= 90  ? allGood[2] = 1 : allGood[2] = 0;
-                    v.lonTwo && !isNaN(v.lonTwo) && Math.abs(v.lonTwo) <= 180 ? allGood[3] = 1 : allGood[3] = 0;
+                    isLatitude(v.latOne)  ? allGood[0] = 1 : allGood[0] = 0;
+                    isLongitude(v.lonOne) ? allGood[1] = 1 : allGood[1] = 0;
+                    isLatitude(v.latTwo)  ? allGood[2] = 1 : allGood[2] = 0;
+                    isLongitude(v.lonTwo) ? allGood[3] = 1 : allGood[3] = 0;
+                    v.latOne || v.lonOne || v.latTwo || v.lonTwo ? allGood[4] = 1 : allGood[4] = 0;
+                    return allGood;
+                } else if ( type === 'array' ) {
+                    let allGood = [0,0,0];
+                    let v = inputFields.getValues('array');
+                    let re = new RegExp(/^[0-9\ \s*\.\,\[\]]*$/i);
+                    v.arrayList && re.test(v.arrayList) ? allGood[0] = 1 : allGood[0] = 0;
+                    v.arrayList ? allGood[1] = 1 : allGood[1] = 0;
+                    isJSON(v.arrayList) ? allGood[2] = 1 : allGood[2] = 0;
                     return allGood;
                 } else {
                     return [];
@@ -1125,6 +1204,12 @@ function ready() {
         });
     });
 
+    inputFields.getNodeList('array').forEach(function (el) {
+        el.addEventListener('keyup', function() {
+            buttons.toggleAddToMapButtons('array');
+        });
+    });
+
 
 
     /**
@@ -1135,10 +1220,22 @@ function ready() {
 
     window.mdc.autoInit();
 
+    let snackbar = new mdc.snackbar.MDCSnackbar(document.getElementById('b-mdc-snackbar'));
+    let snackbarContent = document.getElementById('b-mdc-snackbar-content');
+    snackbar.timeoutMs = 7500;
+    const setSnackbarContent = (obj) => {
+        snackbarContent.innerHTML = `Added <strong>${obj.points}</strong> point(s), `
+            + `<strong>${obj.circles}</strong> circle(s) and `
+            + `<strong>${obj.lines}</strong> line(s).<br>`
+            + `Skipped <strong>${obj.skipped}</strong> element(s).`
+    };
+
     let tabBar = new mdc.tabBar.MDCTabBar(document.querySelector('.mdc-tab-bar'));
     let contentEls = document.querySelectorAll('.mdc-tab-content');
-    let tabNames = ['point', 'circle', 'line'];
+    let tabNames = ['point', 'circle', 'line', 'array'];
     let currentTab = 'point';
+    let hintAboutShiftKey = document.getElementById('hint-about-shift-key');
+    let hintAboutArrayOfCoords = document.getElementById('hint-about-array-of-coords');
     tabBar.listen('MDCTabBar:activated', function(event) {
         currentTab = tabNames[event.detail.index];
         // Hide currently-active content
@@ -1146,12 +1243,19 @@ function ready() {
         // Show content for newly-activated tab
         contentEls[event.detail.index].classList.add('mdc-tab-content--active');
         // Change the URL's hash with the tab name
-        history.pushState('','','?tab=' + tabNames[event.detail.index]);
+        history.pushState('','','?tab=' + currentTab);
+        if (currentTab === 'array') {
+            hintAboutShiftKey.classList.add('meta-content__hidden');
+            hintAboutArrayOfCoords.classList.remove('meta-content__hidden');
+        } else {
+            hintAboutShiftKey.classList.remove('meta-content__hidden');
+            hintAboutArrayOfCoords.classList.add('meta-content__hidden');
+        }
     });
     const getActiveTabName = () => {
         return currentTab;
     };
-    // Check if tab set to "point", "circle" or "line"
+    // Check if tab set to "point", "circle", "line" or "array"
     let searchParamValue = new URLSearchParams(location.search).get('tab');
     if (searchParamValue === 'point') {
         tabBar.activateTab(0);
@@ -1162,6 +1266,9 @@ function ready() {
     } else if (searchParamValue === 'line') {
         tabBar.activateTab(2);
         currentTab = 'line';
+    } else if (searchParamValue === 'array') {
+        tabBar.activateTab(3);
+        currentTab = 'array';
     } else {
         history.replaceState(null, null, ' ');
     }
