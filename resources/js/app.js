@@ -724,7 +724,7 @@ function ready() {
                         } else if (type === 'circle') {
                             manageObjects.add( 'circle', {'latOne': arr[0], 'lonOne': arr[1], 'rad': arr[2]} );
                             counters.circles += 1;
-                        } else if (type === 'point') {
+                        } else if (type === 'line') {
                             manageObjects.add( 'line', {'latOne': arr[0][0], 'lonOne': arr[0][1], 'latTwo': arr[1][0], 'lonTwo': arr[1][1]} );
                             counters.lines += 1;
                         } else if (arr[0][0]) {
