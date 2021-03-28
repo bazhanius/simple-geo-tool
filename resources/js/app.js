@@ -750,7 +750,9 @@ function ready() {
                     if ( currentTabName !== 'array' ) {
                         manageObjects.locateByObjectID(objLocID);
                     } else {
-                        manageObjects.showAll();
+                        if (counters.points + counters.circles + counters.lines > 0) {
+                            manageObjects.showAll();
+                        }
                         setSnackbarContent(counters);
                         snackbar.close();
                         snackbar.open();
