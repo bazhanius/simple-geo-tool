@@ -1,5 +1,4 @@
-## simple-geo-tool
-<kbd>![img](https://repository-images.githubusercontent.com/194441323/eeae9480-9408-11eb-89e2-4e639eac9282)</kbd>
+## Simple Geographic Tool
 
 ### Table of Contents
 * [Description](#description)
@@ -11,8 +10,9 @@
 
 ### Description
 Yet another (supposed to be simple) tool to add geo objects on map.
+[Try it on GitHub Pages](https://bazhanius.github.io/simple-geo-tool/).
 
-Try it on GitHub Pages: https://bazhanius.github.io/simple-geo-tool/
+<kbd>![img](https://repository-images.githubusercontent.com/194441323/eeae9480-9408-11eb-89e2-4e639eac9282)</kbd>
 
 ### Features
 - Adding object(s) on the map:
@@ -55,14 +55,14 @@ Use URL parameters `tab=array` together with `addArray=[{array_here}]`,
 where `{array_here}` is an array as shown in the example above.
 
 For example. To add these three objects:
-```python
-[55.670375, 37.714457]  # point
-[55.740828, 37.531868, 6000]  # circle
-[[55.656424, 37.494801], [55.740054, 37.809184]]  # line
-```
-at the same time — combine them separated by commas and enclose them in square brackets as shown below:
-https://bazhanius.github.io/simple-geo-tool/?tab=array&addArray=[[55.670375,37.714457],[55.740828,37.531868,6000],[[55.656424,37.494801],[55.740054,37.809184]]]
+* `[55.670375, 37.714457]` — point
+* `[55.740828, 37.531868, 6000]` — circle
+* `[[55.656424, 37.494801], [55.740054, 37.809184]]` — line
 
+at the same time — combine them separated by commas and enclose them in square brackets as shown below or [see it in action](https://bazhanius.github.io/simple-geo-tool/?tab=array&addArray=[[55.670375,37.714457],[55.740828,37.531868,6000],[[55.656424,37.494801],[55.740054,37.809184]]]):
+```
+https://bazhanius.github.io/simple-geo-tool/?tab=array&addArray=[[55.670375,37.714457],[55.740828,37.531868,6000],[[55.656424,37.494801],[55.740054,37.809184]]]
+```
 
 ### Dependencies
 - [Leaflet](https://github.com/Leaflet/Leaflet)
