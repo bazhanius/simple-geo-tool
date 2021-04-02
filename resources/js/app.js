@@ -707,8 +707,7 @@ function ready() {
                 _addToMapButton.addEventListener('click', function () {
                     let currentTabName = getActiveTabName();
                     let values = inputFields.getValues(currentTabName);
-                    let objLocID;
-                    let counters = {'points': 0, 'circles': 0, 'lines': 0, 'skipped': 0};
+                    let objLocID, arrayCounters;
                     if ( currentTabName === 'point' ) {
                         objLocID = manageObjects.add( 'point', {'latOne': values.lat, 'lonOne': values.lon} );
                     } else if ( currentTabName === 'circle' ) {
@@ -716,44 +715,15 @@ function ready() {
                     } else if ( currentTabName === 'line' ) {
                         objLocID = manageObjects.add( 'line', {'latOne': values.latOne, 'lonOne': values.lonOne, 'latTwo': values.latTwo, 'lonTwo': values.lonTwo} );
                     } else if ( currentTabName === 'array' ) {
-                        let arr = JSON.parse(values.arrayList);
-                        let type = typeOfObject(arr);
-                        if (type === 'point') {
-                            manageObjects.add( 'point', {'latOne': arr[0], 'lonOne': arr[1]} );
-                            counters.points += 1;
-                        } else if (type === 'circle') {
-                            manageObjects.add( 'circle', {'latOne': arr[0], 'lonOne': arr[1], 'rad': arr[2]} );
-                            counters.circles += 1;
-                        } else if (type === 'line') {
-                            manageObjects.add( 'line', {'latOne': arr[0][0], 'lonOne': arr[0][1], 'latTwo': arr[1][0], 'lonTwo': arr[1][1]} );
-                            counters.lines += 1;
-                        } else if (arr[0][0]) {
-                            arr.forEach(el => {
-                                let type = typeOfObject(el);
-                                if (type === 'point') {
-                                    manageObjects.add( 'point', {'latOne': el[0], 'lonOne': el[1]} );
-                                    counters.points += 1;
-                                } else if (type === 'circle') {
-                                    manageObjects.add( 'circle', {'latOne': el[0], 'lonOne': el[1], 'rad': el[2]} );
-                                    counters.circles += 1;
-                                } else if (type === 'line') {
-                                    manageObjects.add( 'line', {'latOne': el[0][0], 'lonOne': el[0][1], 'latTwo': el[1][0], 'lonTwo': el[1][1]} );
-                                    counters.lines += 1;
-                                } else {
-                                    counters.skipped += 1;
-                                }
-                            });
-                        } else {
-                            counters.skipped += 1;
-                        }
+                        arrayCounters = manageObjects.addArray(values.arrayList);
                     }
                     if ( currentTabName !== 'array' ) {
                         manageObjects.locateByObjectID(objLocID);
                     } else {
-                        if (counters.points + counters.circles + counters.lines > 0) {
+                        if (arrayCounters.points + arrayCounters.circles + arrayCounters.lines > 0) {
                             manageObjects.showAll();
                         }
-                        setSnackbarContent(counters);
+                        setSnackbarContent(arrayCounters);
                         snackbar.close();
                         snackbar.open();
                     }
@@ -1090,6 +1060,41 @@ function ready() {
                 if (rulerButtonEnabled) manageObjects.disableAllPopups();
 
                 return counter;
+            },
+
+            addArray: function(rawArray) {
+                let counters = {'points': 0, 'circles': 0, 'lines': 0, 'skipped': 0};
+                let arr = JSON.parse(rawArray);
+                let type = typeOfObject(arr);
+                if (type === 'point') {
+                    manageObjects.add( 'point', {'latOne': arr[0], 'lonOne': arr[1]} );
+                    counters.points += 1;
+                } else if (type === 'circle') {
+                    manageObjects.add( 'circle', {'latOne': arr[0], 'lonOne': arr[1], 'rad': arr[2]} );
+                    counters.circles += 1;
+                } else if (type === 'line') {
+                    manageObjects.add( 'line', {'latOne': arr[0][0], 'lonOne': arr[0][1], 'latTwo': arr[1][0], 'lonTwo': arr[1][1]} );
+                    counters.lines += 1;
+                } else if (arr[0][0]) {
+                    arr.forEach(el => {
+                        let type = typeOfObject(el);
+                        if (type === 'point') {
+                            manageObjects.add( 'point', {'latOne': el[0], 'lonOne': el[1]} );
+                            counters.points += 1;
+                        } else if (type === 'circle') {
+                            manageObjects.add( 'circle', {'latOne': el[0], 'lonOne': el[1], 'rad': el[2]} );
+                            counters.circles += 1;
+                        } else if (type === 'line') {
+                            manageObjects.add( 'line', {'latOne': el[0][0], 'lonOne': el[0][1], 'latTwo': el[1][0], 'lonTwo': el[1][1]} );
+                            counters.lines += 1;
+                        } else {
+                            counters.skipped += 1;
+                        }
+                    });
+                } else {
+                    counters.skipped += 1;
+                }
+                return counters;
             },
 
             delete: function(obj) {
