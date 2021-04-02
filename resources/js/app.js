@@ -1263,21 +1263,32 @@ function ready() {
         return currentTab;
     };
     // Check if tab set to "point", "circle", "line" or "array"
-    let searchParamValue = new URLSearchParams(location.search).get('tab');
-    if (searchParamValue === 'point') {
+    let searchParams = new URLSearchParams(location.search);
+    let searchParamTab = searchParams.get('tab');
+    let searchParamAddArray = searchParams.get('addArray');
+    if (searchParamTab === 'point') {
         tabBar.activateTab(0);
         currentTab = 'point';
-    } else if (searchParamValue === 'circle') {
+    } else if (searchParamTab === 'circle') {
         tabBar.activateTab(1);
         currentTab = 'circle';
-    } else if (searchParamValue === 'line') {
+    } else if (searchParamTab === 'line') {
         tabBar.activateTab(2);
         currentTab = 'line';
-    } else if (searchParamValue === 'array') {
+    } else if (searchParamTab === 'array') {
         tabBar.activateTab(3);
         currentTab = 'array';
+        if (searchParamAddArray && isJSON(searchParamAddArray)) {
+            let arrayCounters = manageObjects.addArray(searchParamAddArray);
+            if (arrayCounters.points + arrayCounters.circles + arrayCounters.lines > 0) {
+                manageObjects.showAll();
+            }
+            setSnackbarContent(arrayCounters);
+            snackbar.close();
+            snackbar.open();
+        }
     } else {
-        history.replaceState(null, null, ' ');
+        history.pushState({}, null, location.href.split('?')[0]);
     }
 
     const dialogElement = document.querySelector('#b-mdc-modal-window');
