@@ -918,7 +918,7 @@ function ready() {
                 } else if ( type === 'array' ) {
                     let allGood = [0,0,0];
                     let v = inputFields.getValues('array');
-                    let re = new RegExp(/^[0-9\ \s*\.\,\[\]]*$/i);
+                    let re = new RegExp(/^[0-9\ \s*\.\,\-\[\]]*$/i);
                     v.arrayList && re.test(v.arrayList) ? allGood[0] = 1 : allGood[0] = 0;
                     v.arrayList ? allGood[1] = 1 : allGood[1] = 0;
                     isJSON(v.arrayList) ? allGood[2] = 1 : allGood[2] = 0;
