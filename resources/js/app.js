@@ -15,8 +15,8 @@ function ready() {
 
     function generatePopupText(lat, lon, addr = '', rad = 0) {
         let radius = ( rad !== 0 ) ? `Radius: <span class="popup-coords">${numberWithSpaces(rad)}</span> m` : '';
-        return `<span class="popup-coords">${lat}</span>°N`
-            +`, <span class="popup-coords">${lon}</span>°E`
+        return `<span class="popup-coords">${lat}</span>`
+            +`, <span class="popup-coords">${lon}</span>`
             +`<div class="popup-address">${addr}</div>`
             + `${radius}`;
     }
