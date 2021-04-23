@@ -110,13 +110,8 @@ function ready() {
      * Create the map
      *
      */
-
-    let lastLanStored = localStorage.getItem('lastClickLat');
-    let lastLonStored = localStorage.getItem('lastClickLon');
-    let latLonExample = lastLanStored && lastLonStored
-        ? [lastLanStored, lastLonStored]
-        : [55.752318, 37.619814];
-
+    
+    let latLonExample = JSON.parse(localStorage.getItem('lastClickedLatLon')) || [55.752318, 37.619814];
 
     // Define free tile providers https://github.com/leaflet-extras/leaflet-providers
     let OSM = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -157,8 +152,7 @@ function ready() {
     L.control.scale().addTo(map);
 
     map.on('click', (e) => {
-        localStorage.setItem('lastClickLat', e.latlng.lat);
-        localStorage.setItem('lastClickLon', e.latlng.lng);
+        localStorage.setItem('lastClickedLatLon', JSON.stringify([e.latlng.lat, e.latlng.lng]));
     });
 
 
