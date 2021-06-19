@@ -30,7 +30,7 @@
     <link href="https://fonts.googleapis.com/css?family=Inconsolata&display=swap" rel="stylesheet">
 
     <!-- MDI Fonts -->
-    <link rel="stylesheet" href="https://cdn.materialdesignicons.com/5.6.55/css/materialdesignicons.min.css">
+    <link rel="stylesheet" href="https://cdn.materialdesignicons.com/5.8.55/css/materialdesignicons.min.css">
 
     <link rel="stylesheet" href="https://unpkg.com/normalize.css@8.0.1/normalize.css">
 
@@ -39,8 +39,8 @@
     <link href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css" rel="stylesheet">
 
     <!-- Material Components -->
-    <link rel="stylesheet" href="https://unpkg.com/material-components-web@7.0.0/dist/material-components-web.min.css" />
-    <script type="text/javascript" src="https://unpkg.com/material-components-web@7.0.0/dist/material-components-web.min.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/material-components-web@11.0.0/dist/material-components-web.min.css" />
+    <script type="text/javascript" src="https://unpkg.com/material-components-web@11.0.0/dist/material-components-web.min.js"></script>
 
     <link rel="stylesheet" href="resources/css/app.css">
     <script type="text/javascript" src="resources/js/app.js"></script>
@@ -103,7 +103,7 @@
                             <button class="mdc-tab mdc-tab--stacked" data-tab-name="array" role="tab" aria-selected="false" tabindex="-1">
                                 <span class="mdc-tab__content">
                                     <span class="mdc-tab__icon mdi mdi-code-brackets mdi-24px" aria-hidden="true"></span>
-                                    <span class="mdc-tab__text-label">Array</span>
+                                    <span class="mdc-tab__text-label">JSON</span>
                                 </span>
                                 <span class="mdc-tab-indicator">
                                     <span class="mdc-tab-indicator__content mdc-tab-indicator__content--underline"></span>
@@ -248,14 +248,15 @@
 
                     <div class="mdc-text-field mdc-text-field--outlined mdc-text-field--fullwidth mdc-text-field--textarea" data-mdc-auto-init="MDCTextField">
                         <span class="mdc-text-field__resizer">
-                            <textarea class="mdc-text-field__input" id="array-of-coordinates" rows="4" aria-label="Array"></textarea>
+                            <textarea class="mdc-text-field__input" id="array-of-coordinates" rows="9" aria-label="Array"></textarea>
                         </span>
                         <div class="mdc-notched-outline">
                             <div class="mdc-notched-outline__leading"></div>
                             <div class="mdc-notched-outline__notch">
-                                <label for="array-of-coordinates" class="mdc-floating-label">Array of coordinates</label>
+                                <label for="array-of-coordinates" class="mdc-floating-label">Array of objects</label>
                             </div>
                             <div class="mdc-notched-outline__trailing"></div>
+
                         </div>
                     </div>
 
@@ -263,28 +264,45 @@
 
             </div>
 
-            <button id="button-add-to-map" class="mdc-button mdc-button--raised" data-mdc-auto-init="MDCRipple" disabled>
-                <span class="mdi mdi-map-marker-plus mdi-18px"></span>
-                <span class="mdc-button__ripple"></span> Add to Map
-            </button>
+            <div class="b-objects-creation-container">
 
-            <button id="button-clear-fields" class="mdc-button mdc-button--outlined" data-mdc-auto-init="MDCRipple" disabled>
-                <span class="mdi mdi-close mdi-18px"></span>
-                <span class="mdc-button__ripple"></span> Clear All
-            </button>
+                <button id="button-add-to-map" class="mdc-button mdc-button--raised" data-mdc-auto-init="MDCRipple" disabled>
+                    <span class="mdi mdi-map-marker-plus mdi-18px"></span>
+                    <span class="mdc-button__ripple"></span> Add to Map
+                </button>
+
+                <button id="button-clear-fields" class="mdc-button mdc-button--outlined" data-mdc-auto-init="MDCRipple" disabled>
+                    <span class="mdi mdi-close mdi-18px"></span>
+                    <span class="mdc-button__ripple"></span> Clear All
+                </button>
+
+                <div id="b-marker-switch" class="mdc-switch mdc-switch--checked">
+                    <div class="mdc-switch__track"></div>
+                    <div class="mdc-switch__thumb-underlay">
+                        <div class="mdc-switch__thumb"></div>
+                        <input type="checkbox" id="marker-switch" class="mdc-switch__native-control" role="switch" aria-checked="true" checked>
+                    </div>
+                </div>
+                <label for="marker-switch">Marker</label>
+
+            </div>
 
             <div class="meta">
                 <div id="hint-about-shift-key" class="meta-content"><strong>Hint:</strong> Alternatively, you can add object by selecting type of object in the tab bar, then hold down the shift key while left-clicking on the map. Click once to add point, and twice for circle and line.</div>
                 <div id="hint-about-array-of-coords" class="meta-content meta-content__hidden">
-                    <strong>Hint:</strong> One or more array of coordinates comma separated in square brackets.<br>
-                    Type <code>[lat, lon]</code> for point, <code>[lat, lon, rad]</code> for circle, and <code>[[lat1, lon1], [lat2, lon2]]</code> for line.
-                    Use any combination of these, such as <code>[[lat, lon, rad], [lat, lon]]</code>, to add circle and point at the same time.
+                    <strong>Hint:</strong> Array of objects: <code>[{obj_1}, {obj_2}, ..., {obj_n}]</code>.
+                    <a href="https://github.com/bazhanius/simple-geo-tool/#add-array-of-coordinates-via-text-field">Learn more</a>.
                 </div>
             </div>
 
             <h3>Objects</h3>
 
             <div class="b-all-objects-management">
+
+                <button id="button-objects-copy-all" class="mdc-button mdc-button--raised" data-mdc-auto-init="MDCRipple" disabled>
+                    <span class="mdi mdi-content-copy mdi-18px"></span>
+                    <span class="mdc-button__ripple"></span> Copy All
+                </button>
 
                 <button id="button-objects-zoom-all" class="mdc-button mdc-button--raised" data-mdc-auto-init="MDCRipple" disabled>
                     <span class="mdi mdi-select-all mdi-18px"></span>
@@ -303,7 +321,7 @@
                 <tr>
                     <th>ID</th>
                     <th>Type</th>
-                    <th colspan="2">Parameters</th>
+                    <th>Measurements</th>
                     <th>Manage</th>
                 </tr>
                 </thead>
@@ -359,7 +377,7 @@
             <div class="mdc-snackbar__actions" aria-atomic="true">
                 <button type="button" class="mdc-button mdc-snackbar__action">
                     <div class="mdc-button__ripple"></div>
-                    <span class="mdc-button__label">NICE</span>
+                    <span class="mdc-button__label">OK</span>
                 </button>
             </div>
         </div>
