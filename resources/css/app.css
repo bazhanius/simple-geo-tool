@@ -1,3 +1,8 @@
+:root {
+    --marker-icon-pin-display: block;
+}
+
+
 html, body, * {
     font-family: "Barlow", sans-serif;
     font-size: small;
@@ -135,6 +140,12 @@ code {
     white-space: nowrap;
 }
 
+.b-objects-creation-container {
+    display: flex;
+    align-items: center;
+    justify-content: left;
+}
+
 
 
 /* Table with list of objects */
@@ -153,16 +164,17 @@ code {
     border-bottom: 1px solid #ccc;
     padding: 6px 10px;
     line-height: 1.4em;
+    text-align: center;
 }
-
+/*
 #objects-list > tbody > tr > td:nth-child(1), td:nth-child(2), td:nth-child(5) {
     text-align: center;
 }
 
-#objects-list > tbody > tr > td:nth-child(4) {
-    text-align: right;
+#objects-list > tbody > tr > td:nth-child(2), td:nth-child(3) {
+    text-align: left;
 }
-
+*/
 #objects-list > tbody > tr > td:nth-child(3), td:nth-child(4) {
     font-family: 'Inconsolata', monospace;
     font-size: 14px;
@@ -195,6 +207,10 @@ code {
     box-shadow: 0 0 5px rgba(0,0,0,0.5);
 }
 
+.marker-icon-pin {
+    display: var(--marker-icon-pin-display, block);
+}
+
 .marker-icon-pin b {
     position: absolute;
     color: #fff;
@@ -207,7 +223,11 @@ code {
     text-align: center;
 }
 
-.marker-line-color {
+.marker-polygon-color {
+    background: rgba(0, 128, 0, 0.95);
+}
+
+.marker-polyline-color {
     background:rgba(255, 51, 51,0.95);
 }
 
@@ -445,25 +465,39 @@ a > .mdc-button__label {
 /* Leaflet Controls */
 
 .leaflet-popup-content {
-    width: 200px;
+    width: 250px;
+    font-family: 'Roboto', sans-serif;
 }
 
-.popup-address {
-    display: block;
-    font-family: 'Noto Sans', sans-serif;
-    font-size: x-small;
+.popup-row {
+    display: flex;
+    flex-direction: row;
     color: #999;
     padding: 0.2em 0 0.6em;
 }
 
-/*
-.popup-coords {
-    font-family: 'Inconsolata', monospace;
-    font-weight: 600;
-    font-size: larger;
+.popup-row:not(:last-child) {
+    border-bottom: 1px solid #ccc;
 }
-*/
 
+.popup-col-1, .popup-col-2 {
+    align-self: flex-start;
+}
+
+.popup-col-1 {
+    text-align: right;
+    padding-right: 15px;
+    min-width: 50px;
+}
+
+.popup-col-2 small {
+    font-size: x-small;
+}
+
+
+.popup-col-2 strong {
+    font-weight: 600;
+}
 
 
 /* MDC Dialog */
@@ -509,4 +543,15 @@ a > .mdc-button__label {
 .mdc-snackbar__action:hover {
     color: white;
     background-color: rgb(59,59,59);
+}
+
+
+/* MDC Switch */
+
+.mdc-switch {
+    margin-left: 15px;
+}
+
+.mdc-switch+label {
+    margin-left: 10px;
 }

@@ -3,21 +3,32 @@ function ready() {
     let tabsNodeList = document.querySelectorAll('.mdc-tab');
 
     let buttonsHTML =
-        '<button class="mdc-button mdc-button--dense mdc-ripple-upgraded button-object-locate" data-mdc-auto-init="MDCRipple">' +
+        '<button class="mdc-button button-object-copy"><span class="mdc-button__ripple"></span>' +
+        '<span class="mdi mdi-icon-button mdi-content-copy mdi-18px"></span></button>' +
+        '<button class="mdc-button button-object-locate"><span class="mdc-button__ripple"></span>' +
         '<span class="mdi mdi-icon-button mdi-crosshairs-gps mdi-18px"></span></button>' +
-        '<button class="mdc-button mdc-button--dense mdc-ripple-upgraded button-object-delete" data-mdc-auto-init="MDCRipple">' +
+        '<button class="mdc-button button-object-delete"><span class="mdc-button__ripple"></span>' +
         '<span class="mdi mdi-icon-button mdi-delete-forever mdi-18px"></span></button>';
 
     let objectsList = document.querySelector('#objects-list > tbody');
     let counter = 0;
     let objects = [];
     let addressesDB = [];
+    let showMarker = true;
+    let lineWeight = 2;
 
-    function generatePopupText(lat, lon, addr = '', rad = 0) {
-        let radius = ( rad !== 0 ) ? `Radius: <span class="popup-coords">${numberWithSpaces(rad)}</span> m` : '';
-        return `<span class="popup-coords">${lat}</span>`
-            +`, <span class="popup-coords">${lon}</span>`
-            +`<div class="popup-address">${addr}</div>`
+    function generateListObjectsTable(counter, type, props) {
+        return `<tr><td>${counter}</td><td>${type}</td><td>${props}</td><td>${buttonsHTML}</td></tr>`;
+    }
+
+    function generatePopupText(id, type, point = 1, totalPoints = 1, lat, lon, rad = 0, area = 0, distance = 0) {
+        let radius = (rad !== 0)
+            ? `<div class="popup-row"><div class="popup-col-1">Radius:</div><div class="popup-col-2">${rad}</div></div>`
+            : '';
+        return `<div class="popup-row"><div class="popup-col-1">ID:</div><div class="popup-col-2">${id}</div></div>`
+            + `<div class="popup-row"><div class="popup-col-1">Type:</div><div class="popup-col-2">${type}</div></div>`
+            + `<div class="popup-row"><div class="popup-col-1">Points:</div><div class="popup-col-2">${point} / ${totalPoints}</div></div>`
+            + `<div class="popup-row"><div class="popup-col-1">Lat, Lon:</div><div class="popup-col-2"><strong>${lat}, ${lon}</strong></div></div>`
             + `${radius}`;
     }
 
@@ -62,9 +73,6 @@ function ready() {
 
     function reverseGeocode(lat, lon) {
 
-        lat = isNaN(lat) ? lat : parseFloat(lat).toFixed(6);
-        lon = isNaN(lat) ? lon : parseFloat(lon).toFixed(6);
-
         // check cached address data
         let cachedAddress = addressesDB.filter(a => a.lat === lat).find(a => a.lon === lon);
 
@@ -88,20 +96,23 @@ function ready() {
 
     function popupUpdate(el) {
         let index = objects.findIndex(x => x.id === el);
-        if ( index >= 0 ) {
-            objects[index].object.getLayers().filter(l=>l instanceof L.Marker).forEach(l => {
+        if (index >= 0) {
+            objects[index].leaflet_object.getLayers().filter(l=>l instanceof L.Marker).forEach(l => {
                 let lat = l.options.latLon[0];
                 let lon = l.options.latLon[1];
                 let addr = addressesDB.filter(a => a.lat === lat).find(a => a.lon === lon).address;
-                if ( addr ) {
-                    l.getPopup().setContent(generatePopupText(lat, lon, addr, l.options.rad));
+                if (addr) {
+                    let popupHTML = l.getPopup().getContent();
+                    let addHTML = `<div class="popup-row">` +
+                        `<div class="popup-col-1">Address:</div><div class="popup-col-2"><small>${addr}</small></div></div>`;
+                    l.getPopup().setContent(popupHTML + addHTML);
                 }
             });
         }
     }
 
     let addAddressToDB = RateLimit(reverseGeocode, 1100);
-    let addAddressToPopup = RateLimit(popupUpdate, 3300);
+    let addAddressToPopup = RateLimit(popupUpdate, 5500);
 
 
 
@@ -234,7 +245,7 @@ function ready() {
                 pos.coords.accuracy
             ];
             map.setView([userCoords[0], userCoords[1]], 10);
-            let userLocObjID = manageObjects.add( 'circle', {'latOne': userCoords[0], 'lonOne': userCoords[1], 'rad': userCoords[2]} );
+            let userLocObjID = manageObjects.add('circle', [userCoords[0], userCoords[1], userCoords[2]]);
             manageObjects.locateByObjectID(userLocObjID);
 
             userLocationButtonIcon.classList.remove('mdi-loading', 'mdi-spin');
@@ -517,25 +528,25 @@ function ready() {
     window.addEventListener("keyup", shiftHandler, false);
 
     map.on('click', function(e) {
-
         if (shift && currentTab !== 'array') {
-
             let currentTabName = getActiveTabName();
 
-            tempCoords.push(e.latlng.lat, e.latlng.lng);
+            tempCoords.push({
+                'lat': parseFloat(e.latlng.lat).toFixed(6),
+                'lon': parseFloat(e.latlng.lng).toFixed(6)
+            });
 
             if (currentTabName === 'point' && shift) {
-                manageObjects.add('point', {
-                    'latOne': tempCoords[0],
-                    'lonOne': tempCoords[1]
+                manageObjects.add({
+                    'type': 'point',
+                    'coords': tempCoords
                 });
                 tempCoords = [];
             }
 
             if (currentTabName === 'circle' && shift) {
-                if ( tempCoords.length === 2 ) {
-
-                    tempCircle = L.circle([tempCoords[0], tempCoords[1]], {
+                if ( tempCoords.length === 1 ) {
+                    tempCircle = L.circle([tempCoords[0].lat, tempCoords[0].lon], {
                         radius: 0,
                         weight: 2,
                         color: '#ff3',
@@ -544,23 +555,21 @@ function ready() {
                     }).addTo(map);
 
                     tempMarker.addLayer(
-                        L.marker([tempCoords[0], tempCoords[1]], {
+                        L.marker([tempCoords[0].lat, tempCoords[0].lon], {
                             icon: tempIconPin
                         })
                     );
 
                     tempMarker.addLayer(
-                        L.marker([tempCoords[0], tempCoords[1]], {
+                        L.marker([tempCoords[0].lat, tempCoords[0].lon], {
                             icon: tempIconDot
                         })
                     );
-
-                } else if (tempCoords.length >= 4) {
-                    manageObjects.add('circle', {
-                        'latOne': tempCoords[0],
-                        'lonOne': tempCoords[1],
-                        'rad':
-                            L.latLng([tempCoords[0], tempCoords[1]]).distanceTo([tempCoords[2], tempCoords[3]]).toFixed(0)
+                } else if (tempCoords.length >= 2) {
+                    manageObjects.add({
+                        'type': 'circle',
+                        'radius': parseFloat(L.latLng([tempCoords[0].lat, tempCoords[0].lon]).distanceTo([tempCoords[1].lat, tempCoords[1].lon])).toFixed(0),
+                        'coords': tempCoords.splice(0, 1)
                     });
                     tempMarker.clearLayers();
                     tempCoords = [];
@@ -569,42 +578,37 @@ function ready() {
             }
 
             if (currentTabName === 'line' && shift) {
-
-                if (tempCoords.length === 2) {
-
-                    tempLine = L.polyline([ [tempCoords[0], tempCoords[1]], [tempCoords[0], tempCoords[1]] ], {
+                if (tempCoords.length === 1) {
+                    tempLine = L.polyline([ [tempCoords[0].lat, tempCoords[0].lon], [tempCoords[0].lat, tempCoords[0].lon] ], {
                         color: '#ff3',
                         weight: 2,
                         opacity: 0.6
                     }).addTo(map);
 
                     tempMarker.addLayer(
-                        L.marker([tempCoords[0], tempCoords[1]], {
+                        L.marker([tempCoords[0].lat, tempCoords[0].lon], {
                             icon: tempIconPin
                         })
                     );
 
                     tempMarker.addLayer(
-                        L.marker([tempCoords[0], tempCoords[1]], {
+                        L.marker([tempCoords[0].lat, tempCoords[0].lon], {
                             icon: tempIconDot
                         })
                     );
 
-                    tempSecondMarkerPin = L.marker([tempCoords[0], tempCoords[1]], {
+                    tempSecondMarkerPin = L.marker([tempCoords[0].lat, tempCoords[0].lon], {
                         icon: tempIconPin
                     }).addTo(map);
 
-                    tempSecondMarkerDot = L.marker([tempCoords[0], tempCoords[1]], {
+                    tempSecondMarkerDot = L.marker([tempCoords[0].lat, tempCoords[0].lon], {
                         icon: tempIconDot
                     }).addTo(map);
 
-                } else if (tempCoords.length >= 4) {
-
-                    manageObjects.add('line', {
-                        'latOne': tempCoords[0],
-                        'lonOne': tempCoords[1],
-                        'latTwo': tempCoords[2],
-                        'lonTwo': tempCoords[3]
+                } else if (tempCoords.length >= 2) {
+                    manageObjects.add({
+                        'type': 'polyline',
+                        'coords': tempCoords
                     });
                     tempMarker.clearLayers();
                     tempCoords = [];
@@ -618,30 +622,31 @@ function ready() {
     });
 
     map.on("mousemove", e => {
+        let _eLat = parseFloat(e.latlng.lat).toFixed(6);
+        let _eLon = parseFloat(e.latlng.lng).toFixed(6);
 
         if (!tempCoords[0] && shift && tempLine && currentTab !== 'array') {
-            tempSecondMarkerPin.setLatLng([e.latlng.lat.toFixed(6), e.latlng.lng.toFixed(6)]);
-            tempSecondMarkerDot.setLatLng([e.latlng.lat.toFixed(6), e.latlng.lng.toFixed(6)]);
+            tempSecondMarkerPin.setLatLng([_eLat, _eLon]);
+            tempSecondMarkerDot.setLatLng([_eLat, _eLon]);
         }
 
         if (tempCoords[0]) {
 
-            let tempDist = L.latLng([tempCoords[0].toFixed(6), tempCoords[1].toFixed(6)]).distanceTo([e.latlng.lat.toFixed(6), e.latlng.lng.toFixed(6)]).toFixed(0);
-
-            mouseCoordinates.innerHTML = `<span class="mdi mdi-map-marker mdi-12px"></span> ${tempCoords[0].toFixed(6)}, ${tempCoords[1].toFixed(6)}`;
-            tempObjectSummary.innerHTML = `<span class="mdi mdi-crosshairs mdi-12px"></span> ${e.latlng.lat.toFixed(6)}, ${e.latlng.lng.toFixed(6)}`;
+            let tempDist = L.latLng([tempCoords[0].lat, tempCoords[0].lon]).distanceTo([_eLat, _eLon]).toFixed(0);
+            mouseCoordinates.innerHTML = `<span class="mdi mdi-map-marker mdi-12px"></span> ${tempCoords[0].lat}, ${tempCoords[0].lon}`;
+            tempObjectSummary.innerHTML = `<span class="mdi mdi-crosshairs mdi-12px"></span> ${_eLat}, ${_eLon}`;
             tempObjectSummary.innerHTML += `<br>${numberWithSpaces(tempDist)} m`;
 
             if (tempCircle) {
                 tempCircle.setRadius(tempDist);
             }
             if (tempLine) {
-                tempSecondMarkerPin.setLatLng([e.latlng.lat.toFixed(6), e.latlng.lng.toFixed(6)]);
-                tempSecondMarkerDot.setLatLng([e.latlng.lat.toFixed(6), e.latlng.lng.toFixed(6)]);
-                tempLine.setLatLngs([ [tempCoords[0], tempCoords[1]], [e.latlng.lat.toFixed(6), e.latlng.lng.toFixed(6)] ])
+                tempSecondMarkerPin.setLatLng([_eLat, _eLon]);
+                tempSecondMarkerDot.setLatLng([_eLat, _eLon]);
+                tempLine.setLatLngs([ [tempCoords[0].lat, tempCoords[0].lon], [_eLat, _eLon] ])
             }
         } else {
-            mouseCoordinates.innerHTML = `<span class="mdi mdi-crosshairs mdi-12px"></span> ${e.latlng.lat.toFixed(6)}, ${e.latlng.lng.toFixed(6)}`;
+            mouseCoordinates.innerHTML = `<span class="mdi mdi-crosshairs mdi-12px"></span> ${_eLat}, ${_eLon}`;
             tempObjectSummary.innerHTML = '';
         }
 
@@ -654,6 +659,67 @@ function ready() {
      * Different functions
      *
      */
+
+    const calcDistanceInPolyline = (latlngs, unit) => {
+        let _distance = {'m': 0, 'km': 0};
+        let _previousPoint = null;
+        latlngs.forEach((el, i) => {
+            let _lat = el[0];
+            let _lon = el[1];
+            if (_previousPoint) {
+                _distance.m += L.latLng(_previousPoint).distanceTo([_lat, _lon]);
+            }
+            _previousPoint = [_lat, _lon];
+            console.log(_previousPoint, _distance.m);
+        });
+        _distance.km = Math.round(_distance.m / 1000 * 100) / 100;
+        _distance.m = Math.round(_distance.m * 100) / 100;
+        return unit in _distance ? _distance[unit] : _distance;
+    };
+
+    // Shoelace formula for polygonal *flat* area
+    // https://en.wikipedia.org/wiki/Decimal_degrees
+    // latlngs -> [[lat1,lon1], [lat2,lon2], ..., [latN,lonN]]
+    const calcPolygonArea = (latlngs, unit) => {
+            let numPoints = latlngs.length;
+            let area = {'m2': 0, 'km2': 0, 'ft2': 0, 'mi2': 0, 'ac': 0};
+            let j = numPoints - 1;
+            for (let i = 0; i < numPoints; i++) {
+                let y1 = latlngs[j][0] * 111_319.5;
+                let y2 = latlngs[i][0] * 111_319.5;
+                let x1 = latlngs[j][1] * (40_075_000 * Math.cos(latlngs[j][0] * Math.PI / 180) / 360);
+                let x2 = latlngs[i][1] * (40_075_000 * Math.cos(latlngs[i][0] * Math.PI / 180) / 360);
+                area.m2 = area.m2 + (y1 + y2) * (x1 - x2);
+                j = i;
+            }
+            area.m2  = Math.round(Math.abs(area.m2 / 2) * 100) / 100;
+            area.km2 = Math.round(area.m2 / 1e+6 * 100) / 100;
+            area.ft2 = Math.round(area.m2 * 10.76391 * 100) / 100;
+            area.mi2 = Math.round(area.m2 * 3.8610216e-7 * 100) / 100;
+            area.ac  = Math.round(area.m2 * 0.00024711 * 100) / 100;
+            return unit in area ? area[unit] : area;
+        };
+
+    // https://developer.mozilla.org/en-US/docs/Web/API/Clipboard/writeText
+    const copyToClipboard = (data) => {
+            navigator.clipboard.writeText(data).then(function() {
+                /* clipboard successfully set */
+                setSnackbarContent({
+                    'type': 'clipboardCopyResult',
+                    'text': 'Object(s) copied to the clipboard successfully!'
+                });
+                snackbar.close();
+                snackbar.open();
+            }, function() {
+                /* clipboard write failed */
+                setSnackbarContent({
+                    'type': 'clipboardCopyResult',
+                    'text': 'Copying object(s) to the clipboard failed!'
+                });
+                snackbar.close();
+                snackbar.open();
+            });
+    };
 
     const openInNewTab = (url) => {
         let win = window.open(url, '_blank');
@@ -690,23 +756,6 @@ function ready() {
         }
     };
 
-    // Check [lat1, lon1] or [lat1, lon1, rad] or [[lat1, lon1], [lat2, lon2]] -> point or circle or line
-    const typeOfObject = (arr) => {
-        let objectsInArray = arr.length;
-        if (objectsInArray === 2) {
-            if (isLatitude(arr[0]) && isLongitude(arr[1])) {
-                return 'point';
-            } else if (typeOfObject(arr[0]) === 'point' && typeOfObject(arr[1]) === 'point') {
-                return 'line';
-            }
-        }
-        if (objectsInArray === 3 && isLatitude(arr[0]) && isLongitude(arr[1])
-            && !isNaN(arr[2]) && arr[2] > 0 && arr[2] <= 1000000) {
-            return 'circle';
-        }
-        return 'undefined';
-    };
-
 
 
     /**
@@ -722,6 +771,7 @@ function ready() {
         let _clearFieldsButton = document.querySelector('#button-clear-fields');
 
         // "Objects" section buttons
+        let _copyAllObjectsButton = document.querySelector('#button-objects-copy-all');
         let _zoomAllObjectsButton = document.querySelector('#button-objects-zoom-all');
         let _deleteAllObjectsButton = document.querySelector('#button-objects-delete-all');
 
@@ -733,19 +783,29 @@ function ready() {
                     let currentTabName = getActiveTabName();
                     let values = inputFields.getValues(currentTabName);
                     let objLocID, arrayCounters;
-                    if ( currentTabName === 'point' ) {
-                        objLocID = manageObjects.add( 'point', {'latOne': values.lat, 'lonOne': values.lon} );
-                    } else if ( currentTabName === 'circle' ) {
-                        objLocID = manageObjects.add( 'circle', {'latOne': values.lat, 'lonOne': values.lon, 'rad': values.rad} );
-                    } else if ( currentTabName === 'line' ) {
-                        objLocID = manageObjects.add( 'line', {'latOne': values.latOne, 'lonOne': values.lonOne, 'latTwo': values.latTwo, 'lonTwo': values.lonTwo} );
-                    } else if ( currentTabName === 'array' ) {
+                    if (currentTabName === 'point') {
+                        objLocID = manageObjects.add({
+                            'type': 'point',
+                            'coords': [{'lat': values.lat, 'lon': values.lon}]
+                        });
+                    } else if (currentTabName === 'circle') {
+                        objLocID = manageObjects.add({
+                            'type': 'circle',
+                            'coords': [{'lat': values.lat, 'lon': values.lon}],
+                            'radius': values.rad
+                        });
+                    } else if (currentTabName === 'line') {
+                        objLocID = manageObjects.add({
+                            'type': 'polyline',
+                            'coords': [{'lat': values.latOne, 'lon': values.lonOne}, {'lat': values.latTwo, 'lon': values.lonTwo}]
+                        });
+                    } else if (currentTabName === 'array') {
                         arrayCounters = manageObjects.addArray(values.arrayList);
                     }
-                    if ( currentTabName !== 'array' ) {
+                    if (currentTabName !== 'array') {
                         manageObjects.locateByObjectID(objLocID);
                     } else {
-                        if (arrayCounters.points + arrayCounters.circles + arrayCounters.lines > 0) {
+                        if (arrayCounters.payload.points + arrayCounters.payload.circles + arrayCounters.payload.polylines + arrayCounters.payload.polygones > 0) {
                             manageObjects.showAll();
                         }
                         setSnackbarContent(arrayCounters);
@@ -760,6 +820,10 @@ function ready() {
                     buttons.toggleAddToMapButtons(currentTabName);
                 });
 
+                _copyAllObjectsButton.addEventListener('click', function() {
+                    manageObjects.copyAllToClipboard();
+                });
+
                 _zoomAllObjectsButton.addEventListener('click', function() {
                     manageObjects.showAll();
                 });
@@ -772,8 +836,15 @@ function ready() {
 
             updateObjectsManagementButtons: function() {
 
+                let _objectCopyButtons = document.querySelectorAll('.button-object-copy');
                 let _objectLocateButtons = document.querySelectorAll('.button-object-locate');
                 let _objectDeleteButton = document.querySelectorAll('.button-object-delete');
+
+                _objectCopyButtons.forEach(function(el){
+                    el.addEventListener('click', function () {
+                        manageObjects.copyToClipboardByNode(this);
+                    });
+                });
 
                 _objectLocateButtons.forEach(function(el){
                     el.addEventListener('click', function () {
@@ -783,7 +854,6 @@ function ready() {
 
                 _objectDeleteButton.forEach(function(el){
                     el.addEventListener('click', function () {
-
                         manageObjects.delete(this);
                         buttons.toggleObjectListButton();
                     });
@@ -795,25 +865,21 @@ function ready() {
                 let allGood = inputFields.validateValues(type);
 
                 // Enable/Disable «Add to map» button
-                allGood.indexOf(0) > -1
-                    ? _addToMapButton.disabled = true
-                    : _addToMapButton.disabled = false;
+                _addToMapButton.disabled = allGood.indexOf(0) > -1;
 
                 // Enable/Disable «Clear All» button
-                if ( allGood.indexOf(1) > -1 ) {
-                    _clearFieldsButton.disabled = false
-                } else {
-                    _clearFieldsButton.disabled = true;
-                }
+                _clearFieldsButton.disabled = allGood.indexOf(1) <= -1;
             },
 
             toggleObjectListButton: function () {
                 let _objectsList = document.querySelector('#objects-list');
                 if (objects.length > 0) {
+                    _copyAllObjectsButton.disabled = false;
                     _zoomAllObjectsButton.disabled = false;
                     _deleteAllObjectsButton.disabled = false;
                     _objectsList.style.visibility = 'visible';
                 } else {
+                    _copyAllObjectsButton.disabled = true;
                     _zoomAllObjectsButton.disabled = true;
                     _deleteAllObjectsButton.disabled = true;
                     _objectsList.style.visibility = 'hidden';
@@ -943,7 +1009,7 @@ function ready() {
                 } else if ( type === 'array' ) {
                     let allGood = [0,0,0];
                     let v = inputFields.getValues('array');
-                    let re = new RegExp(/^[0-9\ \s*\.\,\-\[\]]*$/i);
+                    let re = new RegExp(/^[0-9a-z\ \s*\.\,\-\[\]\{\}\"\:]*$/i);
                     v.arrayList && re.test(v.arrayList) ? allGood[0] = 1 : allGood[0] = 0;
                     v.arrayList ? allGood[1] = 1 : allGood[1] = 0;
                     isJSON(v.arrayList) ? allGood[2] = 1 : allGood[2] = 0;
@@ -969,156 +1035,222 @@ function ready() {
 
         return {
 
-            add: function ( type, params ) {
+            add: function (obj) {
+                let type = obj.type;
+                let coords = obj.coords;
+                let radius = obj.radius ? obj.radius : null;
+                let props = '';
 
-                counter++;
+                if (type && coords) {
+                    counter++;
+                    let list = [];
+                    let group;
 
-                let _latOne = isNaN(params.latOne) ? params.latOne : parseFloat(params.latOne).toFixed(6);
-                let _lonOne = isNaN(params.lonOne) ? params.lonOne : parseFloat(params.lonOne).toFixed(6);
-                let _latTwo = isNaN(params.latTwo) ? params.latTwo : parseFloat(params.latTwo).toFixed(6);
-                let _lonTwo = isNaN(params.lonTwo) ? params.lonTwo : parseFloat(params.lonTwo).toFixed(6);
-                let _rad = params.rad;
+                    let iconPin = L.divIcon({
+                        className: 'marker-icon-pin',
+                        html: "<div class='marker-pin marker-" + type + "-color'></div><b>" + counter + "</b>",
+                        iconSize: [30, 42],
+                        iconAnchor: [15, 42]
+                    });
 
-                let list = [];
-                let group;
+                    let iconDot = L.divIcon({
+                        className: 'marker-icon-dot marker-' + type + '-color',
+                        iconSize: [4, 4],
+                        iconAnchor: [3, 3]
+                    });
 
-                let markerOnePin;
+                    if (type === 'point') {
+                        let _lat = coords[0].lat;
+                        let _lon = coords[0].lon;
+                        list.push(
+                            L.marker([_lat, _lon], {
+                                id: counter,
+                                points: [1, 1],
+                                latLon: [_lat, _lon],
+                                icon: iconDot
+                            }).bindPopup(generatePopupText(counter, 'Point', 1, 1, _lat, _lon))
+                        );
+                        if (showMarker) {
+                            list.push(
+                                L.marker([_lat, _lon], {
+                                    id: counter,
+                                    points: [1, 1],
+                                    latLon: [_lat, _lon],
+                                    icon: iconPin
+                                }).bindPopup(generatePopupText(counter, 'Point', 1, 1, _lat, _lon))
+                            );
+                        }
+                        addAddressToDB(_lat, _lon);
+                    }
 
-                let iconPin = L.divIcon({
-                    className: 'marker-icon-pin',
-                    html: "<div class='marker-pin marker-" + type + "-color'></div><b>" + counter + "</b>",
-                    iconSize: [30, 42],
-                    iconAnchor: [15, 42]
-                });
+                    if (type === 'circle') {
+                        props = '≈ ' + numberWithSpaces(radius) + ' m';
+                        let _lat = coords[0].lat;
+                        let _lon = coords[0].lon;
+                        list.push(
+                            L.circle([_lat,_lon], {
+                                radius: radius,
+                                weight: lineWeight
+                            }),
 
-                let iconDot = L.divIcon({
-                    className: 'marker-icon-dot marker-' + type + '-color',
-                    iconSize: [4, 4],
-                    iconAnchor: [3, 3]
-                });
+                            L.marker([_lat, _lon], {
+                                id: counter,
+                                points: [1, 1],
+                                latLon: [_lat, _lon],
+                                radius: radius,
+                                icon: iconDot
+                            }).bindPopup(generatePopupText(counter, 'Circle', 1, 1, _lat, _lon, props))
+                        );
+                        if (showMarker) {
+                            list.push(
+                                L.marker([_lat, _lon], {
+                                    id: counter,
+                                    points: [1, 1],
+                                    latLon: [_lat, _lon],
+                                    radius: radius,
+                                    icon: iconPin
+                                }).bindPopup(generatePopupText(counter, 'Circle', 1, 1, _lat, _lon, props))
+                            );
+                        }
+                        addAddressToDB(_lat, _lon);
+                    }
 
+                    if (type === 'polyline') {
+                        let _points = coords.length;
+                        let _latLons = [];
+                        coords.forEach((el, i) => {
+                            let _lat = el.lat;
+                            let _lon = el.lon;
+                            _latLons.push([_lat, _lon]);
+                            list.push(
+                                L.marker([_lat, _lon], {
+                                    id: counter,
+                                    points: [i + 1, _points],
+                                    latLon: [_lat, _lon],
+                                    icon: iconDot
+                                }).bindPopup(generatePopupText(counter, 'Polyline', i+1, _points, _lat, _lon))
+                            );
+                            if (showMarker) {
+                                list.push(
+                                    L.marker([_lat, _lon], {
+                                        id: counter,
+                                        points: [i + 1, _points],
+                                        latLon: [_lat, _lon],
+                                        icon: iconPin
+                                    }).bindPopup(generatePopupText(counter, 'Polyline', i+1, _points, _lat, _lon))
+                                );
+                            }
+                            addAddressToDB(_lat, _lon);
+                        });
 
-                // Add a markerOne in the given location
-                if ( typeof _latOne !== 'undefined' && typeof _lonOne !== 'undefined' ) {
-                    list.push(
-                        markerOnePin = L.marker([_latOne,_lonOne], {
-                            id: 'first-marker-pin-' + counter,
-                            latLon: [_latOne,_lonOne],
-                            icon: iconPin
-                        }),
+                        props = '≈ ' + numberWithSpaces(calcDistanceInPolyline(_latLons, 'km')) + ' km';
 
-                        L.marker([_latOne,_lonOne], {
-                            id: 'first-marker-dot-' + counter,
-                            latLon: [_latOne,_lonOne],
-                            icon: iconDot
-                        }).bindPopup(generatePopupText(_latOne, _lonOne))
-                    );
-                    addAddressToDB(_latOne, _lonOne);
+                        list.push(
+                            L.polyline(_latLons, {
+                                color: '#f33',
+                                weight: lineWeight
+                            })
+                        );
+
+                    }
+
+                    if (type === 'polygon') {
+                        let _points = coords.length;
+                        let _latLons = [];
+                        coords.forEach((el, i) => {
+                            let _lat = el.lat;
+                            let _lon = el.lon;
+                            _latLons.push([_lat, _lon]);
+                            list.push(
+                                L.marker([_lat, _lon], {
+                                    id: counter,
+                                    points: [i + 1, _points],
+                                    latLon: [_lat, _lon],
+                                    icon: iconDot
+                                }).bindPopup(generatePopupText(counter, 'Polygon', i+1, _points, _lat, _lon))
+                            );
+                            if (showMarker) {
+                                list.push(
+                                    L.marker([_lat, _lon], {
+                                        id: counter,
+                                        points: [i + 1, _points],
+                                        latLon: [_lat, _lon],
+                                        icon: iconPin
+                                    }).bindPopup(generatePopupText(counter, 'Polygon', i+1, _points, _lat, _lon))
+                                );
+                            }
+                            addAddressToDB(_lat, _lon);
+                        });
+
+                        props = '≈ ' + numberWithSpaces(calcPolygonArea(_latLons, 'km2')) + ' km<sup>2</sup>';
+
+                        list.push(
+                            L.polygon(_latLons, {
+                                color: '#080',
+                                weight: lineWeight
+                            })
+                        );
+
+                    }
+
+                    group = new L.featureGroup(list).addTo(map);
+
+                    // Add table row in list of objects
+                    objectsList.innerHTML += generateListObjectsTable(counter, type, props);
+
+                    let objectOnMap = {
+                        'id': counter,
+                        'type': type,
+                        'object': obj,
+                        'leaflet_object': group,
+                        'measurements': props
+                    };
+
+                    objects.push(objectOnMap);
+
+                    buttons.updateObjectsManagementButtons();
+                    buttons.toggleObjectListButton();
+
+                    addAddressToPopup(counter);
+
+                    if (rulerButtonEnabled) manageObjects.disableAllPopups();
+
                 }
-
-
-                // Add a markerTwo and Line in the given location
-                if ( typeof _latTwo !== 'undefined' && typeof _latTwo !== 'undefined' ) {
-                    let _distance = numberWithSpaces(L.latLng([_latOne, _lonOne]).distanceTo([_latTwo, _lonTwo]).toFixed(0));
-                    list.push(
-                        object = L.polyline([ [_latOne, _lonOne], [_latTwo, _lonTwo] ], {
-                            color: '#f33',
-                            weight: 3,
-                            opacity: 0.6,
-                        }).bindPopup(`Distance: ${_distance} m`),
-
-                        L.marker([_latTwo, _lonTwo], {
-                            id: 'second-marker-pin-' + counter,
-                            latLon: [_latTwo, _lonTwo],
-                            icon: iconPin
-                        }).bindPopup(generatePopupText(_latTwo, _lonTwo)),
-
-                        L.marker([_latTwo, _lonTwo], {
-                            id: 'second-marker-dot-' + counter,
-                            latLon: [_latTwo, _lonTwo],
-                            icon: iconDot
-                        }).bindPopup(generatePopupText(_latTwo, _lonTwo))
-                    );
-                    addAddressToDB(_latTwo, _lonTwo);
-                }
-
-                if ( typeof _rad !== 'undefined' ) {
-                    list.push(
-                        L.circle([_latOne,_lonOne], {
-                            radius: _rad,
-                            weight: 1
-                        })
-                    );
-
-                    markerOnePin.options.rad = _rad;
-                    markerOnePin.bindPopup(generatePopupText(_latOne, _lonOne, '', _rad));
-                } else {
-                    markerOnePin.bindPopup(generatePopupText(_latOne, _lonOne));
-                }
-
-                group = new L.featureGroup(list).addTo(map);
-
-                // Add table row in list of objects
-                if ( type === 'point' ) {
-                    objectsList.innerHTML += `<tr><td>${counter}</td><td>${type}</td><td>${_latOne} ${_lonOne}</td><td></td><td>${buttonsHTML}</td></tr>`;
-                } else if ( type === 'circle' ) {
-                    objectsList.innerHTML += `<tr><td>${counter}</td><td>${type}</td><td>${_latOne} ${_lonOne}</td><td><span style="white-space: nowrap;">${numberWithSpaces(_rad)}</span></td><td>${buttonsHTML}</td></tr>`;
-                } else if ( type === 'line' ) {
-                    let _distance = numberWithSpaces(L.latLng([_latOne, _lonOne]).distanceTo([_latTwo, _lonTwo]).toFixed(0));
-                    objectsList.innerHTML += `<tr><td>${counter}</td><td>${type}</td><td>${_latOne} ${_lonOne}<br>${_latTwo} ${_lonTwo}</td><td><span style="white-space: nowrap;">${_distance}</span></td><td>${buttonsHTML}</td></tr>`;
-                }
-
-
-                let objectOnMap = {
-                    'id': counter,
-                    'type': type,
-                    'object': group
-                };
-
-                objects.push(objectOnMap);
-
-                buttons.updateObjectsManagementButtons();
-                buttons.toggleObjectListButton();
-
-                addAddressToPopup(counter);
-
-                if (rulerButtonEnabled) manageObjects.disableAllPopups();
 
                 return counter;
             },
 
             addArray: function(rawArray) {
-                let counters = {'points': 0, 'circles': 0, 'lines': 0, 'skipped': 0};
+                let counters = {
+                    'type': 'addArray',
+                    'payload': {
+                        'points': 0,
+                        'circles': 0,
+                        'polylines': 0,
+                        'polygones': 0,
+                        'skipped': 0}
+                };
                 let arr = JSON.parse(rawArray);
-                let type = typeOfObject(arr);
-                if (type === 'point') {
-                    manageObjects.add( 'point', {'latOne': arr[0], 'lonOne': arr[1]} );
-                    counters.points += 1;
-                } else if (type === 'circle') {
-                    manageObjects.add( 'circle', {'latOne': arr[0], 'lonOne': arr[1], 'rad': arr[2]} );
-                    counters.circles += 1;
-                } else if (type === 'line') {
-                    manageObjects.add( 'line', {'latOne': arr[0][0], 'lonOne': arr[0][1], 'latTwo': arr[1][0], 'lonTwo': arr[1][1]} );
-                    counters.lines += 1;
-                } else if (arr[0][0]) {
-                    arr.forEach(el => {
-                        let type = typeOfObject(el);
-                        if (type === 'point') {
-                            manageObjects.add( 'point', {'latOne': el[0], 'lonOne': el[1]} );
-                            counters.points += 1;
-                        } else if (type === 'circle') {
-                            manageObjects.add( 'circle', {'latOne': el[0], 'lonOne': el[1], 'rad': el[2]} );
-                            counters.circles += 1;
-                        } else if (type === 'line') {
-                            manageObjects.add( 'line', {'latOne': el[0][0], 'lonOne': el[0][1], 'latTwo': el[1][0], 'lonTwo': el[1][1]} );
-                            counters.lines += 1;
+                arr.forEach( (el, i) => {
+                    if (el.type && el.coords) {
+                        let id = manageObjects.add(el);
+                        if (id > 0) {
+                            if (el.type === 'point') {
+                                counters.payload.points += 1;
+                            } else if (el.type === 'circle') {
+                                counters.payload.circles += 1;
+                            } else if (el.type === 'polyline') {
+                                counters.payload.polylines += 1;
+                            } else if (el.type === 'polygon') {
+                                counters.payload.polygones += 1;
+                            }
                         } else {
-                            counters.skipped += 1;
+                            counters.payload.skipped += 1;
                         }
-                    });
-                } else {
-                    counters.skipped += 1;
-                }
+                    } else {
+                        counters.skipped += 1;
+                    }
+                });
                 return counters;
             },
 
@@ -1126,30 +1258,46 @@ function ready() {
                 let row = obj.parentNode.parentNode;
                 let id = parseInt(row.firstChild.textContent);
                 let index = objects.findIndex(x => x.id === id);
-                objects[index].object.clearLayers();
+                objects[index].leaflet_object.clearLayers();
                 objects.splice(index, 1);
                 row.remove();
+            },
+
+            copyAllToClipboard: function() {
+                let list = [];
+                objects.forEach(function(obj) {
+                    list.push(obj.object);
+                });
+                console.log(list);
+                copyToClipboard(JSON.stringify(list));
+            },
+
+            copyToClipboardByNode: function(obj) {
+                let row = obj.parentNode.parentNode;
+                let id = parseInt(row.firstChild.textContent);
+                let index = objects.findIndex(x => x.id === id);
+                copyToClipboard('[' + JSON.stringify(objects[index].object) + ']');
             },
 
             locateByNode: function(obj) {
                 let row = obj.parentNode.parentNode;
                 let id = parseInt(row.firstChild.textContent);
                 let index = objects.findIndex(x => x.id === id);
-                map.flyToBounds(objects[index].object.getBounds(), {padding: L.point(100, 100)});
+                map.flyToBounds(objects[index].leaflet_object.getBounds(), {padding: L.point(100, 100)});
             },
 
             locateByObjectID: function(id) {
                 let index = objects.findIndex(x => x.id === id);
                 if ( objects[index].type === 'point' ) {
-                    map.flyToBounds(objects[index].object.getBounds(), {maxZoom: 12});
+                    map.flyToBounds(objects[index].leaflet_object.getBounds(), {maxZoom: 12});
                 } else {
-                    map.flyToBounds(objects[index].object.getBounds(), {padding: L.point(100, 100)});
+                    map.flyToBounds(objects[index].leaflet_object.getBounds(), {padding: L.point(100, 100)});
                 }
             },
 
             deleteAll: function() {
                 objects.forEach(function(obj) {
-                    obj.object.clearLayers();
+                    obj.leaflet_object.clearLayers();
                 });
                 objects = [];
                 objectsList.innerHTML = '';
@@ -1159,7 +1307,7 @@ function ready() {
             showAll: function () {
                 let q = [];
                 objects.forEach(function(obj) {
-                    q.push(obj.object);
+                    q.push(obj.leaflet_object);
                 });
                 if (q.length) {
                     let group = new L.featureGroup(q);
@@ -1169,7 +1317,7 @@ function ready() {
 
             disableAllPopups: function() {
                 objects.forEach(function(obj) {
-                    obj.object.eachLayer(function (layer) {
+                    obj.leaflet_object.eachLayer(function (layer) {
                         if (layer instanceof L.Marker) {
                             layer.off('click');
                         }
@@ -1179,7 +1327,7 @@ function ready() {
 
             enableAllPopups: function() {
                 objects.forEach(function(obj) {
-                    obj.object.eachLayer(function (layer) {
+                    obj.leaflet_object.eachLayer(function (layer) {
                         if (layer instanceof L.Marker) {
                             layer.on('click', function () {
                                 if (layer.getPopup()) {
@@ -1252,14 +1400,25 @@ function ready() {
 
     window.mdc.autoInit();
 
+    let markerSwitch = new mdc.switchControl.MDCSwitch(document.getElementById('b-marker-switch'));
+    markerSwitch.checked = true;
+    markerSwitch.listen('change', function(event) {
+        showMarker = event.target.checked;
+    });
+
     let snackbar = new mdc.snackbar.MDCSnackbar(document.getElementById('b-mdc-snackbar'));
     let snackbarContent = document.getElementById('b-mdc-snackbar-content');
     snackbar.timeoutMs = 7500;
     const setSnackbarContent = (obj) => {
-        snackbarContent.innerHTML = `Added <strong>${obj.points}</strong> point(s), `
-            + `<strong>${obj.circles}</strong> circle(s) and `
-            + `<strong>${obj.lines}</strong> line(s).<br>`
-            + `Skipped <strong>${obj.skipped}</strong> element(s).`
+        if (obj.type === 'addArray') {
+            snackbarContent.innerHTML = `Added <strong>${obj.payload.points}</strong> point(s), `
+                + `<strong>${obj.payload.circles}</strong> circle(s), `
+                + `<strong>${obj.payload.polylines}</strong> polyline(s) and `
+                + `<strong>${obj.payload.polygones}</strong> polygone(s).<br>`
+                + `Skipped <strong>${obj.payload.skipped}</strong> element(s).`
+        } else if (obj.type === 'clipboardCopyResult') {
+            snackbarContent.innerHTML = obj.text;
+        }
     };
 
     let tabBar = new mdc.tabBar.MDCTabBar(document.querySelector('.mdc-tab-bar'));
@@ -1305,7 +1464,7 @@ function ready() {
         currentTab = 'array';
         if (searchParamAddArray && isJSON(searchParamAddArray)) {
             let arrayCounters = manageObjects.addArray(searchParamAddArray);
-            if (arrayCounters.points + arrayCounters.circles + arrayCounters.lines > 0) {
+            if (arrayCounters.payload.points + arrayCounters.payload.circles + arrayCounters.payload.polylines + arrayCounters.payload.polygones > 0) {
                 manageObjects.showAll();
             }
             setSnackbarContent(arrayCounters);
