@@ -482,12 +482,12 @@ a > .mdc-button__label {
 
 .popup-col-1, .popup-col-2 {
     align-self: flex-start;
+    min-width: 50px;
 }
 
 .popup-col-1 {
     text-align: right;
     padding-right: 15px;
-    min-width: 50px;
 }
 
 .popup-col-2 small {
