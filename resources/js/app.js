@@ -3,11 +3,11 @@ function ready() {
     let tabsNodeList = document.querySelectorAll('.mdc-tab');
 
     let buttonsHTML =
-        '<button class="mdc-button button-object-copy"><span class="mdc-button__ripple"></span>' +
+        '<button class="mdc-button button-object-copy" title="Copy JSON to clipboard"><span class="mdc-button__ripple"></span>' +
         '<span class="mdi mdi-icon-button mdi-content-copy mdi-18px"></span></button>' +
-        '<button class="mdc-button button-object-locate"><span class="mdc-button__ripple"></span>' +
+        '<button class="mdc-button button-object-locate" title="Locate on the map"><span class="mdc-button__ripple"></span>' +
         '<span class="mdi mdi-icon-button mdi-crosshairs-gps mdi-18px"></span></button>' +
-        '<button class="mdc-button button-object-delete"><span class="mdc-button__ripple"></span>' +
+        '<button class="mdc-button button-object-delete"  title="Delete object"><span class="mdc-button__ripple"></span>' +
         '<span class="mdi mdi-icon-button mdi-delete-forever mdi-18px"></span></button>';
 
     let objectsList = document.querySelector('#objects-list > tbody');
@@ -701,12 +701,12 @@ function ready() {
         };
 
     // https://developer.mozilla.org/en-US/docs/Web/API/Clipboard/writeText
-    const copyToClipboard = (data) => {
+    const copyToClipboard = (data, type) => {
             navigator.clipboard.writeText(data).then(function() {
                 /* clipboard successfully set */
                 setSnackbarContent({
                     'type': 'clipboardCopyResult',
-                    'text': 'Object(s) copied to the clipboard successfully!'
+                    'text': `JSON data of <strong>${type}</strong> copied to clipboard successfully!`
                 });
                 snackbar.close();
                 snackbar.open();
@@ -714,7 +714,7 @@ function ready() {
                 /* clipboard write failed */
                 setSnackbarContent({
                     'type': 'clipboardCopyResult',
-                    'text': 'Copying object(s) to the clipboard failed!'
+                    'text': `JSON data of <strong>${type}</strong> copying to clipboard failed!`
                 });
                 snackbar.close();
                 snackbar.open();
@@ -1268,15 +1268,14 @@ function ready() {
                 objects.forEach(function(obj) {
                     list.push(obj.object);
                 });
-                console.log(list);
-                copyToClipboard(JSON.stringify(list));
+                copyToClipboard(JSON.stringify(list), 'all objects');
             },
 
             copyToClipboardByNode: function(obj) {
                 let row = obj.parentNode.parentNode;
                 let id = parseInt(row.firstChild.textContent);
                 let index = objects.findIndex(x => x.id === id);
-                copyToClipboard('[' + JSON.stringify(objects[index].object) + ']');
+                copyToClipboard('[' + JSON.stringify(objects[index].object) + ']', objects[index].type);
             },
 
             locateByNode: function(obj) {
@@ -1479,7 +1478,7 @@ function ready() {
     const modalBackground = new mdc.dialog.MDCDialog(dialogElement);
 
     dialogElement.querySelector('#dialog-confirm').onclick = function () {
-        openInNewTab('https://yandex.com/support/common/browsers-settings/')
+        openInNewTab('https://yandex.com/support/common/browsers-settings/');
         modalBackground.close();
     };
 
