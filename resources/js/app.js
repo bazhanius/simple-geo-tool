@@ -670,7 +670,6 @@ function ready() {
                 _distance.m += L.latLng(_previousPoint).distanceTo([_lat, _lon]);
             }
             _previousPoint = [_lat, _lon];
-            console.log(_previousPoint, _distance.m);
         });
         _distance.km = Math.round(_distance.m / 1000 * 100) / 100;
         _distance.m = Math.round(_distance.m * 100) / 100;

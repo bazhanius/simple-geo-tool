@@ -54,11 +54,11 @@ Use any combination of these objects:
 ##### Point
 ```json
 {
-   "type":"point",
+   "type": "point",
    "coords":[
       {
-         "lat":"55.039372",
-         "lon":"37.552016"
+         "lat": 55.039372,
+         "lon": 37.552016
       }
    ]
 }
@@ -66,36 +66,36 @@ Use any combination of these objects:
 ##### Circle
 ```json
 {
-   "type":"circle",
+   "type": "circle",
    "coords":[
       {
-         "lat":"56.325227",
-         "lon":"37.854250"
+         "lat": 56.325227,
+         "lon": 37.854250
       }
    ],
-   "radius":"10000"
+   "radius": 10000
 }
 ```
 ##### Polyline
 ```json
 {
-   "type":"polyline",
+   "type": "polyline",
    "coords":[
       {
-         "lat":55.124319,
-         "lon":36.777198
+         "lat": 55.124319,
+         "lon": 36.777198
       },
       {
-         "lat":56.273381,
-         "lon":38.777437
+         "lat": 56.273381,
+         "lon": 38.777437
       },
       {
-         "lat":55.630222,
-         "lon":39.332448
+         "lat": 55.630222,
+         "lon": 39.332448
       },
       {
-         "lat":55.124319,
-         "lon":36.777198
+         "lat": 55.124319,
+         "lon": 36.777198
       }
    ]
 }
@@ -103,27 +103,27 @@ Use any combination of these objects:
 ##### Polygon
 ```json
 {
-   "type":"polygon",
+   "type": "polygon",
    "coords":[
       {
-         "lon":36.426052,
-         "lat":56.181837
+         "lon": 36.426052,
+         "lat": 56.181837
       },
       {
-         "lon":39.201706,
-         "lat":56.160414
+         "lon": 39.201706,
+         "lat": 56.160414
       },
       {
-         "lon":38.987349,
-         "lat":55.143146
+         "lon": 38.987349,
+         "lat": 55.143146
       },
       {
-         "lon":36.327118,
-         "lat":55.290538
+         "lon": 36.327118,
+         "lat": 55.290538
       },
       {
-         "lon":36.426052,
-         "lat":56.181837
+         "lon": 36.426052,
+         "lat": 56.181837
       }
    ]
 }
