@@ -745,7 +745,7 @@ function ready() {
     const isLongitude = num => !isNaN(num) && num !== '' && Math.abs(num) <= 180;
 
     const isJSON = (str) => {
-        if (str.length < 5) {
+        if (str.length < 5 || !str.startsWith('[')) {
             return false;
         }
         try {
