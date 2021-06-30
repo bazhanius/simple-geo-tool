@@ -22,6 +22,18 @@ h3 {
     color: #999;
 }
 
+kbd {
+    font-family: 'Inconsolata', monospace;
+    display: inline-block;
+    border-radius: 3px;
+    padding: 0 4px 1px;
+    box-shadow: 1px 1px 1px #777;
+    color: #000;
+    background: #eee;
+    font-variant: small-caps;
+    letter-spacing: 1px;
+}
+
 
 
 /* Main layout */
@@ -342,6 +354,37 @@ a > .mdc-button__label {
     min-width: 36px;
 }
 
+/* Hints */
+
+details {
+    border: 1px solid rgba(255, 255, 0, 0.3);
+    background-color: rgba(255, 255, 0, 0.1);
+    border-radius: 4px;
+    padding: .5em .5em 0;
+    margin: 10px 0 16px;
+    color: #555;
+    font-weight: 300;
+    line-height: 1.5rem;
+}
+
+summary {
+    font-weight: 500;
+    margin: -.5em -.5em 0;
+    padding: .5em;
+    cursor: pointer;
+}
+
+details[open] {
+    padding: .5em;
+}
+
+details[open] summary {
+    /* border-bottom: 1px solid rgba(255, 255, 0, 0.3);
+    margin-bottom: .5em; */
+}
+
+
+
 .meta {
     color: #555;
     border: 1px solid rgba(255, 255, 0, 0.3);
@@ -358,6 +401,7 @@ a > .mdc-button__label {
 
 .meta-content {
     display: block;
+    padding: .2em 1em;
 }
 
 .meta-content.meta-content__hidden {
