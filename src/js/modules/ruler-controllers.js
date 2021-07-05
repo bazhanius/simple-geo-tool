@@ -1,5 +1,7 @@
 import { map } from './create-map.js';
 import { manageObjects } from './manage-objects.js';
+import { shift } from './manage-temp-objects.js';
+import { generateRulerPopupText } from './html-generators.js';
 
 /**
  *

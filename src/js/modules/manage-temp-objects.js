@@ -199,4 +199,7 @@ map.on("mousemove", e => {
 
 });
 
-export { Coordinates };
+export {
+    Coordinates,
+    shift
+};
