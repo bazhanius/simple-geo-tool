@@ -367,6 +367,10 @@ details {
     line-height: 1.5rem;
 }
 
+details:focus, summary:focus {
+    outline: none;
+}
+
 summary {
     font-weight: 500;
     margin: -.5em -.5em 0;
