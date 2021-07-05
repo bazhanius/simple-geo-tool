@@ -1,0 +1,6 @@
+{
+  "name": "simple-geo-tool",
+  "scripts": {
+    "build": "webpack"
+  }
+}
