@@ -29,8 +29,29 @@ function generateRulerPopupText(distance, id) {
         + `<span id="ruler-id-${id}" class="mdi mdi-icon-button mdi-delete-forever mdi-12px"></span>`
 }
 
+function generateHint(type) {
+    if (type === 'point') {
+        return '<p>You can add point by holding down the <kbd>shift</kbd> key while left-clicking on the map.</p>'
+            + '<p>Click once to add one point.</p>'
+    }
+    if (type === 'circle') {
+        return '<p>You can add circle by holding down the <kbd>shift</kbd> key while left-clicking on the map.</p>'
+            + '<p>Click twice — first time to add center point and second for circle edge.</p>'
+    }
+    if (type === 'line') {
+        return '<p>You can add line, polyline or polygon by holding down the <kbd>shift</kbd> key while left-clicking on the map.</p>'
+            + '<p>Click on any temp marker to finish. If you click first marker at last it will be polygon, otherwise it will be polyline.</p>'
+    }
+    if (type === 'array') {
+        return '<p>Array of objects: <code>[{obj_1}, {obj_2}, ..., {obj_n}]</code>.'
+            + '<a href="https://github.com/bazhanius/simple-geo-tool/#add-array-of-coordinates-via-text-field">Learn more</a>.</p>'
+    }
+    return '';
+}
+
 export {
     generateListObjectsTable,
     generatePopupText,
-    generateRulerPopupText
+    generateRulerPopupText,
+    generateHint
 }

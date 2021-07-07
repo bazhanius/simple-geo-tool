@@ -20,10 +20,22 @@ tabsNodeList.forEach(function(el){
         // Clear all temp objects on map
         tempCoords = [];
         tempMarker.clearLayers();
-        if (tempCircle) tempCircle.remove();
-        if (tempLine) tempLine.remove();
-        if (tempSecondMarkerPin) tempSecondMarkerPin.remove();
-        if (tempSecondMarkerDot) tempSecondMarkerDot.remove();
+        if (tempCircle) {
+            tempCircle.remove();
+            tempCircle = undefined;
+        }
+        if (tempLine) {
+            tempLine.remove();
+            tempLine = undefined;
+        }
+        if (tempSecondMarkerPin) {
+            tempSecondMarkerPin.remove();
+            tempSecondMarkerPin = undefined;
+        }
+        if (tempSecondMarkerDot) {
+            tempSecondMarkerDot.remove();
+            tempSecondMarkerDot = undefined;
+        }
     });
 });
 
@@ -73,6 +85,22 @@ function shiftHandler(event) {
 window.addEventListener("keydown", shiftHandler, false);
 window.addEventListener("keypress", shiftHandler, false);
 window.addEventListener("keyup", shiftHandler, false);
+
+const finishMultiLine = (latLon) => {
+    let type = (tempCoords[0].lat === latLon[0] && tempCoords[0].lon === latLon[1] && tempCoords.length > 2)
+        ? 'polygon'
+        : 'polyline';
+    manageObjects.add({
+        'type': type,
+        'coords': tempCoords
+    });
+    tempMarker.clearLayers();
+    tempCoords = [];
+    tempSecondMarkerPin.remove();
+    tempSecondMarkerDot.remove();
+    tempLine.remove();
+    tempLine = undefined;
+};
 
 map.on('click', function(e) {
     if (shift && currentTab !== 'array') {
@@ -125,44 +153,51 @@ map.on('click', function(e) {
         }
 
         if (currentTabName === 'line' && shift) {
-            if (tempCoords.length === 1) {
-                tempLine = L.polyline([ [tempCoords[0].lat, tempCoords[0].lon], [tempCoords[0].lat, tempCoords[0].lon] ], {
+            let lastPointIndex = tempCoords.length - 1;
+
+            console.log(tempLine);
+            if (tempLine) {
+                tempLine.setLatLngs(tempCoords);
+            } else {
+                tempLine = L.polyline(tempCoords, {
                     color: '#ff3',
                     weight: 2,
                     opacity: 0.6
                 }).addTo(map);
+            }
 
-                tempMarker.addLayer(
-                    L.marker([tempCoords[0].lat, tempCoords[0].lon], {
-                        icon: tempIconPin
-                    })
-                );
+            tempMarker.addLayer(
+                L.marker([tempCoords[lastPointIndex].lat, tempCoords[lastPointIndex].lon], {
+                    icon: tempIconPin
+                }).on('click', () => {
+                    finishMultiLine([tempCoords[lastPointIndex].lat, tempCoords[lastPointIndex].lon]);
+                })
+            );
 
-                tempMarker.addLayer(
-                    L.marker([tempCoords[0].lat, tempCoords[0].lon], {
-                        icon: tempIconDot
-                    })
-                );
+            tempMarker.addLayer(
+                L.marker([tempCoords[lastPointIndex].lat, tempCoords[lastPointIndex].lon], {
+                    icon: tempIconDot
+                }).on('click', (e) => {
+                    finishMultiLine([tempCoords[lastPointIndex].lat, tempCoords[lastPointIndex].lon]);
+                })
+            );
 
-                tempSecondMarkerPin = L.marker([tempCoords[0].lat, tempCoords[0].lon], {
+            if (tempSecondMarkerPin) {
+                tempSecondMarkerPin.setLatLng([tempCoords[lastPointIndex].lat, tempCoords[lastPointIndex].lon]);
+            } else {
+                tempSecondMarkerPin = L.marker([tempCoords[lastPointIndex].lat, tempCoords[lastPointIndex].lon], {
                     icon: tempIconPin
                 }).addTo(map);
+            }
 
-                tempSecondMarkerDot = L.marker([tempCoords[0].lat, tempCoords[0].lon], {
+            if (tempSecondMarkerDot) {
+                tempSecondMarkerDot.setLatLng([tempCoords[lastPointIndex].lat, tempCoords[lastPointIndex].lon]);
+            } else {
+                tempSecondMarkerDot = L.marker([tempCoords[lastPointIndex].lat, tempCoords[lastPointIndex].lon], {
                     icon: tempIconDot
                 }).addTo(map);
-
-            } else if (tempCoords.length >= 2) {
-                manageObjects.add({
-                    'type': 'polyline',
-                    'coords': tempCoords
-                });
-                tempMarker.clearLayers();
-                tempCoords = [];
-                tempSecondMarkerPin.remove();
-                tempSecondMarkerDot.remove();
-                tempLine.remove();
             }
+
         }
     }
 
@@ -190,7 +225,7 @@ map.on("mousemove", e => {
         if (tempLine) {
             tempSecondMarkerPin.setLatLng([_eLat, _eLon]);
             tempSecondMarkerDot.setLatLng([_eLat, _eLon]);
-            tempLine.setLatLngs([ [tempCoords[0].lat, tempCoords[0].lon], [_eLat, _eLon] ])
+            tempLine.setLatLngs(tempCoords.concat({'lat':_eLat, 'lon':_eLon}));
         }
     } else {
         mouseCoordinates.innerHTML = `<span class="mdi mdi-crosshairs mdi-12px"></span> ${_eLat}, ${_eLon}`;
