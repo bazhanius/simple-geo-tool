@@ -405,7 +405,7 @@ details[open] summary {
 
 .meta-content {
     display: block;
-    padding: .2em 1em;
+    padding: 0 1em;
 }
 
 .meta-content.meta-content__hidden {

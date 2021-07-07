@@ -12,7 +12,7 @@
 Yet another (supposed to be simple) tool to add geo objects on map.
 [Try it on GitHub Pages](https://bazhanius.github.io/simple-geo-tool/).
 
-<kbd>![img](https://repository-images.githubusercontent.com/194441323/eeae9480-9408-11eb-89e2-4e639eac9282)</kbd>
+<kbd>![img](https://repository-images.githubusercontent.com/194441323/00836480-df2f-11eb-9938-2beb307d36dd)</kbd>
 
 ## Features
 - Adding object(s) on the map:
@@ -25,6 +25,7 @@ Yet another (supposed to be simple) tool to add geo objects on map.
   - point (standalone marker)
   - point with accuracy (marker with radius — circle)
   - line (two markers with line between them)
+  - polyline and polygon
   - point, circle, polyline and polygon as JSON array of objects
 - List of added objects with opportunity to:
   - copy object to clipboard

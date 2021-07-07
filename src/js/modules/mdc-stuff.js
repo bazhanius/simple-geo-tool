@@ -1,4 +1,5 @@
 import { setShowMarker } from './settings.js';
+import { generateHint} from "./html-generators.js";
 
 /**
  *
@@ -33,8 +34,7 @@ let tabBar = new mdc.tabBar.MDCTabBar(document.querySelector('.mdc-tab-bar'));
 let contentEls = document.querySelectorAll('.mdc-tab-content');
 let tabNames = ['point', 'circle', 'line', 'array'];
 let currentTab = 'point';
-let hintAboutShiftKey = document.getElementById('hint-about-shift-key');
-let hintAboutArrayOfCoords = document.getElementById('hint-about-array-of-coords');
+let hintAboutTabs = document.getElementById('hint-about-tabs');
 tabBar.listen('MDCTabBar:activated', function(event) {
     currentTab = tabNames[event.detail.index];
     // Hide currently-active content
@@ -43,13 +43,7 @@ tabBar.listen('MDCTabBar:activated', function(event) {
     contentEls[event.detail.index].classList.add('mdc-tab-content--active');
     // Change the URL's hash with the tab name
     history.pushState('','','?tab=' + currentTab);
-    if (currentTab === 'array') {
-        hintAboutShiftKey.classList.add('meta-content__hidden');
-        hintAboutArrayOfCoords.classList.remove('meta-content__hidden');
-    } else {
-        hintAboutShiftKey.classList.remove('meta-content__hidden');
-        hintAboutArrayOfCoords.classList.add('meta-content__hidden');
-    }
+    hintAboutTabs.innerHTML = generateHint(currentTab);
 });
 const getActiveTabName = () => {
     return currentTab;
