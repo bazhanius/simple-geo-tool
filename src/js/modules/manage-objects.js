@@ -69,7 +69,7 @@ const manageObjects = (function() {
                 }
 
                 if (type === 'circle') {
-                    props = '≈ ' + dF.numberWithSpaces(radius) + ' m';
+                    props = radius;
                     let _lat = coords[0].lat;
                     let _lon = coords[0].lon;
                     list.push(
@@ -128,7 +128,7 @@ const manageObjects = (function() {
                         addAddressToDB(_lat, _lon);
                     });
 
-                    props = '≈ ' + dF.numberWithSpaces(dF.calcDistanceInPolyline(_latLons, 'km')) + ' km';
+                    props = dF.calcDistanceInPolyline(_latLons);
 
                     list.push(
                         L.polyline(_latLons, {
@@ -167,7 +167,7 @@ const manageObjects = (function() {
                         addAddressToDB(_lat, _lon);
                     });
 
-                    props = '≈ ' + dF.numberWithSpaces(dF.calcPolygonArea(_latLons, 'km2')) + ' km<sup>2</sup>';
+                    props = dF.calcPolygonArea(_latLons);
 
                     list.push(
                         L.polygon(_latLons, {
