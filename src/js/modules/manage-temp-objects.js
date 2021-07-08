@@ -120,7 +120,7 @@ map.on('click', function(e) {
         }
 
         if (currentTabName === 'circle' && shift) {
-            if ( tempCoords.length === 1 ) {
+            if (tempCoords.length === 1) {
                 tempCircle = L.circle([tempCoords[0].lat, tempCoords[0].lon], {
                     radius: 0,
                     weight: 2,
@@ -155,7 +155,6 @@ map.on('click', function(e) {
         if (currentTabName === 'line' && shift) {
             let lastPointIndex = tempCoords.length - 1;
 
-            console.log(tempLine);
             if (tempLine) {
                 tempLine.setLatLngs(tempCoords);
             } else {

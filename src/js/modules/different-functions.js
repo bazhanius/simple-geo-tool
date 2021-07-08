@@ -81,7 +81,7 @@ const numberWithSpaces = (x) => {
 
 const metersOrKilometers = (meters) => {
     if (meters > 10000) {
-        return {value: (meters / 1000).toFixed(1), unit: 'km'}
+        return {value: (meters / 1000).toFixed(2), unit: 'km'}
     } else {
         return {value: (meters).toFixed(0), unit: 'm'}
     }

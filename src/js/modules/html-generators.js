@@ -9,7 +9,21 @@ let buttonsHTML =
     '<span class="mdi mdi-icon-button mdi-delete-forever mdi-18px"></span></button>';
 
 function generateListObjectsTable(counter, type, props) {
-    return `<tr><td>${counter}</td><td>${type}</td><td>${props}</td><td>${buttonsHTML}</td></tr>`;
+    let properties = '';
+    if (type === 'circle') {
+        let _radius = dF.metersOrKilometers(parseFloat(props));
+        properties = `≈ ${dF.numberWithSpaces(_radius.value)} ${_radius.unit}`;
+    }
+    if (type === 'polyline') {
+        let _distance = dF.metersOrKilometers(props.m);
+        properties = `≈ ${dF.numberWithSpaces(_distance.value)} ${_distance.unit}`;
+    }
+    if (type === 'polygon') {
+        properties = (props.m2 > 10000)
+            ? `≈ ${dF.numberWithSpaces(props.km2)} km<sup>2</sup>`
+            : `≈ ${dF.numberWithSpaces(props.m2)} m<sup>2</sup>`;
+    }
+    return `<tr><td>${counter}</td><td>${type}</td><td>${properties}</td><td>${buttonsHTML}</td></tr>`;
 }
 
 function generatePopupText(id, type, point = 1, totalPoints = 1, lat, lon, rad = 0, area = 0, distance = 0) {
