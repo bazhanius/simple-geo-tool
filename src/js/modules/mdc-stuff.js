@@ -1,6 +1,7 @@
 import { setShowMarker } from './settings.js';
-import { generateHint} from "./html-generators.js";
-import { openInNewTab } from "./different-functions.js";
+import { generateHint } from "./html-generators.js";
+import { isJSON, openInNewTab } from "./different-functions.js";
+import { manageObjects } from "./manage-objects.js";
 
 /**
  *
@@ -49,34 +50,36 @@ tabBar.listen('MDCTabBar:activated', function(event) {
 const getActiveTabName = () => {
     return currentTab;
 };
-// Check if tab set to "point", "circle", "line" or "array"
-let searchParams = new URLSearchParams(location.search);
-let searchParamTab = searchParams.get('tab');
-let searchParamAddArray = searchParams.get('addArray');
-if (searchParamTab === 'point') {
-    tabBar.activateTab(0);
-    currentTab = 'point';
-} else if (searchParamTab === 'circle') {
-    tabBar.activateTab(1);
-    currentTab = 'circle';
-} else if (searchParamTab === 'line') {
-    tabBar.activateTab(2);
-    currentTab = 'line';
-} else if (searchParamTab === 'array') {
-    tabBar.activateTab(3);
-    currentTab = 'array';
-    if (searchParamAddArray && dF.isJSON(searchParamAddArray)) {
-        let arrayCounters = manageObjects.addArray(searchParamAddArray);
-        if (arrayCounters.payload.points + arrayCounters.payload.circles + arrayCounters.payload.polylines + arrayCounters.payload.polygones > 0) {
-            manageObjects.showAll();
+const checkSearchParams = () => {
+    // Check if tab set to "point", "circle", "line" or "array"
+    let searchParams = new URLSearchParams(location.search);
+    let searchParamTab = searchParams.get('tab');
+    let searchParamAddArray = searchParams.get('addArray');
+    if (searchParamTab === 'point') {
+        tabBar.activateTab(0);
+        currentTab = 'point';
+    } else if (searchParamTab === 'circle') {
+        tabBar.activateTab(1);
+        currentTab = 'circle';
+    } else if (searchParamTab === 'line') {
+        tabBar.activateTab(2);
+        currentTab = 'line';
+    } else if (searchParamTab === 'array') {
+        tabBar.activateTab(3);
+        currentTab = 'array';
+        if (searchParamAddArray && isJSON(searchParamAddArray)) {
+            let arrayCounters = manageObjects.addArray(searchParamAddArray);
+            if (arrayCounters.payload.points + arrayCounters.payload.circles + arrayCounters.payload.polylines + arrayCounters.payload.polygones > 0) {
+                manageObjects.showAll();
+            }
+            setSnackbarContent(arrayCounters);
+            snackbar.close();
+            snackbar.open();
         }
-        setSnackbarContent(arrayCounters);
-        snackbar.close();
-        snackbar.open();
+    } else {
+        history.pushState({}, null, location.href.split('?')[0]);
     }
-} else {
-    history.pushState({}, null, location.href.split('?')[0]);
-}
+};
 
 const dialogElement = document.querySelector('#b-mdc-modal-window');
 const modalBackground = new mdc.dialog.MDCDialog(dialogElement);
@@ -94,6 +97,7 @@ export {
     currentTab,
     getActiveTabName,
     setSnackbarContent,
+    checkSearchParams,
     snackbar,
     modalBackground
 };

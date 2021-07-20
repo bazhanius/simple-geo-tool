@@ -6,6 +6,7 @@ import * as settings from './modules/settings.js';
 import { manageObjects, objects } from './modules/manage-objects.js';
 import { currentTab, getActiveTabName } from './modules/mdc-stuff.js';
 import { buttons } from "./modules/buttons-controllers.js";
+import { checkSearchParams } from "./modules/mdc-stuff.js";
 
 function ready() {
 
@@ -18,6 +19,7 @@ function ready() {
     buttons.applyClickEvents();
     buttons.toggleAddToMapButtons(getActiveTabName());
     buttons.toggleObjectListButton();
+    checkSearchParams();
 }
 
 document.addEventListener("DOMContentLoaded", ready);
