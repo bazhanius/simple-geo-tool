@@ -93,5 +93,6 @@ export {
     currentTab,
     getActiveTabName,
     setSnackbarContent,
-    snackbar
+    snackbar,
+    modalBackground
 };

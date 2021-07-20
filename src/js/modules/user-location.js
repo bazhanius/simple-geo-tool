@@ -1,4 +1,6 @@
 import { map } from "./create-map.js";
+import { manageObjects } from "./manage-objects.js";
+import { modalBackground } from "./mdc-stuff.js";
 
 /**
  *
