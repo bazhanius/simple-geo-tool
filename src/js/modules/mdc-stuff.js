@@ -1,5 +1,6 @@
 import { setShowMarker } from './settings.js';
 import { generateHint} from "./html-generators.js";
+import { openInNewTab } from "./different-functions.js";
 
 /**
  *
@@ -81,7 +82,7 @@ const dialogElement = document.querySelector('#b-mdc-modal-window');
 const modalBackground = new mdc.dialog.MDCDialog(dialogElement);
 
 dialogElement.querySelector('#dialog-confirm').onclick = function () {
-    dF.openInNewTab('https://yandex.com/support/common/browsers-settings/');
+    openInNewTab('https://yandex.com/support/common/browsers-settings/');
     modalBackground.close();
 };
 

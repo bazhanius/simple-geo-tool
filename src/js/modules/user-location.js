@@ -48,7 +48,11 @@ const getUserLocation = () => {
             pos.coords.accuracy
         ];
         map.setView([userCoords[0], userCoords[1]], 10);
-        let userLocObjID = manageObjects.add('circle', [userCoords[0], userCoords[1], userCoords[2]]);
+        let userLocObjID = manageObjects.add({
+            'type': 'circle',
+            'coords': [{'lat': userCoords[0], 'lon': userCoords[1]}],
+            'radius': userCoords[2]
+        });
         manageObjects.locateByObjectID(userLocObjID);
 
         userLocationButtonIcon.classList.remove('mdi-loading', 'mdi-spin');
