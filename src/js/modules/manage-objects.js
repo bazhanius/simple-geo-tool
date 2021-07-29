@@ -2,7 +2,7 @@ import * as settings from "./settings.js";
 import { addAddressToDB, addAddressToPopup } from "./reverse-geocoding.js";
 import * as dF from "./different-functions.js";
 import { map } from "./create-map.js";
-import { generateListObjectsTable , generatePopupText } from "./html-generators.js";
+import { generateListObjectsTable , generatePopupText, generateArrowSVG } from "./html-generators.js";
 import { buttons } from "./buttons-controllers.js";
 import { rulerButtonEnabled } from './ruler-controllers.js';
 
@@ -21,28 +21,41 @@ const manageObjects = (function() {
     return {
 
         add: function (obj) {
-            let type = obj.type;
-            let coords = obj.coords;
-            let radius = obj.radius ? obj.radius : null;
-            let props = '';
 
-            if (type && coords) {
+            try {
                 counter++;
+                let type = obj.type;
+                let coords = obj.coords;
                 let list = [];
                 let group;
-
-                let iconPin = L.divIcon({
-                    className: 'marker-icon-pin',
-                    html: "<div class='marker-pin marker-" + type + "-color'></div><b>" + counter + "</b>",
-                    iconSize: [30, 42],
-                    iconAnchor: [15, 42]
-                });
-
-                let iconDot = L.divIcon({
-                    className: 'marker-icon-dot marker-' + type + '-color',
-                    iconSize: [4, 4],
-                    iconAnchor: [3, 3]
-                });
+                let radius = obj.radius ? obj.radius : null;
+                let props = '';
+                let color = obj.color || settings.objectParameters.color[type];
+                let weight = obj.weight >=0 ? obj.weight : settings.objectParameters.lineWeight[type];
+                let showMarkerPin = obj.showMarkerPin === false ? false : settings.objectParameters.markerPin[type];
+                let showMarkerDot = obj.showMarkerDot === false ? false : settings.objectParameters.markerDot[type];
+                let azimuth = obj.azimuth;
+                let markerIcon = {
+                    'pin': L.divIcon({
+                        className: 'b-marker-icon',
+                        html: `<div class='b-marker-icon-pin' style='background-color:${color}'></div>`
+                            + `<b class='b-marker-icon-pin__content'>${counter}</b>`,
+                        iconSize: [30, 42],
+                        iconAnchor: [15, 42]
+                    }),
+                    'dot': L.divIcon({
+                        className: 'b-marker-icon',
+                        html: `<div class='b-marker-icon-dot' style='background-color:${color}'></div>`,
+                        iconSize: [4, 4],
+                        iconAnchor: [5, 5]
+                    }),
+                    'arrow': L.divIcon({
+                        className: 'b-marker-icon',
+                        html: generateArrowSVG(color, azimuth),
+                        iconSize: [24, 24],
+                        iconAnchor: [12, 12]
+                    })
+                };
 
                 if (type === 'point') {
                     let _lat = coords[0].lat;
@@ -52,16 +65,18 @@ const manageObjects = (function() {
                             id: counter,
                             points: [1, 1],
                             latLon: [_lat, _lon],
-                            icon: iconDot
+                            icon: (azimuth >= 0 && azimuth <= 360)
+                                ? markerIcon.arrow
+                                : markerIcon.dot
                         }).bindPopup(generatePopupText(counter, 'Point', 1, 1, _lat, _lon))
                     );
-                    if (settings.showMarker) {
+                    if (showMarkerPin) {
                         list.push(
                             L.marker([_lat, _lon], {
                                 id: counter,
                                 points: [1, 1],
                                 latLon: [_lat, _lon],
-                                icon: iconPin
+                                icon: markerIcon.pin
                             }).bindPopup(generatePopupText(counter, 'Point', 1, 1, _lat, _lon))
                         );
                     }
@@ -69,31 +84,35 @@ const manageObjects = (function() {
                 }
 
                 if (type === 'circle') {
-                    props = radius;
+                    props = dF.convertDistance(radius);
                     let _lat = coords[0].lat;
                     let _lon = coords[0].lon;
                     list.push(
-                        L.circle([_lat,_lon], {
+                        L.circle([_lat, _lon], {
                             radius: radius,
-                            weight: settings.lineWeight
-                        }),
-
-                        L.marker([_lat, _lon], {
-                            id: counter,
-                            points: [1, 1],
-                            latLon: [_lat, _lon],
-                            radius: radius,
-                            icon: iconDot
-                        }).bindPopup(generatePopupText(counter, 'Circle', 1, 1, _lat, _lon, props))
+                            color: color,
+                            weight: weight
+                        })
                     );
-                    if (settings.showMarker) {
+                    if (showMarkerDot) {
                         list.push(
                             L.marker([_lat, _lon], {
                                 id: counter,
                                 points: [1, 1],
                                 latLon: [_lat, _lon],
                                 radius: radius,
-                                icon: iconPin
+                                icon: (azimuth >= 0 && azimuth <= 360) ? markerIcon.arrow : markerIcon.dot
+                            }).bindPopup(generatePopupText(counter, 'Circle', 1, 1, _lat, _lon, props))
+                        );
+                    }
+                    if (showMarkerPin) {
+                        list.push(
+                            L.marker([_lat, _lon], {
+                                id: counter,
+                                points: [1, 1],
+                                latLon: [_lat, _lon],
+                                radius: radius,
+                                icon: markerIcon.pin
                             }).bindPopup(generatePopupText(counter, 'Circle', 1, 1, _lat, _lon, props))
                         );
                     }
@@ -107,22 +126,24 @@ const manageObjects = (function() {
                         let _lat = el.lat;
                         let _lon = el.lon;
                         _latLons.push([_lat, _lon]);
-                        list.push(
-                            L.marker([_lat, _lon], {
-                                id: counter,
-                                points: [i + 1, _points],
-                                latLon: [_lat, _lon],
-                                icon: iconDot
-                            }).bindPopup(generatePopupText(counter, 'Polyline', i+1, _points, _lat, _lon))
-                        );
-                        if (settings.showMarker) {
+                        if (showMarkerDot) {
                             list.push(
                                 L.marker([_lat, _lon], {
                                     id: counter,
                                     points: [i + 1, _points],
                                     latLon: [_lat, _lon],
-                                    icon: iconPin
-                                }).bindPopup(generatePopupText(counter, 'Polyline', i+1, _points, _lat, _lon))
+                                    icon: markerIcon.dot
+                                }).bindPopup(generatePopupText(counter, 'Polyline', i + 1, _points, _lat, _lon))
+                            );
+                        }
+                        if (showMarkerPin) {
+                            list.push(
+                                L.marker([_lat, _lon], {
+                                    id: counter,
+                                    points: [i + 1, _points],
+                                    latLon: [_lat, _lon],
+                                    icon: markerIcon.pin
+                                }).bindPopup(generatePopupText(counter, 'Polyline', i + 1, _points, _lat, _lon))
                             );
                         }
                         addAddressToDB(_lat, _lon);
@@ -132,8 +153,8 @@ const manageObjects = (function() {
 
                     list.push(
                         L.polyline(_latLons, {
-                            color: '#f33',
-                            weight: settings.lineWeight
+                            color: color,
+                            weight: weight
                         })
                     );
 
@@ -146,22 +167,24 @@ const manageObjects = (function() {
                         let _lat = el.lat;
                         let _lon = el.lon;
                         _latLons.push([_lat, _lon]);
-                        list.push(
-                            L.marker([_lat, _lon], {
-                                id: counter,
-                                points: [i + 1, _points],
-                                latLon: [_lat, _lon],
-                                icon: iconDot
-                            }).bindPopup(generatePopupText(counter, 'Polygon', i+1, _points, _lat, _lon))
-                        );
-                        if (settings.showMarker) {
+                        if (showMarkerDot) {
                             list.push(
                                 L.marker([_lat, _lon], {
                                     id: counter,
                                     points: [i + 1, _points],
                                     latLon: [_lat, _lon],
-                                    icon: iconPin
-                                }).bindPopup(generatePopupText(counter, 'Polygon', i+1, _points, _lat, _lon))
+                                    icon: markerIcon.dot
+                                }).bindPopup(generatePopupText(counter, 'Polygon', i + 1, _points, _lat, _lon))
+                            );
+                        }
+                        if (showMarkerPin) {
+                            list.push(
+                                L.marker([_lat, _lon], {
+                                    id: counter,
+                                    points: [i + 1, _points],
+                                    latLon: [_lat, _lon],
+                                    icon: markerIcon.pin
+                                }).bindPopup(generatePopupText(counter, 'Polygon', i + 1, _points, _lat, _lon))
                             );
                         }
                         addAddressToDB(_lat, _lon);
@@ -171,8 +194,50 @@ const manageObjects = (function() {
 
                     list.push(
                         L.polygon(_latLons, {
-                            color: '#080',
-                            weight: settings.lineWeight
+                            color: color,
+                            weight: weight
+                        })
+                    );
+
+                }
+
+                if (type === 'rectangle') {
+                    let _latLons = [[coords[0].lat, coords[0].lon], [coords[1].lat, coords[1].lon]];
+                    _latLons.forEach((el, i) => {
+                        let _lat = el[0];
+                        let _lon = el[1];
+                        if (showMarkerDot) {
+                            list.push(
+                                L.marker([_lat, _lon], {
+                                    id: counter,
+                                    points: [i + 1, 2],
+                                    latLon: [_lat, _lon],
+                                    icon: markerIcon.dot
+                                }).bindPopup(generatePopupText(counter, 'Rectangle', i + 1, 2, _lat, _lon))
+                            );
+                        }
+                        if (showMarkerPin) {
+                            list.push(
+                                L.marker([_lat, _lon], {
+                                    id: counter,
+                                    points: [i + 1, 2],
+                                    latLon: [_lat, _lon],
+                                    icon: markerIcon.pin
+                                }).bindPopup(generatePopupText(counter, 'Rectangle', i + 1, 2, _lat, _lon))
+                            );
+                        }
+                        addAddressToDB(_lat, _lon);
+                    });
+
+                    props = dF.calcPolygonArea([
+                        [coords[0].lat, coords[0].lon], [coords[0].lat, coords[1].lon],
+                        [coords[1].lat, coords[1].lon], [coords[1].lat, coords[0].lon]
+                    ]);
+
+                    list.push(
+                        L.rectangle(_latLons, {
+                            color: color,
+                            weight: weight
                         })
                     );
 
@@ -180,18 +245,23 @@ const manageObjects = (function() {
 
                 group = new L.featureGroup(list).addTo(map);
 
-                // Add table row in list of objects
-                objectsList.innerHTML += generateListObjectsTable(counter, type, props);
-
                 let objectOnMap = {
                     'id': counter,
                     'type': type,
                     'object': obj,
                     'leaflet_object': group,
-                    'measurements': props
+                    'measurements': props,
+                    'color': color,
+                    'weight': weight,
+                    'show_marker_dot': showMarkerDot,
+                    'show_marker_pin': showMarkerPin,
+                    'azimuth': azimuth
                 };
 
                 objects.push(objectOnMap);
+
+                // Add table row in list of objects
+                objectsList.innerHTML += generateListObjectsTable(objectOnMap);
 
                 buttons.updateObjectsManagementButtons();
                 buttons.toggleObjectListButton();
@@ -200,9 +270,13 @@ const manageObjects = (function() {
 
                 if (rulerButtonEnabled) manageObjects.disableAllPopups();
 
+                return counter;
+            } catch (e) {
+                console.log(e);
+                counter--;
+                return -1;
             }
 
-            return counter;
         },
 
         addArray: function(rawArray) {
@@ -213,10 +287,51 @@ const manageObjects = (function() {
                     'circles': 0,
                     'polylines': 0,
                     'polygones': 0,
-                    'skipped': 0}
+                    'rectangles': 0,
+                    'skipped': 0
+                }
             };
             let arr = JSON.parse(rawArray);
-            arr.forEach( (el, i) => {
+            arr.forEach( (obj, i) => {
+                let el = obj;
+                if (obj.type === 'group') {
+                    let tempObj = null;
+                    let bounds = manageObjects.getBoundsByObjectIDs(obj.objectIDs);
+                    if (bounds !== -1) {
+                        if (obj.function === 'drawCircleBounds') {
+                            tempObj = {
+                                'type': 'circle',
+                                'radius': bounds.radius,
+                                'coords': [{'lat': bounds.center.lat, 'lon': bounds.center.lng}]
+                            };
+
+                        }
+                        if (obj.function === 'drawRectangleBounds') {
+                            tempObj = {
+                                'type': 'rectangle',
+                                'coords': [
+                                    {'lat': bounds.southEast.lat, 'lon': bounds.southEast.lng},
+                                    {'lat': bounds.northWest.lat, 'lon': bounds.northWest.lng}
+                                ]
+                            };
+                        }
+                        if (tempObj !== null) {
+                            if (obj.color) tempObj.color = obj.color;
+                            if (obj.weight >= 0) tempObj.weight = obj.weight;
+                            if (obj.showMarkerDot === true) {
+                                tempObj.showMarkerDot = true;
+                            } else if (obj.showMarkerDot === false) {
+                                tempObj.showMarkerDot = false;
+                            }
+                            if (obj.showMarkerPin === true) {
+                                tempObj.showMarkerPin = true;
+                            } else if (obj.showMarkerPin === false) {
+                                tempObj.showMarkerPin = false;
+                            }
+                            el = tempObj;
+                        }
+                    }
+                }
                 if (el.type && el.coords) {
                     let id = manageObjects.add(el);
                     if (id > 0) {
@@ -228,12 +343,14 @@ const manageObjects = (function() {
                             counters.payload.polylines += 1;
                         } else if (el.type === 'polygon') {
                             counters.payload.polygones += 1;
+                        } else if (el.type === 'rectangle') {
+                            counters.payload.rectangles += 1;
                         }
                     } else {
                         counters.payload.skipped += 1;
                     }
                 } else {
-                    counters.skipped += 1;
+                    counters.payload.skipped += 1;
                 }
             });
             return counters;
@@ -279,6 +396,39 @@ const manageObjects = (function() {
             }
         },
 
+        getBoundsByObjectIDs: function(listOfIDs) {
+            try {
+                let listOfObjects = [];
+                listOfIDs.forEach(function(objID) {
+                    let index = objects.findIndex(x => x.id === objID);
+                    if (index !== -1) listOfObjects.push(objects[index].leaflet_object);
+                });
+                let group = new L.featureGroup(listOfObjects);
+                let centerPoint = group.getBounds().getCenter();
+                let NW = group.getBounds().getNorthWest();
+                let SE = group.getBounds().getSouthEast();
+                let NE = group.getBounds().getNorthEast();
+                let SW = group.getBounds().getSouthWest();
+
+                let distanseN = L.latLng(NE).distanceTo(NW);
+                let distanseS = L.latLng(SE).distanceTo(SW);
+                let distanseE = L.latLng(NE).distanceTo(SE);
+                let distanseW = L.latLng(NW).distanceTo(SW);
+
+                let radius = Math.max(distanseN, distanseS, distanseE, distanseW) / Math.sqrt(3);
+                //let distanceFromCenterToNW = parseFloat(L.latLng(centerPoint).distanceTo(NW)).toFixed(0);
+                return {
+                    'center': centerPoint,
+                    'radius': radius,
+                    'northWest': NW,
+                    'southEast': SE
+                };
+            } catch (e) {
+                console.log(e);
+                return -1;
+            }
+        },
+
         deleteAll: function() {
             objects.forEach(function(obj) {
                 obj.leaflet_object.clearLayers();
@@ -321,6 +471,13 @@ const manageObjects = (function() {
                     }
                 });
             });
+        },
+
+        getFullInfo: function(obj) {
+            let row = obj.parentNode.parentNode;
+            let id = parseInt(row.firstChild.textContent);
+            let index = objects.findIndex(x => x.id === id);
+            return objects[index];
         }
 
     }

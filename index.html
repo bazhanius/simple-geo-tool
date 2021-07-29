@@ -278,19 +278,15 @@
                     <span class="mdc-button__label">Clear All</span>
                 </button>
 
-                <div id="b-marker-switch" class="mdc-switch mdc-switch--checked">
-                    <div class="mdc-switch__track"></div>
-                    <div class="mdc-switch__thumb-underlay">
-                        <div class="mdc-switch__thumb"></div>
-                        <input type="checkbox" id="marker-switch" class="mdc-switch__native-control" role="switch" aria-checked="true" checked>
-                    </div>
-                </div>
-                <label for="marker-switch">Marker</label>
+                <button id="button-settings" class="mdc-button mdc-button--outlined" title="Settings">
+                    <span class="mdc-button__ripple"></span>
+                    <span class="mdi mdi-icon-button mdi-tune mdi-18px"></span>
+                </button>
 
             </div>
 
-            <details>
-                <summary>Hint</summary>
+            <details class="hint-details">
+                <summary class="hint-summary">Hint</summary>
                 <div id="hint-about-tabs" class="meta-content">
                     <p>Alternatively, you can add object by selecting type of object (Point, Circle or Line) in the tab bar above, then hold down the <kbd>shift</kbd> key while left-clicking on the map. </p>
                     <p>Click once to add point, twice for circle and multitime for line, polyline or polygon. For polygon click first marker at last.</p>
@@ -329,7 +325,7 @@
                 <tr>
                     <th>ID</th>
                     <th>Type</th>
-                    <th>Measurements</th>
+                    <th>Info</th>
                     <th>Manage</th>
                 </tr>
                 </thead>
@@ -350,6 +346,154 @@
 
     </div>
 
+    <div id="b-mdc-modal-window-object-info" class="mdc-dialog mdc-dialog--scrollable">
+        <div class="mdc-dialog__container">
+            <div class="mdc-dialog__surface"
+                 role="alertdialog"
+                 aria-modal="true"
+                 aria-labelledby="my-dialog-title"
+                 aria-describedby="my-dialog-content">
+                <h2 class="mdc-dialog__title" id="b-object-info-dialog-title">Object ID</h2>
+                <section class="mdc-dialog__content" id="b-object-info-dialog-content">
+
+                </section>
+                <footer class="mdc-dialog__actions">
+                    <button type="button" class="mdc-button mdc-button--raised mdc-dialog__button" data-mdc-dialog-action="close">
+                        <div class="mdc-button__ripple"></div>
+                        <span class="mdc-button__label">Close</span>
+                    </button>
+                </footer>
+            </div>
+        </div>
+        <div class="mdc-dialog__scrim"></div>
+    </div>
+
+    <div id="b-mdc-modal-window-settings" class="mdc-dialog mdc-dialog--scrollable">
+        <div class="mdc-dialog__container">
+            <div class="mdc-dialog__surface"
+                 role="alertdialog"
+                 aria-modal="true"
+                 aria-labelledby="my-dialog-title"
+                 aria-describedby="my-dialog-content">
+                <h2 class="mdc-dialog__title"><i class="mdi mdi-tune mdi-18px"></i> Settings</h2>
+                <section class="mdc-dialog__content" id="b-mdc-modal-window-settings__content">
+
+                    <h3>Objects</h3>
+                    <p>Settings for new objects only, objects previously created will remain unchanged.
+                        These settings will be ignored if specified in JSON
+                        <a href="https://github.com/bazhanius/simple-geo-tool/#json-format">parameters</a>.
+                    </p>
+                    <table class="b-obj-settings-table">
+                        <thead>
+                        <tr>
+                            <th rowspan="2"></th>
+                            <th colspan="2">Show Marker</th>
+                            <th rowspan="2">Color</th>
+                            <th rowspan="2">Line weight</th>
+                        </tr>
+                        <tr>
+                            <th>Dot</th>
+                            <th>Pin</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <td>Point</td>
+                            <td></td>
+                            <td><input class="b-obj-setting-markerPin-point" type="checkbox"></td>
+                            <td><input class="b-obj-setting-color-point" type="color" value="#6e14ef"></td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td>Circle</td>
+                            <td><input class="b-obj-setting-markerDot-circle" type="checkbox"></td>
+                            <td><input class="b-obj-setting-markerPin-circle" type="checkbox"></td>
+                            <td><input class="b-obj-setting-color-circle" type="color" value="#3388ff"></td>
+                            <td>
+                                <input class="b-obj-setting-lineWeight-circle" type="range" id="circle-line-weight" min="0" max="10" value="2" step="1">
+                                <label for="circle-line-weight">2px</label>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Polyline</td>
+                            <td><input class="b-obj-setting-markerDot-polyline" type="checkbox"></td>
+                            <td><input class="b-obj-setting-markerPin-polyline" type="checkbox"></td>
+                            <td><input class="b-obj-setting-color-polyline" type="color" value="#ff3333"></td>
+                            <td>
+                                <input class="b-obj-setting-lineWeight-polyline" type="range" id="polyline-line-weight" min="0" max="10" value="2" step="1">
+                                <label for="polyline-line-weight">2px</label>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Polygon</td>
+                            <td><input class="b-obj-setting-markerDot-polygon" type="checkbox"></td>
+                            <td><input class="b-obj-setting-markerPin-polygon" type="checkbox"></td>
+                            <td><input class="b-obj-setting-color-polygon" type="color" value="#008000"></td>
+                            <td>
+                                <input class="b-obj-setting-lineWeight-polygon" type="range" id="polygon-line-weight" min="0" max="10" value="2" step="1">
+                                <label for="polygon-line-weight">2px</label>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Rectangle</td>
+                            <td><input class="b-obj-setting-markerDot-rectangle" type="checkbox"></td>
+                            <td><input class="b-obj-setting-markerPin-rectangle" type="checkbox"></td>
+                            <td><input class="b-obj-setting-color-rectangle" type="color" value="#008000"></td>
+                            <td>
+                                <input class="b-obj-setting-lineWeight-rectangle" type="range" id="rectangle-line-weight" min="0" max="10" value="2" step="1">
+                                <label for="rectangle-line-weight">2px</label>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Map</h3>
+                    <table class="b-obj-settings-table">
+                        <tbody>
+                        <tr>
+                            <td><input class="b-map-setting-onAddObject-flyTo" type="checkbox" id="auto-fly-to-object" checked></td>
+                            <td style="text-align: left">
+                                <label for="auto-fly-to-object">
+                                    <b>Automatic fly to recently added object(s) on the map</b><br>Disabling
+                                    may be useful when showing comparison of several routes on the same part of the map.
+                                </label>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+
+                    <!--
+                    <h3>JSON settings</h3>
+                    <p>JSON format on JSON tab:</p>
+                    <form>
+                        <div>
+                            <input type="radio" id="contactChoice1" name="contact" value="native" checked>
+                            <label for="contactChoice1">JSON (simple-geo-tool)</label>
+
+                            <input type="radio" id="contactChoice2" name="contact" value="geojson" disabled>
+                            <label for="contactChoice2">GeoJSON</label>
+
+                            <input type="radio" id="contactChoice3" name="contact" value="csv" disabled>
+                            <label for="contactChoice3">CSV</label>
+                        </div>
+                    </form>
+                    -->
+
+                </section>
+                <footer class="mdc-dialog__actions">
+                    <button id="button-settings-reset" type="button" class="mdc-button mdc-button--outlined mdc-dialog__button">
+                        <div class="mdc-button__ripple"></div>
+                        <span class="mdc-button__label">Reset all</span>
+                    </button>
+                    <button type="button" class="mdc-button mdc-button--raised mdc-dialog__button" data-mdc-dialog-action="close">
+                        <div class="mdc-button__ripple"></div>
+                        <span class="mdc-button__label">Close</span>
+                    </button>
+                </footer>
+            </div>
+        </div>
+        <div class="mdc-dialog__scrim"></div>
+    </div>
 
     <div id="b-mdc-modal-window" class="mdc-dialog">
         <div class="mdc-dialog__container">
@@ -363,13 +507,13 @@
                     You have prevented site from using location data. Change your browser settings and try again.
                 </div>
                 <footer class="mdc-dialog__actions">
-                    <button id="dialog-confirm" type="button" class="mdc-button mdc-dialog__button mdc-dialog__button--default mdc-button--raised" data-mdc-dialog-action="accept">
-                        <span class="mdi mdi-file-document mdi-18px"></span>
-                        Learn more
-                    </button>
                     <button id="dialog-cancel" type="button" class="mdc-button mdc-dialog__button mdc-button--outlined" data-mdc-dialog-action="close">
                         <span class="mdi mdi-close mdi-18px"></span>
                         Next time
+                    </button>
+                    <button id="dialog-confirm" type="button" class="mdc-button mdc-dialog__button mdc-dialog__button--default mdc-button--raised" data-mdc-dialog-action="accept">
+                        <span class="mdi mdi-file-document mdi-18px"></span>
+                        Learn more
                     </button>
                 </footer>
             </div>
