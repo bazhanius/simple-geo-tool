@@ -1,7 +1,9 @@
-import { getActiveTabName } from "./mdc-stuff.js";
+import { getActiveTabName, showObjectSettingsModalWindow } from "./mdc-stuff.js";
 import { manageObjects, objects } from "./manage-objects.js";
 import { inputFields } from './inputs-controllers.js';
-import { snackbar, setSnackbarContent } from "./mdc-stuff.js";
+import { snackbar, setSnackbarContent, showObjectInfoModalWindow } from "./mdc-stuff.js";
+import { generateFullInfoContent } from './html-generators.js';
+import * as settings from './settings.js';
 
 /**
  *
@@ -14,6 +16,10 @@ const buttons = (function() {
     // "Add object" section buttons
     let _addToMapButton = document.querySelector('#button-add-to-map');
     let _clearFieldsButton = document.querySelector('#button-clear-fields');
+    let _settingsButton = document.querySelector('#button-settings');
+
+    // "Settings" modal window button
+    let _resetAllSettingsButton = document.querySelector('#button-settings-reset');
 
     // "Objects" section buttons
     let _copyAllObjectsButton = document.querySelector('#button-objects-copy-all');
@@ -47,11 +53,13 @@ const buttons = (function() {
                 } else if (currentTabName === 'array') {
                     arrayCounters = manageObjects.addArray(values.arrayList);
                 }
+
                 if (currentTabName !== 'array') {
-                    manageObjects.locateByObjectID(objLocID);
+                    if (settings.mapParameters.onAddObject.flyTo) manageObjects.locateByObjectID(objLocID);
                 } else {
-                    if (arrayCounters.payload.points + arrayCounters.payload.circles + arrayCounters.payload.polylines + arrayCounters.payload.polygones > 0) {
-                        manageObjects.showAll();
+                    if (arrayCounters.payload.points + arrayCounters.payload.circles
+                        + arrayCounters.payload.polylines + arrayCounters.payload.polygones > 0) {
+                        if (settings.mapParameters.onAddObject.flyTo) manageObjects.showAll();
                     }
                     setSnackbarContent(arrayCounters);
                     snackbar.close();
@@ -63,6 +71,23 @@ const buttons = (function() {
                 let currentTabName = getActiveTabName();
                 inputFields.clearValues(currentTabName);
                 buttons.toggleAddToMapButtons(currentTabName);
+            });
+
+            _settingsButton.addEventListener('click', function() {
+                showObjectSettingsModalWindow();
+            });
+
+            _resetAllSettingsButton.addEventListener('click', function() {
+                settings.objectParameters.resetToDefault();
+                settings.mapParameters.resetToDefault();
+                settings.clearSettingsFromLocalStorage();
+                setSnackbarContent({
+                    'type': 'fullReset',
+                    'text': '<b>LocalStorage</b> is cleared and <b>Settings</b> was restored to their defaults!'
+                });
+                snackbar.close();
+                snackbar.open();
+                settings.loadSettingsIntoHTMLDOM();
             });
 
             _copyAllObjectsButton.addEventListener('click', function() {
@@ -81,9 +106,18 @@ const buttons = (function() {
 
         updateObjectsManagementButtons: function() {
 
+            let _objectInfoButtons = document.querySelectorAll('.button-object-info');
             let _objectCopyButtons = document.querySelectorAll('.button-object-copy');
             let _objectLocateButtons = document.querySelectorAll('.button-object-locate');
             let _objectDeleteButton = document.querySelectorAll('.button-object-delete');
+
+            _objectInfoButtons.forEach(function(el){
+                el.addEventListener('click', function () {
+                    let objectFullInfo = manageObjects.getFullInfo(this);
+                    let info = generateFullInfoContent(objectFullInfo);
+                    showObjectInfoModalWindow(info.title, info.content);
+                });
+            });
 
             _objectCopyButtons.forEach(function(el){
                 el.addEventListener('click', function () {

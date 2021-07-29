@@ -1,8 +1,3 @@
-:root {
-    --marker-icon-pin-display: block;
-}
-
-
 html, body, * {
     font-family: "Barlow", sans-serif;
     font-size: small;
@@ -97,6 +92,12 @@ kbd {
     padding: 0 2vw;
 }
 
+.b-objects-creation-container {
+    display: flex;
+    align-items: center;
+    justify-content: left;
+}
+
 .footer {
     display: flex;
     height: 100px;
@@ -152,12 +153,6 @@ code {
     white-space: nowrap;
 }
 
-.b-objects-creation-container {
-    display: flex;
-    align-items: center;
-    justify-content: left;
-}
-
 
 
 /* Table with list of objects */
@@ -195,8 +190,138 @@ code {
 
 
 
+/* Table with object info */
+
+.b-obj-info-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.b-obj-info-table > tbody > tr > td, th {
+    border-bottom: 1px solid #ccc;
+    padding: 10px;
+    line-height: 1.4em;
+    text-align: left;
+    vertical-align: top;
+}
+
+.b-obj-info-table > tbody > tr > td:nth-child(1) {
+    font-weight: bold;
+}
+
+.b-obj-info-table > tbody > tr > td:nth-child(2) {
+    font-family: 'Inconsolata', monospace;
+    font-size: 14px;
+    font-weight: 400;
+}
+
+.b-obj-info-dot {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 2px;
+    margin-right: 5px;
+}
+
+.b-obj-info-pre {
+    font-family: 'Inconsolata', monospace;
+    font-weight: 500;
+    background-color: ghostwhite;
+    min-height: calc(10vh - 32px);
+    max-height: calc(25vh - 32px);
+    resize: vertical;
+    overflow: auto;
+    border: 1px solid silver;
+    padding: 10px;
+    margin: 0;
+    border-radius: 4px;
+}
+
+.b-obj-info-pre > * {
+    font-family: 'Inconsolata', monospace;
+    font-weight: 500;
+}
+
+.b-obj-info-bold-mono {
+    font-family: 'Inconsolata', monospace;
+    font-weight: 600;
+}
+
+.b-obj-info-regular-sans {
+    font-weight: 400;
+}
+
+
+/* Table with object settings*/
+.b-obj-settings-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 30px;
+}
+.b-obj-settings-table > tbody > tr > td, th {
+    border-bottom: 1px solid #ccc;
+    padding: 10px;
+    line-height: 1.4em;
+    text-align: center;
+    vertical-align: middle;
+}
+
+
+
 /* Marker */
 
+.b-marker-icon-pin {
+    width: 30px;
+    height: 30px;
+    border-radius: 50% 50% 50% 0;
+    background: rgba(51, 136, 255,0.95);
+    /* background:linear-gradient(135deg, #007991 0%, #78ffd6 100%); */
+    position: absolute;
+    transform: rotate(-45deg);
+    left: 50%;
+    top: 50%;
+    margin: -22px 0 0 -16px;
+    border: 1px solid #fff;
+    box-shadow: 0 0 10px rgba(0,0,0,0.3);
+}
+
+.b-marker-icon-pin__content {
+    position: absolute;
+    color: #fff;
+    width: 22px;
+    font-size: 14px;
+    font-weight: 500;
+    left: 0;
+    right: 0;
+    margin: 5px auto;
+    text-align: center;
+}
+
+.b-marker-icon-dot {
+    width: 4px;
+    height: 4px;
+    border-radius: 50% 50% 50% 50%;
+    background:rgba(51, 136, 255, 0.95);
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    border: 1px solid #fff;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+}
+
+.b-marker-icon-arrow {
+    display: block;
+    width: 24px;
+    height: 24px;
+    background-size: 24px 24px;
+    transform: rotate(0deg);
+    transform-origin: 50% 50%;
+}
+.b-marker-icon-arrow__shadow {
+    filter: drop-shadow(0 0 5px rgba(0, 0, 0, 0.5));
+}
+
+/* legacy */
 .marker-pin {
     width: 30px;
     height: 30px;
@@ -219,9 +344,6 @@ code {
     box-shadow: 0 0 5px rgba(0,0,0,0.5);
 }
 
-.marker-icon-pin {
-    display: var(--marker-icon-pin-display, block);
-}
 
 .marker-icon-pin b {
     position: absolute;
@@ -235,24 +357,8 @@ code {
     text-align: center;
 }
 
-.marker-polygon-color {
-    background: rgba(0, 128, 0, 0.95);
-}
-
-.marker-polyline-color {
-    background:rgba(255, 51, 51,0.95);
-}
-
-.marker-point-color {
-    background:rgba(110, 20, 239,0.95);
-}
-
 .marker-point-temp-color {
-    background:rgba(255, 255, 51,0.55);
-}
-
-.marker-circle-color {
-    background:rgba(51, 136, 255,0.95);
+    background: rgba(255, 255, 51,0.55);
 }
 
 .ruler-marker-pin {
@@ -356,7 +462,7 @@ a > .mdc-button__label {
 
 /* Hints */
 
-details {
+.hint-details {
     border: 1px solid rgba(255, 255, 0, 0.3);
     background-color: rgba(255, 255, 0, 0.1);
     border-radius: 4px;
@@ -367,22 +473,22 @@ details {
     line-height: 1.5rem;
 }
 
-details:focus, summary:focus {
+.hint-details:focus, .hint-summary:focus {
     outline: none;
 }
 
-summary {
+.hint-summary {
     font-weight: 500;
     margin: -.5em -.5em 0;
     padding: .5em;
     cursor: pointer;
 }
 
-details[open] {
+.hint-details[open] {
     padding: .5em;
 }
 
-details[open] summary {
+.hint-details[open] summary {
     /* border-bottom: 1px solid rgba(255, 255, 0, 0.3);
     margin-bottom: .5em; */
 }
@@ -406,10 +512,6 @@ details[open] summary {
 .meta-content {
     display: block;
     padding: 0 1em;
-}
-
-.meta-content.meta-content__hidden {
-    display: none;
 }
 
 
@@ -557,8 +659,6 @@ details[open] summary {
     font-size: initial;
     padding: 0 24px;
     border-radius: 4px;
-    max-width: 360px;
-    min-width: 280px;
     box-shadow: 0 11px 15px -7px rgba(0,0,0,.2),0 24px 38px 3px rgba(0,0,0,.14),0 9px 46px 8px rgba(0,0,0,.12);
 }
 

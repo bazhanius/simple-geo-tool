@@ -20,6 +20,8 @@ function ready() {
     buttons.toggleAddToMapButtons(getActiveTabName());
     buttons.toggleObjectListButton();
     checkSearchParams();
+    settings.checkSettingsInLocalStorage();
+    settings.loadSettingsIntoHTMLDOM();
 }
 
 document.addEventListener("DOMContentLoaded", ready);

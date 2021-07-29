@@ -1,4 +1,3 @@
-import { setShowMarker } from './settings.js';
 import { generateHint } from "./html-generators.js";
 import { isJSON, openInNewTab } from "./different-functions.js";
 import { manageObjects } from "./manage-objects.js";
@@ -11,12 +10,6 @@ import { manageObjects } from "./manage-objects.js";
 
 window.mdc.autoInit();
 
-let markerSwitch = new mdc.switchControl.MDCSwitch(document.getElementById('b-marker-switch'));
-markerSwitch.checked = true;
-markerSwitch.listen('change', function(event) {
-    setShowMarker(event.target.checked);
-});
-
 let snackbar = new mdc.snackbar.MDCSnackbar(document.getElementById('b-mdc-snackbar'));
 let snackbarContent = document.getElementById('b-mdc-snackbar-content');
 snackbar.timeoutMs = 7500;
@@ -24,10 +17,11 @@ const setSnackbarContent = (obj) => {
     if (obj.type === 'addArray') {
         snackbarContent.innerHTML = `Added <strong>${obj.payload.points}</strong> point(s), `
             + `<strong>${obj.payload.circles}</strong> circle(s), `
-            + `<strong>${obj.payload.polylines}</strong> polyline(s) and `
-            + `<strong>${obj.payload.polygones}</strong> polygone(s).<br>`
+            + `<strong>${obj.payload.polylines}</strong> polyline(s), `
+            + `<strong>${obj.payload.polygones}</strong> polygone(s) and `
+            + `<strong>${obj.payload.rectangles}</strong> rectangle(s).<br>`
             + `Skipped <strong>${obj.payload.skipped}</strong> element(s).`
-    } else if (obj.type === 'clipboardCopyResult') {
+    } else {
         snackbarContent.innerHTML = obj.text;
     }
 };
@@ -93,11 +87,25 @@ dialogElement.querySelector('#dialog-cancel').onclick = function () {
     modalBackground.close();
 };
 
+const objectFullInfo = new mdc.dialog.MDCDialog(document.querySelector('#b-mdc-modal-window-object-info'));
+const objectFullInfoTitle = document.querySelector('#b-object-info-dialog-title');
+const objectFullInfoContent = document.querySelector('#b-object-info-dialog-content');
+const showObjectInfoModalWindow = (title, content) => {
+    objectFullInfoTitle.innerHTML = title;
+    objectFullInfoContent.innerHTML = content;
+    objectFullInfo.open();
+};
+
+const objectSettings = new mdc.dialog.MDCDialog(document.querySelector('#b-mdc-modal-window-settings'));
+const showObjectSettingsModalWindow = () => objectSettings.open();
+
 export {
     currentTab,
     getActiveTabName,
     setSnackbarContent,
     checkSearchParams,
+    showObjectInfoModalWindow,
+    showObjectSettingsModalWindow,
     snackbar,
     modalBackground
 };

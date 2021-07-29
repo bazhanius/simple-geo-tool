@@ -51,7 +51,7 @@ const copyToClipboard = (data, type) => {
         /* clipboard successfully set */
         setSnackbarContent({
             'type': 'clipboardCopyResult',
-            'text': `JSON data of <strong>${type}</strong> copied to clipboard successfully!`
+            'text': `JSON data of <b>${type}</b> copied to clipboard successfully!`
         });
         snackbar.close();
         snackbar.open();
@@ -59,7 +59,7 @@ const copyToClipboard = (data, type) => {
         /* clipboard write failed */
         setSnackbarContent({
             'type': 'clipboardCopyResult',
-            'text': `JSON data of <strong>${type}</strong> copying to clipboard failed!`
+            'text': `JSON data of <b>${type}</b> copying to clipboard failed!`
         });
         snackbar.close();
         snackbar.open();
@@ -79,12 +79,12 @@ const numberWithSpaces = (x) => {
     }
 };
 
-const metersOrKilometers = (meters) => {
-    if (meters > 10000) {
-        return {value: (meters / 1000).toFixed(2), unit: 'km'}
-    } else {
-        return {value: (meters).toFixed(0), unit: 'm'}
-    }
+const convertDistance = (meters, unit) => {
+    let distance = {
+        'm': (parseFloat(meters)).toFixed(0),
+        'km': (parseFloat(meters) / 1000).toFixed(2)
+    };
+    return unit in distance ? distance[unit] : distance;
 };
 
 const isLatitude  = num => !isNaN(num) && num !== '' && Math.abs(num) <= 90;
@@ -131,7 +131,7 @@ export {
     copyToClipboard,
     openInNewTab,
     numberWithSpaces,
-    metersOrKilometers,
+    convertDistance,
     isLatitude,
     isLongitude,
     isJSON
