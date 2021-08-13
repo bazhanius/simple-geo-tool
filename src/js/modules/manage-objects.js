@@ -81,7 +81,7 @@ const manageObjects = (function() {
                             }).bindPopup(generatePopupText(counter, 'Point', 1, 1, _lat, _lon))
                         );
                     }
-                    addAddressToDB(_lat, _lon);
+                    if (settings.mapParameters.onAddObject.reverseGeocode) addAddressToDB(_lat, _lon);
                 }
 
                 if (type === 'circle') {
@@ -118,7 +118,7 @@ const manageObjects = (function() {
                             }).bindPopup(generatePopupText(counter, 'Circle', 1, 1, _lat, _lon, props))
                         );
                     }
-                    addAddressToDB(_lat, _lon);
+                    if (settings.mapParameters.onAddObject.reverseGeocode) addAddressToDB(_lat, _lon);
                 }
 
                 if (type === 'polyline') {
@@ -148,7 +148,7 @@ const manageObjects = (function() {
                                 }).bindPopup(generatePopupText(counter, 'Polyline', i + 1, _points, _lat, _lon))
                             );
                         }
-                        addAddressToDB(_lat, _lon);
+                        if (settings.mapParameters.onAddObject.reverseGeocode) addAddressToDB(_lat, _lon);
                     });
 
                     props = dF.calcDistanceInPolyline(_latLons);
@@ -190,7 +190,7 @@ const manageObjects = (function() {
                                 }).bindPopup(generatePopupText(counter, 'Polygon', i + 1, _points, _lat, _lon))
                             );
                         }
-                        addAddressToDB(_lat, _lon);
+                        if (settings.mapParameters.onAddObject.reverseGeocode) addAddressToDB(_lat, _lon);
                     });
 
                     props = dF.calcPolygonArea(_latLons);
@@ -230,7 +230,7 @@ const manageObjects = (function() {
                                 }).bindPopup(generatePopupText(counter, 'Rectangle', i + 1, 2, _lat, _lon))
                             );
                         }
-                        addAddressToDB(_lat, _lon);
+                        if (settings.mapParameters.onAddObject.reverseGeocode) addAddressToDB(_lat, _lon);
                     });
 
                     props = dF.calcPolygonArea([
@@ -271,7 +271,7 @@ const manageObjects = (function() {
                 buttons.updateObjectsManagementButtons();
                 buttons.toggleObjectListButton();
 
-                addAddressToPopup(counter, objects);
+                if (settings.mapParameters.onAddObject.reverseGeocode) addAddressToPopup(counter, objects);
 
                 if (rulerButtonEnabled) manageObjects.disableAllPopups();
 

@@ -1,7 +1,7 @@
 const mapParameters = {
-    'onAddObject': {'flyTo': true},
+    'onAddObject': {'flyTo': true, 'reverseGeocode': false},
     resetToDefault: function() {
-        this.onAddObject = {'flyTo': true};
+        this.onAddObject = {'flyTo': true, 'reverseGeocode': false};
     }
 };
 

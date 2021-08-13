@@ -43,7 +43,7 @@ Yet another (supposed to be simple) tool to add geo objects on map.
 - Map controls:
   - selecting tile layers (OpenStreetMap, Wikimedia etc.)
   - geolocating current position of the device
-  - show address (geocoding) in popup of object's markers
+  - show address (geocoding) in popup of object's markers (disabled by default in settings)
   - ruler for measure distance
 - Other:
   - setting of object creation and other options
