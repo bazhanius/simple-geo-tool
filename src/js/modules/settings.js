@@ -10,11 +10,13 @@ const objectParameters = {
     'markerDot': {'point': true, 'circle': true, 'polyline': true, 'polygon': true, 'rectangle': true},
     'color': {'point': '#6e14ef', 'circle': '#3388ff', 'polyline': '#ff3333', 'polygon': '#008000', 'rectangle': '#801900'},
     'lineWeight': {'point': null, 'circle': 2, 'polyline': 2, 'polygon': 2, 'rectangle': 2},
+    'lineDashed': {'point': null, 'circle': false, 'polyline': false, 'polygon': false, 'rectangle': false},
     resetToDefault: function() {
         this.markerPin = {'point': true, 'circle': true, 'polyline': true, 'polygon': true, 'rectangle': true};
         this.markerDot = {'point': true, 'circle': true, 'polyline': true, 'polygon': true, 'rectangle': true};
         this.color = {'point': '#6e14ef', 'circle': '#3388ff', 'polyline': '#ff3333', 'polygon': '#008000', 'rectangle': '#801900'};
         this.lineWeight = {'point': null,'circle': 2, 'polyline': 2, 'polygon': 2, 'rectangle': 2};
+        this.lineDashed = {'point': null, 'circle': false, 'polyline': false, 'polygon': false, 'rectangle': false};
     }
 };
 
@@ -39,6 +41,7 @@ function checkSettingsInLocalStorage() {
     let markerDotSettings = JSON.parse(localStorage.getItem('markerDotSettings'));
     let colorSettings = JSON.parse(localStorage.getItem('colorSettings'));
     let lineWeightSettings = JSON.parse(localStorage.getItem('lineWeightSettings'));
+    let lineDashedSettings = JSON.parse(localStorage.getItem('lineDashedSettings'));
 
     // Setting user settings to app settings, if applicable
     if (onAddObjectSettings) mapParameters.onAddObject = onAddObjectSettings;
@@ -46,6 +49,7 @@ function checkSettingsInLocalStorage() {
     if (markerDotSettings) objectParameters.markerDot = markerDotSettings;
     if (colorSettings) objectParameters.color = colorSettings;
     if (lineWeightSettings) objectParameters.lineWeight = lineWeightSettings;
+    if (lineDashedSettings) objectParameters.lineDashed = lineDashedSettings;
 }
 
 function loadSettingsIntoHTMLDOM() {
@@ -56,7 +60,7 @@ function loadSettingsIntoHTMLDOM() {
 
     allObjectSettingsInput.forEach(el => {
         let setting = getParametersFromClass(el);
-        setting.parameter.startsWith('marker')
+        setting.parameter.startsWith('marker') || setting.parameter.startsWith('lineDashed')
             ? objectParameters[setting.parameter][setting.type] ? el.checked = true : el.checked = false
             : el.value = objectParameters[setting.parameter][setting.type];
         if (setting.parameter === 'lineWeight') {
@@ -78,7 +82,7 @@ allMapSettingsInput.forEach(el => {
 allObjectSettingsInput.forEach(el => {
     let setting = getParametersFromClass(el);
     el.addEventListener('change', function() {
-        let value = setting.parameter.startsWith('marker')
+        let value = setting.parameter.startsWith('marker') || setting.parameter.startsWith('lineDashed')
             ? this.checked
             : this.value;
         if (setting.parameter === 'lineWeight') {

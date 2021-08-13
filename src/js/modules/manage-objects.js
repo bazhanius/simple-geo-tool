@@ -32,8 +32,9 @@ const manageObjects = (function() {
                 let props = '';
                 let color = obj.color || settings.objectParameters.color[type];
                 let weight = obj.weight >=0 ? obj.weight : settings.objectParameters.lineWeight[type];
-                let showMarkerPin = obj.showMarkerPin === false ? false : settings.objectParameters.markerPin[type];
-                let showMarkerDot = obj.showMarkerDot === false ? false : settings.objectParameters.markerDot[type];
+                let showMarkerPin = (typeof obj.showMarkerPin === 'boolean') ? obj.showMarkerPin : settings.objectParameters.markerPin[type];
+                let showMarkerDot = (typeof obj.showMarkerDot === 'boolean') ? obj.showMarkerDot : settings.objectParameters.markerDot[type];
+                let dashedLine = (typeof obj.dashedLine === 'boolean') ? obj.dashedLine : settings.objectParameters.lineDashed[type];
                 let azimuth = obj.azimuth;
                 let markerIcon = {
                     'pin': L.divIcon({
@@ -91,7 +92,8 @@ const manageObjects = (function() {
                         L.circle([_lat, _lon], {
                             radius: radius,
                             color: color,
-                            weight: weight
+                            weight: weight,
+                            dashArray: dashedLine ? `${weight}, ${weight * 2.5}` : null
                         })
                     );
                     if (showMarkerDot) {
@@ -154,7 +156,8 @@ const manageObjects = (function() {
                     list.push(
                         L.polyline(_latLons, {
                             color: color,
-                            weight: weight
+                            weight: weight,
+                            dashArray: dashedLine ? `${weight}, ${weight * 2.5}` : null
                         })
                     );
 
@@ -195,7 +198,8 @@ const manageObjects = (function() {
                     list.push(
                         L.polygon(_latLons, {
                             color: color,
-                            weight: weight
+                            weight: weight,
+                            dashArray: dashedLine ? `${weight}, ${weight * 2.5}` : null
                         })
                     );
 
@@ -237,7 +241,8 @@ const manageObjects = (function() {
                     list.push(
                         L.rectangle(_latLons, {
                             color: color,
-                            weight: weight
+                            weight: weight,
+                            dashArray: dashedLine ? `${weight}, ${weight * 2.5}` : null
                         })
                     );
 
