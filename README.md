@@ -24,7 +24,7 @@ Yet another (supposed to be simple) tool to add geo objects on map.
   - via entering URL parameter
   - by shift-clicking on the map
   - with or without marker's pin or dot
-  - with custom color and line weight
+  - with custom color, line weight and line dashes
   - by applying function to recently added objects (group objects)
 - Supported object's types:
   - point
@@ -61,6 +61,7 @@ Yet another (supposed to be simple) tool to add geo objects on map.
 | <code>azimuth</code> | Number \<double> | Direction in degrees east of True North (clockwise), from 0° to 360°. If set, the dot will be replaced with an arrow. Only applicable to type <code>"point"</code> and <code>"circle"</code>, otherwise will be ignored. |
 | <code>color</code> | String | Stroke and fill CSS-color of the object. HEX, RGB(A), name etc.|
 | <code>weight</code> | Number \<integer> | Stroke width in pixels. Not applicable to <code>"point"</code>.|
+| <code>dashedLine</code> | Boolean | Create dashes and gaps in the stroke. Not applicable to <code>"point"</code>.|
 | <code>showMarkerPin</code> | Boolean| Allows to enable/disable the marker pin for object.|
 | <code>showMarkerDot</code> | boolean | Allows to enable/disable the marker dot for object. |
 #### Usage example
@@ -175,6 +176,7 @@ Example only with required parameters (<code>type</code>, <code>coords</code>):
 | <code>objectIDs</code> (required) | Array of integers | List of recently added objects IDS that will be proccessed by function. Must contain minimum one valid ID.
 | <code>color</code> | String | Stroke and fill CSS-color of the object. HEX, RGB(A), name etc.|
 | <code>weight</code> | Number \<integer> | Stroke width in pixels. Not applicable to <code>"point"</code>.|
+| <code>dashedLine</code> | Boolean | Create dashes and gaps in the stroke. Not applicable to <code>"point"</code>.|
 | <code>showMarkerPin</code> | Boolean| Allows to enable/disable the marker pin for object.|
 | <code>showMarkerDot</code> | boolean | Allows to enable/disable the marker dot for object. |
 
