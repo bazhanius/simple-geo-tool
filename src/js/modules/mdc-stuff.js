@@ -18,7 +18,7 @@ const setSnackbarContent = (obj) => {
         snackbarContent.innerHTML = `Added <strong>${obj.payload.points}</strong> point(s), `
             + `<strong>${obj.payload.circles}</strong> circle(s), `
             + `<strong>${obj.payload.polylines}</strong> polyline(s), `
-            + `<strong>${obj.payload.polygones}</strong> polygone(s) `
+            + `<strong>${obj.payload.polygones}</strong> polygone(s), `
             + `<strong>${obj.payload.rectangles}</strong> rectangle(s) and `
             + `<strong>${obj.payload.SVGs}</strong> SVG(s).<br>`
             + `Skipped <strong>${obj.payload.skipped}</strong> element(s).`
