@@ -57,8 +57,12 @@ const buttons = (function() {
                 if (currentTabName !== 'array') {
                     if (settings.mapParameters.onAddObject.flyTo) manageObjects.locateByObjectID(objLocID);
                 } else {
-                    if (arrayCounters.payload.points + arrayCounters.payload.circles
-                        + arrayCounters.payload.polylines + arrayCounters.payload.polygones > 0) {
+                    if (arrayCounters.payload.points
+                        + arrayCounters.payload.circles
+                        + arrayCounters.payload.polylines
+                        + arrayCounters.payload.polygones
+                        + arrayCounters.payload.rectangles
+                        + arrayCounters.payload.SVGs > 0) {
                         if (settings.mapParameters.onAddObject.flyTo) manageObjects.showAll();
                     }
                     setSnackbarContent(arrayCounters);
