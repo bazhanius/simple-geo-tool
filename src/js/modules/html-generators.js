@@ -126,7 +126,7 @@ function generateHint(type) {
             + '<p>Click on any temp marker to finish. If you click first marker at last it will be polygon, otherwise it will be polyline.</p>'
     }
     if (type === 'array') {
-        return '<p>Array of objects: <code>[{obj_1}, {obj_2}, ..., {obj_n}]</code>.'
+        return '<p>Array of objects: <code>[{obj_1}, {obj_2}, ..., {obj_n}]</code>. '
             + '<a href="https://github.com/bazhanius/simple-geo-tool/#json-format">Learn more</a>.</p>'
     }
     return '';

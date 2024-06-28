@@ -31,7 +31,8 @@ Yet another (supposed to be simple) tool to add geo objects on map.
   - circle
   - line and polyline
   - polygon
-  - rectangle (only in JSON)
+  - rectangle (only in JSON tab)
+  - SVG (only as Data URI and in JSON tab)
 - List of added objects with opportunity to:
   - view full info
   - copy object to clipboard
@@ -53,17 +54,18 @@ Yet another (supposed to be simple) tool to add geo objects on map.
 ## JSON format
 ### Directly specified objects 
 #### Parameters
-| Parameter | Type | Description |
-| --- | --- | --- |
-| <code>type</code> (required) | String |Enum: <ul><li><code>"point"</code></li><li><code>"circle"</code></li><li><code>"polyline"</code></li><li><code>"polygon"</code></li><li><code>"rectangle"</code></li></ul><br>Type of the object. |
-| <code>coords</code> (required) | Array of objects | Object of the form:<br><code>{"lat": Number \<double>, "lon": Number \<double>}</code>.<br>Where <code>lat</code> is latitude, from -90.0 to 90.0, and <code>lon</code> is longitude, from -180.0 to 180.0.<br><br>One object for type point or circle, and one or more for other.|
-| <code>radius</code> | Number \<double> | Radius of the circle, in meters. Only applicable and required to type <code>"circle"</code>, otherwise will be ignored. |
-| <code>azimuth</code> | Number \<double> | Direction in degrees east of True North (clockwise), from 0° to 360°. If set, the dot will be replaced with an arrow. Only applicable to type <code>"point"</code> and <code>"circle"</code>, otherwise will be ignored. |
-| <code>color</code> | String | Stroke and fill CSS-color of the object. HEX, RGB(A), name etc.|
-| <code>weight</code> | Number \<integer> | Stroke width in pixels. Not applicable to <code>"point"</code>.|
-| <code>dashedLine</code> | Boolean | Create dashes and gaps in the stroke. Not applicable to <code>"point"</code>.|
-| <code>showMarkerPin</code> | Boolean| Allows to enable/disable the marker pin for object.|
-| <code>showMarkerDot</code> | boolean | Allows to enable/disable the marker dot for object. |
+| Parameter                      | Type | Description                                                                                                                                                                                                                                                                                                                                                                                                                   |
+|--------------------------------| --- |-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| <code>type</code> (required)   | String | Enum: <ul><li><code>"point"</code></li><li><code>"circle"</code></li><li><code>"polyline"</code></li><li><code>"polygon"</code></li><li><code>"rectangle"</code></li><li><code>"svgString"</code></li></ul><br>Type of the object.                                                                                                                                                                                            |
+| <code>coords</code> (required) | Array of objects | Object of the form:<br><code>{"lat": Number \<double>, "lon": Number \<double>}</code>.<br>Where <code>lat</code> is latitude, from -90.0 to 90.0, and <code>lon</code> is longitude, from -180.0 to 180.0.<br><br>One object for type <code>point</code> or <code>circle</code>, and one or more for other. <br>Two object for <code>"rectangle"</code> and <code>"svgString"</code> — top-left and bottom-right vertices of bounds. |
+| <code>radius</code>            | Number \<double> | Radius of the circle, in meters. Only applicable and required to type <code>"circle"</code>, otherwise will be ignored.                                                                                                                                                                                                                                                                                                       |
+| <code>azimuth</code>           | Number \<double> | Direction in degrees east of True North (clockwise), from 0° to 360°. If set, the dot will be replaced with an arrow. Only applicable to type <code>"point"</code> and <code>"circle"</code>, otherwise will be ignored.                                                                                                                                                                                                      |
+| <code>color</code>             | String | Stroke and fill CSS-color of the object. HEX, RGB(A), name etc.<br>Used as <code>stroke</code> value in <code>"svgString"</code>.                                                                                                                                                                                                                                                                                             |
+| <code>weight</code>            | Number \<integer> | Stroke width in pixels. Not applicable to <code>"point"</code>.<br>Used as <code>stroke-width</code> value in <code>"svgString"</code>.                                                                                                                                                                                                                                                                                       |
+| <code>fill</code>              | String | Applicable only to <code>"svgString"</code>. Replace each <code>fill</code> value in SVG with given CSS-color.                                                                                                                                                                                                                                                                                                                |
+| <code>dashedLine</code>        | Boolean | Create dashes and gaps in the stroke. Not applicable to <code>"point"</code> and <code>"svgString"</code>.                                                                                                                                                                                                                                                                                                                    |
+| <code>showMarkerPin</code>     | Boolean| Allows to enable/disable the marker pin for object.                                                                                                                                                                                                                                                                                                                                                                           |
+| <code>showMarkerDot</code>     | boolean | Allows to enable/disable the marker dot for object.                                                                                                                                                                                                                                                                                                                                                                           |
 #### Usage example
 
 **Point**
@@ -166,6 +168,49 @@ Example only with required parameters (<code>type</code>, <code>coords</code>):
 ]
 ```
 
+**Rectangle**
+
+Example only with required parameters (<code>type</code>, <code>coords</code>):
+```json
+[
+   {
+      "type": "rectangle",
+      "coords": [
+         {
+            "lon": 37.854319,
+            "lat": 55.569630
+         },
+         {
+            "lon": 38.987349,
+            "lat": 55.143146
+         }
+      ]
+   }
+]
+```
+
+**SVG as Data URI**
+
+Example only with required parameters (<code>type</code>, <code>coords</code>):
+```json
+[
+   {
+      "type": "svgString",
+      "coords": [
+         {
+            "lon": 37.394619,
+            "lat": 55.867370
+         },
+         {
+            "lon": 37.877967,
+            "lat": 55.732980
+         }
+      ],
+     "svgDataURI": "data:image/svg+xml;base64,PHN2ZyBoZWlnaHQ9IjgwMHB4IiB3aWR0aD0iODAwcHgiIHZlcnNpb249IjEuMSIgaWQ9IkxheWVyXzEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIAoJIHZpZXdCb3g9IjAgMCAyODAuMDI4IDI4MC4wMjgiIHhtbDpzcGFjZT0icHJlc2VydmUiPgo8Zz4KCTxwYXRoIHN0eWxlPSJmaWxsOiMzMjRENUI7IiBkPSJNMTMxLjI2MywxMzEuMjYzdjE0MC4wMTRjMCw0LjgzOSwzLjkxMiw4Ljc1MSw4Ljc1MSw4Ljc1MXM4Ljc1MS0zLjkxMiw4Ljc1MS04Ljc1MVYxMzEuMjYzSDEzMS4yNjMKCQl6Ii8+Cgk8cGF0aCBzdHlsZT0iZmlsbDojRTI1NzRDOyIgZD0iTTE0MC4wMTQsMGM0OC4zMzEsMCw4Ny41MDksMzkuMTg2LDg3LjUwOSw4Ny41MDlzLTM5LjE3OCw4Ny41MTctODcuNTA5LDg3LjUxNwoJCWMtNDguMzIyLDAuMDA5LTg3LjUwOS0zOS4xOTUtODcuNTA5LTg3LjUxN1M5MS42OTEsMCwxNDAuMDE0LDB6Ii8+Cgk8cGF0aCBzdHlsZT0iZmlsbDojRTg3OTcwOyIgZD0iTTE2Ni4yNjYsNDMuNzYzYzE0LjUsMCwyNi4yNTMsMTEuNzQ0LDI2LjI1MywyNi4yNDRTMTgwLjc2Nyw5Ni4yNiwxNjYuMjY2LDk2LjI2CgkJYy0xNC40OTEsMC0yNi4yNTMtMTEuNzUyLTI2LjI1My0yNi4yNTNDMTQwLjAxNCw1NS41MTUsMTUxLjc3NSw0My43NjMsMTY2LjI2Niw0My43NjN6Ii8+Cgk8cGF0aCBzdHlsZT0iZmlsbDojQ0I0RTQ0OyIgZD0iTTE0OC43NjUsMTY2LjI4NGMtNDguMzEzLDAtODcuNTA5LTM5LjIwNC04Ny41MDktODcuNTI2YzAtMjEuOTM4LDguMTMtNDEuOTM0LDIxLjQ2Ni01Ny4yOTIKCQlDNjQuMjQsMzcuNTI0LDUyLjUwNSw2MS4xMjUsNTIuNTA1LDg3LjUwOWMwLDQ4LjMyMiwzOS4xODYsODcuNTE3LDg3LjUwOSw4Ny41MTdjMjYuMzkzLDAsNDkuOTk0LTExLjc0NCw2Ni4wNDMtMzAuMjE3CgkJQzE5MC42OTksMTU4LjE2MywxNzAuNzAzLDE2Ni4yODQsMTQ4Ljc2NSwxNjYuMjg0eiIvPgo8L2c+Cjwvc3ZnPg=="
+   }
+]
+```
+
 ### Objects based on recently added objects
 
 #### Parameters
@@ -216,3 +261,9 @@ https://bazhanius.github.io/simple-geo-tool/?tab=array&addArray=[{obj_1}, {obj_2
 - [Nominatim](https://github.com/openstreetmap/Nominatim)
 - [MDC](https://github.com/material-components/material-components-web) (Material Design Components)
 - [MDI](https://github.com/Templarian/MaterialDesign) (Material Design Icons from the Community)
+
+
+## Build
+``` 
+webpack build
+```

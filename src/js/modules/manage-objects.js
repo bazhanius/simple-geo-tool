@@ -31,10 +31,15 @@ const manageObjects = (function() {
                 let radius = obj.radius ? obj.radius : null;
                 let props = '';
                 let color = obj.color || settings.objectParameters.color[type];
-                let weight = obj.weight >=0 ? obj.weight : settings.objectParameters.lineWeight[type];
-                let showMarkerPin = (typeof obj.showMarkerPin === 'boolean') ? obj.showMarkerPin : settings.objectParameters.markerPin[type];
-                let showMarkerDot = (typeof obj.showMarkerDot === 'boolean') ? obj.showMarkerDot : settings.objectParameters.markerDot[type];
-                let dashedLine = (typeof obj.dashedLine === 'boolean') ? obj.dashedLine : settings.objectParameters.lineDashed[type];
+                let weight = obj.weight >= 0 ? obj.weight : settings.objectParameters.lineWeight[type];
+                let fill = obj.fill;
+                let showMarkerPin = (typeof obj.showMarkerPin === 'boolean')
+                    ? obj.showMarkerPin : settings.objectParameters.markerPin[type];
+                let showMarkerDot = (typeof obj.showMarkerDot === 'boolean')
+                    ? obj.showMarkerDot : settings.objectParameters.markerDot[type];
+                let dashedLine = (typeof obj.dashedLine === 'boolean')
+                    ? obj.dashedLine : settings.objectParameters.lineDashed[type];
+                dashedLine = dashedLine ? `${weight}, ${weight * 2.5}` : null;
                 let azimuth = obj.azimuth;
                 let markerIcon = {
                     'pin': L.divIcon({
@@ -57,6 +62,7 @@ const manageObjects = (function() {
                         iconAnchor: [12, 12]
                     })
                 };
+                let svgString = obj.svgDataURI ? obj.svgDataURI : null; // decodes a base-64 encoded string
 
                 if (type === 'point') {
                     let _lat = coords[0].lat;
@@ -93,7 +99,7 @@ const manageObjects = (function() {
                             radius: radius,
                             color: color,
                             weight: weight,
-                            dashArray: dashedLine ? `${weight}, ${weight * 2.5}` : null
+                            dashArray: dashedLine
                         })
                     );
                     if (showMarkerDot) {
@@ -157,7 +163,7 @@ const manageObjects = (function() {
                         L.polyline(_latLons, {
                             color: color,
                             weight: weight,
-                            dashArray: dashedLine ? `${weight}, ${weight * 2.5}` : null
+                            dashArray: dashedLine
                         })
                     );
 
@@ -199,7 +205,7 @@ const manageObjects = (function() {
                         L.polygon(_latLons, {
                             color: color,
                             weight: weight,
-                            dashArray: dashedLine ? `${weight}, ${weight * 2.5}` : null
+                            dashArray: dashedLine
                         })
                     );
 
@@ -242,10 +248,35 @@ const manageObjects = (function() {
                         L.rectangle(_latLons, {
                             color: color,
                             weight: weight,
-                            dashArray: dashedLine ? `${weight}, ${weight * 2.5}` : null
+                            dashArray: dashedLine
                         })
                     );
 
+                }
+
+                if (type === 'svgString') {
+                    if (svgString) {
+                        let _latLons = [[coords[0].lat, coords[0].lon], [coords[1].lat, coords[1].lon]];
+                        const svgElement = document.createElementNS(
+                            "http://www.w3.org/2000/svg",
+                            "svg"
+                        );
+                        svgElement.setAttribute('width', '100%');
+                        svgElement.setAttribute('height', '100%');
+                        svgElement.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+                        let newString = atob(svgString.replace(/data:image\/svg\+xml;base64,/, ''))
+                            .replace(/(\n+)/gm, "")
+                            .replace(/stroke=\"(.*?)\"/g, `stroke="${color}" vector-effect="non-scaling-stroke"`)
+                            .replace(/stroke\-width=\"(.*?)\"/g, `stroke-width="${weight}"`)
+                            .replace(/\ width=\"(.*?)\"/, ` width="100%"`)
+                            .replace(/\ height=\"(.*?)\"/, ` height="100%"`);
+                        if (fill) newString = newString.replace(/fill=\"(.*?)\"/g, `fill="${fill}"`);
+                        console.log(newString);
+                        svgElement.innerHTML = newString;
+                        list.push(
+                            L.svgOverlay(svgElement, _latLons)
+                        );
+                    }
                 }
 
                 group = new L.featureGroup(list).addTo(map);
@@ -258,6 +289,7 @@ const manageObjects = (function() {
                     'measurements': props,
                     'color': color,
                     'weight': weight,
+                    'dashedLine': dashedLine,
                     'show_marker_dot': showMarkerDot,
                     'show_marker_pin': showMarkerPin,
                     'azimuth': azimuth
@@ -293,6 +325,7 @@ const manageObjects = (function() {
                     'polylines': 0,
                     'polygones': 0,
                     'rectangles': 0,
+                    'SVGs': 0,
                     'skipped': 0
                 }
             };
@@ -350,6 +383,8 @@ const manageObjects = (function() {
                             counters.payload.polygones += 1;
                         } else if (el.type === 'rectangle') {
                             counters.payload.rectangles += 1;
+                        } else if (el.type === 'svgString') {
+                            counters.payload.SVGs += 1;
                         }
                     } else {
                         counters.payload.skipped += 1;

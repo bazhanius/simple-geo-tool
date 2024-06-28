@@ -2,5 +2,11 @@
   "name": "simple-geo-tool",
   "scripts": {
     "build": "webpack"
+  },
+  "dependencies": {
+    "webpack": "^5.88.2"
+  },
+  "devDependencies": {
+    "webpack-cli": "^5.1.4"
   }
 }
