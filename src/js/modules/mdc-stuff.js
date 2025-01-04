@@ -15,13 +15,31 @@ let snackbarContent = document.getElementById('b-mdc-snackbar-content');
 snackbar.timeoutMs = 7500;
 const setSnackbarContent = (obj) => {
     if (obj.type === 'addArray') {
-        snackbarContent.innerHTML = `Added <strong>${obj.payload.points}</strong> point(s), `
-            + `<strong>${obj.payload.circles}</strong> circle(s), `
-            + `<strong>${obj.payload.polylines}</strong> polyline(s), `
-            + `<strong>${obj.payload.polygones}</strong> polygone(s), `
-            + `<strong>${obj.payload.rectangles}</strong> rectangle(s) and `
-            + `<strong>${obj.payload.SVGs}</strong> SVG(s).<br>`
-            + `Skipped <strong>${obj.payload.skipped}</strong> element(s).`
+        let tempPayload = JSON.parse(JSON.stringify(obj.payload));
+        let text = '';
+        console.log(tempPayload);
+        //tempPayload = tempPayload.filter(x => x !== 0);
+        for (let key in tempPayload) {
+            if (tempPayload[key] === 0 || key === 'skipped') delete tempPayload[key];
+        }
+        tempPayload = Object.keys(tempPayload);
+        let length = tempPayload.length;
+        if (length > 0) {
+            text += 'Added'
+            tempPayload.forEach((el, index) => {
+                if (index !== length - 1) {
+                    text += ` <strong>${obj.payload[el]}</strong> ${el},`
+                } else {
+                    text += ` <strong>${obj.payload[el]}</strong> ${el}.`
+                }
+            })
+        } else {
+            text += 'Noting to add.'
+        }
+        text += `<br>Skipped <strong>${obj.payload.skipped}</strong> element(s).`
+
+        console.log(tempPayload);
+        snackbarContent.innerHTML = text;
     } else {
         snackbarContent.innerHTML = obj.text;
     }
@@ -29,7 +47,7 @@ const setSnackbarContent = (obj) => {
 
 let tabBar = new mdc.tabBar.MDCTabBar(document.querySelector('.mdc-tab-bar'));
 let contentEls = document.querySelectorAll('.mdc-tab-content');
-let tabNames = ['point', 'circle', 'line', 'array'];
+let tabNames = ['point', 'circle', 'line', 'geojson', 'array'];
 let currentTab = 'point';
 let hintAboutTabs = document.getElementById('hint-about-tabs');
 tabBar.listen('MDCTabBar:activated', function(event) {
@@ -59,8 +77,11 @@ const checkSearchParams = () => {
     } else if (searchParamTab === 'line') {
         tabBar.activateTab(2);
         currentTab = 'line';
-    } else if (searchParamTab === 'array') {
+    } else if (searchParamTab === 'geojson') {
         tabBar.activateTab(3);
+        currentTab = 'geojson';
+    } else if (searchParamTab === 'array') {
+        tabBar.activateTab(4);
         currentTab = 'array';
         if (searchParamAddArray && isJSON(searchParamAddArray)) {
             let arrayCounters = manageObjects.addArray(searchParamAddArray);

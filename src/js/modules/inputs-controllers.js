@@ -24,6 +24,9 @@ const inputFields = (function() {
     let _lineFieldLatTwo = document.querySelector('#line-lat-2');
     let _lineFieldLonTwo = document.querySelector('#line-lon-2');
 
+    // GeoJSON
+    let _geoJson = document.querySelector('#geojson');
+
     // Array
     let _arrayList = document.querySelector('#array-of-coordinates');
 
@@ -36,6 +39,8 @@ const inputFields = (function() {
                 return [_circleFieldLat, _circleFieldLon, _circleFieldRad];
             } else if ( type === 'line' ) {
                 return [_lineFieldLatOne, _lineFieldLonOne, _lineFieldLatTwo, _lineFieldLonTwo];
+            } else if ( type === 'geojson' ) {
+                return [_geoJson];
             } else if ( type === 'array' ) {
                 return [_arrayList];
             } else {
@@ -62,6 +67,10 @@ const inputFields = (function() {
                     'latTwo': _lineFieldLatTwo.value,
                     'lonTwo': _lineFieldLonTwo.value
                 };
+            } else if ( type === 'geojson' ) {
+                return {
+                    'geoJson': _geoJson.value
+                };
             } else if ( type === 'array' ) {
                 return {
                     'arrayList': _arrayList.value
@@ -84,6 +93,8 @@ const inputFields = (function() {
                 _lineFieldLonOne.value = '';
                 _lineFieldLatTwo.value = '';
                 _lineFieldLonTwo.value = '';
+            } else if ( type === 'geojson' ) {
+                _geoJson.value = '';
             } else if ( type === 'array' ) {
                 _arrayList.value = '';
             }
@@ -114,10 +125,15 @@ const inputFields = (function() {
                 dF.isLongitude(v.lonTwo) ? allGood[3] = 1 : allGood[3] = 0;
                 v.latOne || v.lonOne || v.latTwo || v.lonTwo ? allGood[4] = 1 : allGood[4] = 0;
                 return allGood;
+            } else if ( type === 'geojson' ) {
+                let allGood = [0];
+                let v = inputFields.getValues('geojson');
+                v.geoJson ? allGood[0] = 1 : allGood[0] = 0;
+                return allGood;
             } else if ( type === 'array' ) {
                 let allGood = [0,0,0];
                 let v = inputFields.getValues('array');
-                let re = new RegExp(/^[0-9a-z\ \s*\#\(\)\.\,\-\[\]\{\}\"\:\+\;\/\=]*$/i);
+                let re = new RegExp(/^[0-9a-zёа-я\ \s*\#\(\)\.\,\-\[\]\{\}\"\:\+\;\/\=\\\_\-]*$/i);
                 v.arrayList && re.test(v.arrayList) ? allGood[0] = 1 : allGood[0] = 0;
                 v.arrayList ? allGood[1] = 1 : allGood[1] = 0;
                 dF.isJSON(v.arrayList) ? allGood[2] = 1 : allGood[2] = 0;
@@ -146,6 +162,12 @@ inputFields.getNodeList('circle').forEach(function (el) {
 inputFields.getNodeList('line').forEach(function (el) {
     el.addEventListener('keyup', function() {
         buttons.toggleAddToMapButtons('line');
+    });
+});
+
+inputFields.getNodeList('geojson').forEach(function (el) {
+    el.addEventListener('keyup', function() {
+        buttons.toggleAddToMapButtons('geojson');
     });
 });
 

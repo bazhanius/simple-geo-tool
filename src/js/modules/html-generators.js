@@ -18,6 +18,25 @@ function generateArrowSVG(color, degree) {
 
 }
 
+function generateMarkerSVG(color, type = 'simple') {
+    if (type === 'simple') {
+        return `<div style='background-color: transparent;'><?xml version="1.0" encoding="UTF-8"?>` +
+            `<svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">` +
+                `<circle cx="6" cy="6" r="6" fill="white"/>` +
+                `<circle cx="6" cy="6" r="4" fill="${color}"/>` +
+            `</svg></div>`
+    }
+    if (type === 'big') {
+        return `<div style='background-color: transparent;'><?xml version="1.0" encoding="UTF-8"?>` +
+            `<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">` +
+                `<circle cx="8" cy="8" r="8" fill="white"/>` +
+                `<circle cx="8" cy="8" r="7" fill="${color}"/>` +
+                `<circle cx="8" cy="8" r="6" fill="white"/>` +
+                `<circle cx="8" cy="8" r="4" fill="${color}"/>` +
+            `</svg></div>`
+    }
+}
+
 function generateFullInfoContent(obj) {
     let info = {'title': '', 'content': ''};
     info.title = `<i class="mdi mdi-information mdi-18px"></i> Object info`;
@@ -32,9 +51,11 @@ function generateFullInfoContent(obj) {
 
     let coords = obj.object.coords;
     let coordsList = '';
-    coords.forEach( (el, i) => {
-        coordsList += `${i + 1}: <b class="b-obj-info-bold-mono">${el.lat} ${el.lon}</b><br>`;
-    });
+    if (coords) {
+        coords.forEach( (el, i) => {
+            coordsList += `${i + 1}: <b class="b-obj-info-bold-mono">${el.lat} ${el.lon}</b><br>`;
+        });
+    }
     info.content += `<tr><td>Coordinates</td><td><pre class="b-obj-info-pre">${coordsList}</td></pre></td></tr>`;
 
     let measurementAttribute = {
@@ -102,6 +123,18 @@ function generatePopupText(id, type, point = 1, totalPoints = 1, lat, lon, props
         + `<div class="popup-row"><div class="popup-col-1">Meas’s.:</div><div class="popup-col-2">${measurementsList}</div></div>`;
 }
 
+function generatePopupTextFromObj(obj, whiteListKeys = []) {
+    let text = '';
+    if (obj) {
+        for (const [key, value] of Object.entries(obj)) {
+            if (whiteListKeys.indexOf(key) > -1 || whiteListKeys.length === 0) {
+                text += `<div class="popup-row" style="justify-content: space-between"><div class="popup-col-1" style="min-width: unset">${key}</div><div class="popup-col-2">${value}</div></div>`
+            }
+        }
+    }
+    return text;
+}
+
 function generateRulerPopupText(distance, id) {
     let _distObj = dF.convertDistance(distance);
     let _dist = {}
@@ -125,6 +158,9 @@ function generateHint(type) {
         return '<p>You can add line, polyline or polygon by holding down the <kbd>shift</kbd> key while left-clicking on the map.</p>'
             + '<p>Click on any temp marker to finish. If you click first marker at last it will be polygon, otherwise it will be polyline.</p>'
     }
+    if (type === 'geojson') {
+        return '<p>Standart GeoJSON.</p>'
+    }
     if (type === 'array') {
         return '<p>Array of objects: <code>[{obj_1}, {obj_2}, ..., {obj_n}]</code>. '
             + '<a href="https://github.com/bazhanius/simple-geo-tool/#json-format">Learn more</a>.</p>'
@@ -134,9 +170,11 @@ function generateHint(type) {
 
 export {
     generateArrowSVG,
+    generateMarkerSVG,
     generateFullInfoContent,
     generateListObjectsTable,
     generatePopupText,
+    generatePopupTextFromObj,
     generateRulerPopupText,
     generateHint
 }

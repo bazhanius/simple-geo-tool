@@ -10,6 +10,12 @@ let latLonExample = JSON.parse(localStorage.getItem('lastClickedLatLon')) || [55
 let OSM = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors'
     }),
+    My_Map_07_2024_RC = L.tileLayer('https://cdn.ttk-fpc.ru/media/map/tiles2407/{z}/{x}/{y}@2x.jpeg', {
+        attribution: '&copy; ТТК'
+    }),
+    MBTile = L.tileLayer('http://45.87.154.110:8080/styles/ttk/256/{z}/{x}/{y}@2x.png', {
+        attribution: '&copy; ТТК'
+    }),
     CartoDB_Voyager = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
         subdomains: 'abcd'
@@ -40,8 +46,12 @@ let OSM = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 
 let map = L.map('map', {
     center: latLonExample,
-    maxZoom: 18,
-    zoom: 10,
+    minZoom: 3,
+    maxZoom: 14,
+    zoomSnap: 1,
+    //maxBounds: [[34.8, 18.4], [82.1, 192]],
+    //maxBoundsViscocity: 1.0,
+    zoom: 3,
     layers: [OSM]
 });
 

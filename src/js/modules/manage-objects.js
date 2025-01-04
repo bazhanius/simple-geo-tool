@@ -2,7 +2,12 @@ import * as settings from "./settings.js";
 import { addAddressToDB, addAddressToPopup } from "./reverse-geocoding.js";
 import * as dF from "./different-functions.js";
 import { map } from "./create-map.js";
-import { generateListObjectsTable , generatePopupText, generateArrowSVG } from "./html-generators.js";
+import {
+    generateListObjectsTable,
+    generatePopupText,
+    generateArrowSVG,
+    generatePopupTextFromObj, generateMarkerSVG
+} from "./html-generators.js";
 import { buttons } from "./buttons-controllers.js";
 import { rulerButtonEnabled } from './ruler-controllers.js';
 
@@ -26,6 +31,12 @@ const manageObjects = (function() {
                 counter++;
                 let type = obj.type;
                 let coords = obj.coords;
+                let flipCoords = obj.flipCoords;
+                let stepDistance = obj.stepDistance;
+                let stepInterval = obj.stepInterval;
+                let followCursor = obj.followCursor;
+                let traversedColor = obj.traversedColor || 'unset';
+                let whiteBorder = obj.whiteBorder;
                 let list = [];
                 let group;
                 let radius = obj.radius ? obj.radius : null;
@@ -60,6 +71,12 @@ const manageObjects = (function() {
                         html: generateArrowSVG(color, azimuth),
                         iconSize: [24, 24],
                         iconAnchor: [12, 12]
+                    }),
+                    'svgDot': L.divIcon({
+                        className: 'b-marker-icon',
+                        html: generateMarkerSVG(color, 'simple'),
+                        iconSize: [12, 12],
+                        iconAnchor: [7, 7]
                     })
                 };
                 let svgString = obj.svgDataURI ? obj.svgDataURI : null; // decodes a base-64 encoded string
@@ -271,12 +288,131 @@ const manageObjects = (function() {
                             .replace(/\ width=\"(.*?)\"/, ` width="100%"`)
                             .replace(/\ height=\"(.*?)\"/, ` height="100%"`);
                         if (fill) newString = newString.replace(/fill=\"(.*?)\"/g, `fill="${fill}"`);
-                        console.log(newString);
                         svgElement.innerHTML = newString;
                         list.push(
                             L.svgOverlay(svgElement, _latLons)
                         );
                     }
+                }
+
+                if (type === 'geojson') {
+                    list.push(
+                        L.geoJSON(JSON.parse(obj.geoJson),{
+                            color: color,
+                            weight: weight,
+                            onEachFeature: function(feature, layer) {
+                                let colorFromProps = feature.properties?.color || color;
+                                layer.setStyle({
+                                    fillColor: colorFromProps,
+                                    color: colorFromProps,
+                                    weight: feature.properties?.weight || weight,
+                                });
+                            },
+                            pointToLayer: function (feature, latlng) {
+                                let markers =[]
+                                markers.push(L.marker(latlng, {
+                                    icon: L.divIcon({
+                                        className: 'b-marker-icon',
+                                        html: generateMarkerSVG(
+                                            feature.properties?.color || color,
+                                            feature.properties?.type || 'simple'),
+                                        iconSize: feature.properties?.type === "simple" ? [12, 12] : [16, 16],
+                                        iconAnchor: feature.properties?.type === "simple" ? [7, 7] : [9, 9]
+                                    })
+                                }).bindPopup(generatePopupTextFromObj(feature.properties)));
+                                if (showMarkerPin) {
+                                    markers.push(L.marker(latlng, {
+                                        icon: markerIcon.pin
+                                    }))
+                                }
+                                return L.featureGroup(markers)
+                            }
+                        })
+                    )
+                }
+
+                if (type === 'cursorOnRoute') {
+                    let azimuth = (pointFrom, pointTo) => turf.bearingToAzimuth( turf.bearing( turf.point(pointFrom), turf.point(pointTo) ));
+                    let _routeLatLon, _routeLonLat;
+                    if (flipCoords) {
+                        _routeLatLon = L.GeoJSON.coordsToLatLngs(coords);
+                        _routeLonLat = coords;
+                    } else {
+                        _routeLatLon = coords;
+                        _routeLonLat = JSON.parse(JSON.stringify(coords)).map(c => [c[1], c[0]]);
+                    }
+                    if (whiteBorder) {
+                        let passedRouteLineBorder = L.polyline((_routeLatLon), {
+                            weight: weight + 2,
+                            color: '#fff',
+                            opacity: 1
+                        }).addTo(map);
+                        list.push(passedRouteLineBorder);
+                    }
+                    let passedRouteLine = L.polyline((_routeLatLon), {
+                        weight: weight,
+                        color: traversedColor,
+                        opacity: 1
+                    }).addTo(map);
+                    list.push(passedRouteLine);
+                    //map.flyToBounds(passedRouteLine.getBounds(), {maxZoom: 9})
+                    let onRouteLine = L.polyline((_routeLatLon), {
+                        weight: weight,
+                        color: color,
+                        opacity: 1
+                    }).addTo(map);
+                    list.push(onRouteLine);
+                    let cursor = L.marker(_routeLatLon[0], {
+                        zIndexOffset: 2000,
+                        icon: L.divIcon({
+                            className: 'b-marker-icon',
+                            html: generateArrowSVG(color, azimuth(_routeLonLat[0], _routeLonLat[1])),
+                            iconSize: [24, 24],
+                            iconAnchor: [12, 12]
+                        })
+                    }).addTo(map);
+                    list.push(cursor);
+                    let l = _routeLatLon.length;
+                    let length = turf.length(turf.lineString(_routeLonLat), { units: "kilometers" });
+                    let updateRoute = (dist) => {
+                        let p = turf.along( turf.lineString(_routeLonLat), dist, {units:'kilometers'} );
+                        //p = turf.nearestPointOnLine( turf.lineString(_routeLonLat), pointAlong, {units:'kilometers'} );
+                        //console.log(p);
+
+                        let split = turf.lineSplit( turf.lineString(_routeLonLat), turf.point(p.geometry.coordinates) );
+
+                        if (1 in split.features) {
+                            p.properties.azimuth = azimuth(split.features[1].geometry.coordinates[0], split.features[1].geometry.coordinates[1])
+                            onRouteLine.setLatLngs(L.GeoJSON.coordsToLatLngs(split.features[1].geometry.coordinates))
+                        } else {
+                            p.properties.azimuth = azimuth(_routeLonLat[l - 2], _routeLonLat[l - 1]);
+                            if (p.geometry.coordinates[0] === _routeLonLat[l - 1][0]
+                                && p.geometry.coordinates[1] === _routeLonLat[l - 1][1]) {
+                                map.removeLayer(onRouteLine)
+                            }
+                        }
+
+                        cursor.setLatLng([p.geometry.coordinates[1], p.geometry.coordinates[0]]);
+                        cursor.setIcon(L.divIcon({
+                            className: 'b-marker-icon',
+                            html: generateArrowSVG(color, p.properties.azimuth),
+                            iconSize: [24, 24],
+                            iconAnchor: [12, 12]
+                        }));
+                        if (followCursor) {
+                            map.setView([p.geometry.coordinates[1], p.geometry.coordinates[0]], map.getZoom());
+                        }
+                    }
+
+                    let index = 0;
+                    let interval = setInterval(() => {
+                        updateRoute(index * stepDistance);
+                        if ((index * stepDistance) > length) {
+                            clearInterval(interval);
+                            interval = null;
+                        }
+                        index += 1;
+                    }, stepInterval * 1000);
                 }
 
                 group = new L.featureGroup(list).addTo(map);
@@ -309,7 +445,6 @@ const manageObjects = (function() {
 
                 return counter;
             } catch (e) {
-                console.log(e);
                 counter--;
                 return -1;
             }
@@ -326,6 +461,8 @@ const manageObjects = (function() {
                     'polygones': 0,
                     'rectangles': 0,
                     'SVGs': 0,
+                    'GeoJSON': 0,
+                    'cursorOnRoute': 0,
                     'skipped': 0
                 }
             };
@@ -333,58 +470,70 @@ const manageObjects = (function() {
             arr.forEach( (obj, i) => {
                 let el = obj;
                 if (obj.type === 'group') {
-                    let tempObj = null;
-                    let bounds = manageObjects.getBoundsByObjectIDs(obj.objectIDs);
-                    if (bounds !== -1) {
-                        if (obj.function === 'drawCircleBounds') {
-                            tempObj = {
-                                'type': 'circle',
-                                'radius': bounds.radius,
-                                'coords': [{'lat': bounds.center.lat, 'lon': bounds.center.lng}]
-                            };
-
-                        }
-                        if (obj.function === 'drawRectangleBounds') {
-                            tempObj = {
-                                'type': 'rectangle',
-                                'coords': [
-                                    {'lat': bounds.southEast.lat, 'lon': bounds.southEast.lng},
-                                    {'lat': bounds.northWest.lat, 'lon': bounds.northWest.lng}
-                                ]
-                            };
-                        }
-                        if (tempObj !== null) {
-                            if (obj.color) tempObj.color = obj.color;
-                            if (obj.weight >= 0) tempObj.weight = obj.weight;
-                            if (obj.showMarkerDot === true) {
-                                tempObj.showMarkerDot = true;
-                            } else if (obj.showMarkerDot === false) {
-                                tempObj.showMarkerDot = false;
+                    if (['drawCircleBounds', 'drawRectangleBounds'].indexOf(obj.function) > -1) {
+                        let tempObj = null;
+                        let bounds = manageObjects.getBoundsByObjectIDs(obj.objectIDs);
+                        if (bounds !== -1) {
+                            if (obj.function === 'drawCircleBounds') {
+                                tempObj = {
+                                    'type': 'circle',
+                                    'radius': bounds.radius,
+                                    'coords': [{'lat': bounds.center.lat, 'lon': bounds.center.lng}]
+                                };
                             }
-                            if (obj.showMarkerPin === true) {
-                                tempObj.showMarkerPin = true;
-                            } else if (obj.showMarkerPin === false) {
-                                tempObj.showMarkerPin = false;
+                            if (obj.function === 'drawRectangleBounds') {
+                                tempObj = {
+                                    'type': 'rectangle',
+                                    'coords': [
+                                        {'lat': bounds.southEast.lat, 'lon': bounds.southEast.lng},
+                                        {'lat': bounds.northWest.lat, 'lon': bounds.northWest.lng}
+                                    ]
+                                };
                             }
-                            el = tempObj;
+                            if (tempObj !== null) {
+                                if (obj.color) tempObj.color = obj.color;
+                                if (obj.weight >= 0) tempObj.weight = obj.weight;
+                                if (obj.showMarkerDot === true) {
+                                    tempObj.showMarkerDot = true;
+                                } else if (obj.showMarkerDot === false) {
+                                    tempObj.showMarkerDot = false;
+                                }
+                                if (obj.showMarkerPin === true) {
+                                    tempObj.showMarkerPin = true;
+                                } else if (obj.showMarkerPin === false) {
+                                    tempObj.showMarkerPin = false;
+                                }
+                                el = tempObj;
+                            }
                         }
                     }
                 }
-                if (el.type && el.coords) {
+                if (el.type
+                    && ['point', 'circle', 'polyline', 'polygon','rectangle', 'svgString', 'geojson', 'cursorOnRoute'].indexOf(el.type) > -1
+                    && (el.coords || el.geoJson || el.route)) {
                     let id = manageObjects.add(el);
                     if (id > 0) {
-                        if (el.type === 'point') {
-                            counters.payload.points += 1;
-                        } else if (el.type === 'circle') {
-                            counters.payload.circles += 1;
-                        } else if (el.type === 'polyline') {
-                            counters.payload.polylines += 1;
-                        } else if (el.type === 'polygon') {
-                            counters.payload.polygones += 1;
-                        } else if (el.type === 'rectangle') {
-                            counters.payload.rectangles += 1;
-                        } else if (el.type === 'svgString') {
-                            counters.payload.SVGs += 1;
+                        if (el.coords) {
+                            if (el.type === 'point') {
+                                counters.payload.points += 1;
+                            } else if (el.type === 'circle') {
+                                counters.payload.circles += 1;
+                            } else if (el.type === 'polyline') {
+                                counters.payload.polylines += 1;
+                            } else if (el.type === 'polygon') {
+                                counters.payload.polygones += 1;
+                            } else if (el.type === 'rectangle') {
+                                counters.payload.rectangles += 1;
+                            } else if (el.type === 'svgString') {
+                                counters.payload.SVGs += 1;
+                            } else if (el.type === 'geojson') {
+                                counters.payload.GeoJSON += 1;
+                            } else if (el.type === 'cursorOnRoute') {
+                                counters.payload.cursorOnRoute += 1;
+                            }
+                        }
+                        if (el.geoJson && el.type === 'geojson') {
+                            counters.payload.GeoJSON += 1;
                         }
                     } else {
                         counters.payload.skipped += 1;

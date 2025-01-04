@@ -6,16 +6,16 @@ const mapParameters = {
 };
 
 const objectParameters = {
-    'markerPin': {'point': true, 'circle': true, 'polyline': true, 'polygon': true, 'rectangle': true},
-    'markerDot': {'point': true, 'circle': true, 'polyline': true, 'polygon': true, 'rectangle': true},
-    'color': {'point': '#6e14ef', 'circle': '#3388ff', 'polyline': '#ff3333', 'polygon': '#008000', 'rectangle': '#801900'},
-    'lineWeight': {'point': null, 'circle': 2, 'polyline': 2, 'polygon': 2, 'rectangle': 2},
+    'markerPin': {'point': true, 'circle': true, 'polyline': true, 'polygon': true, 'rectangle': true, 'geojson': false},
+    'markerDot': {'point': true, 'circle': true, 'polyline': true, 'polygon': true, 'rectangle': true, 'geojson': true},
+    'color': {'point': '#6e14ef', 'circle': '#3388ff', 'polyline': '#ff3333', 'polygon': '#008000', 'rectangle': '#801900', 'geojson': '#000', 'cursorOnRoute': '#ff3333'},
+    'lineWeight': {'point': null, 'circle': 2, 'polyline': 2, 'polygon': 2, 'rectangle': 2, 'geojson': 3, 'cursorOnRoute': 3},
     'lineDashed': {'point': null, 'circle': false, 'polyline': false, 'polygon': false, 'rectangle': false},
     resetToDefault: function() {
-        this.markerPin = {'point': true, 'circle': true, 'polyline': true, 'polygon': true, 'rectangle': true};
-        this.markerDot = {'point': true, 'circle': true, 'polyline': true, 'polygon': true, 'rectangle': true};
-        this.color = {'point': '#6e14ef', 'circle': '#3388ff', 'polyline': '#ff3333', 'polygon': '#008000', 'rectangle': '#801900'};
-        this.lineWeight = {'point': null,'circle': 2, 'polyline': 2, 'polygon': 2, 'rectangle': 2};
+        this.markerPin = {'point': true, 'circle': true, 'polyline': true, 'polygon': true, 'rectangle': true, 'geojson': false};
+        this.markerDot = {'point': true, 'circle': true, 'polyline': true, 'polygon': true, 'rectangle': true, 'geojson': true};
+        this.color = {'point': '#6e14ef', 'circle': '#3388ff', 'polyline': '#ff3333', 'polygon': '#008000', 'rectangle': '#801900', 'geojson': '#000', 'cursorOnRoute': '#ff3333'};
+        this.lineWeight = {'point': null,'circle': 2, 'polyline': 2, 'polygon': 2, 'rectangle': 2, 'geojson': 3, 'cursorOnRoute': 3};
         this.lineDashed = {'point': null, 'circle': false, 'polyline': false, 'polygon': false, 'rectangle': false};
     }
 };
