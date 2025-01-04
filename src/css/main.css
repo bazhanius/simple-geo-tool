@@ -316,11 +316,27 @@ code {
     background-size: 24px 24px;
     transform: rotate(0deg);
     transform-origin: 50% 50%;
+    /*
+    -webkit-transition: .3s linear all;
+    -moz-transition: .3s linear all;
+    -o-transition: .3s linear all;
+    -ms-transition: .3s linear all;
+    transition: .3s linear all;
+
+     */
 }
 .b-marker-icon-arrow__shadow {
     filter: drop-shadow(0 0 5px rgba(0, 0, 0, 0.5));
 }
-
+/*
+.leaflet-marker-pane > * {
+    -webkit-transition: .3s linear all;
+    -moz-transition: .3s linear all;
+    -o-transition: .3s linear all;
+    -ms-transition: .3s linear all;
+    transition: .3s linear all;
+}
+*/
 /* legacy */
 .marker-pin {
     width: 30px;

@@ -45,6 +45,7 @@ const Coordinates = L.Control.extend({
         container.innerHTML = '<div class="mouse-cursor-helper">' +
             '<p id="mouse-coordinates">0, 0</p>' +
             '<p id="temp-object-summary"></p>' +
+            '<p id="zoom-level"></p>'
             '</div>';
         return container;
     }
@@ -54,6 +55,7 @@ map.addControl(new Coordinates({ position: "topright" }));
 
 let mouseCoordinates = document.querySelector('#mouse-coordinates');
 let tempObjectSummary = document.querySelector('#temp-object-summary');
+let zoomLevel = document.querySelector('#zoom-level');
 
 let tempCoords = [];
 let tempMarker = new L.featureGroup().addTo(map);
@@ -231,6 +233,10 @@ map.on("mousemove", e => {
         tempObjectSummary.innerHTML = '';
     }
 
+});
+
+map.on('zoomend', function (e) {
+    zoomLevel.innerHTML = 'Zoom: ' + e.target._zoom;
 });
 
 export {

@@ -6,6 +6,52 @@ import { snackbar, setSnackbarContent } from "./mdc-stuff.js";
  *
  */
 
+const toRadians = (degrees) => degrees * Math.PI / 180;
+const toDegrees = (radians) => radians * 180 / Math.PI;
+const calcAzimuth = (startLat, startLng, destLat, destLng) => {
+    startLat = toRadians(startLat);
+    startLng = toRadians(startLng);
+    destLat = toRadians(destLat);
+    destLng = toRadians(destLng);
+
+    let y = Math.sin(destLng - startLng) * Math.cos(destLat);
+    let x = Math.cos(startLat) * Math.sin(destLat) -
+        Math.sin(startLat) * Math.cos(destLat) * Math.cos(destLng - startLng);
+    let brng = Math.atan2(y, x);
+    brng = toDegrees(brng);
+    return (brng + 360) % 360;
+}
+
+function closestLocationsToPath(targetLocation, locationData, type = 'vector') {
+    function vectorDistance(dx, dy) {
+        return Math.sqrt(dx * dx + dy * dy);
+    }
+
+    function locationDistance(location1, location2) {
+        if (type === 'haversine') {
+            return L.latLng(location2).distanceTo(location1)
+        } else {  // type === 'vector' and unknown
+            let dx = location1.lat - location2.lat, // compare lats
+                dy = location1.lng - location2.lng; // compare lons
+            return vectorDistance(dx, dy);
+        }
+    }
+
+    let loc = locationData.reduce(function(prev, curr) {
+        let prevDistance = locationDistance(targetLocation , prev);
+        let currDistance = locationDistance(targetLocation , curr);
+        return (prevDistance < currDistance) ? prev : curr;
+    });
+
+    let locIndex = locationData.findIndex(l => l.lat === loc.lat && l.lng === loc.lng);
+
+    if (locationData?.[locIndex + 1]) {
+        return [loc, locationData[locIndex + 1]]
+    } else {
+        return [locationData[locIndex - 1], loc]
+    }
+}
+
 const calcDistanceInPolyline = (latlngs, unit) => {
     let _distance = {'m': 0, 'km': 0};
     let _previousPoint = null;
@@ -126,6 +172,8 @@ const checkLinesIntersection = (L1, L2) => {
 };
 
 export {
+    calcAzimuth,
+    closestLocationsToPath,
     calcDistanceInPolyline,
     calcPolygonArea,
     copyToClipboard,

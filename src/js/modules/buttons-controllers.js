@@ -50,6 +50,11 @@ const buttons = (function() {
                         'type': 'polyline',
                         'coords': [{'lat': values.latOne, 'lon': values.lonOne}, {'lat': values.latTwo, 'lon': values.lonTwo}]
                     });
+                } else if (currentTabName === 'geojson') {
+                    objLocID = manageObjects.add({
+                        'type': 'geojson',
+                        'geoJson': values.geoJson
+                    });
                 } else if (currentTabName === 'array') {
                     arrayCounters = manageObjects.addArray(values.arrayList);
                 }
@@ -62,7 +67,9 @@ const buttons = (function() {
                         + arrayCounters.payload.polylines
                         + arrayCounters.payload.polygones
                         + arrayCounters.payload.rectangles
-                        + arrayCounters.payload.SVGs > 0) {
+                        + arrayCounters.payload.SVGs
+                        + arrayCounters.payload.GeoJSON
+                        + arrayCounters.payload.cursorOnRoute > 0) {
                         if (settings.mapParameters.onAddObject.flyTo) manageObjects.showAll();
                     }
                     setSnackbarContent(arrayCounters);
