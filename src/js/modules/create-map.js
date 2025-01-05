@@ -40,12 +40,12 @@ let OSM = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 
 let map = L.map('map', {
     center: latLonExample,
-    minZoom: 3,
-    maxZoom: 14,
+    minZoom: 2,
+    maxZoom: 18,
     zoomSnap: 1,
     //maxBounds: [[34.8, 18.4], [82.1, 192]],
     //maxBoundsViscocity: 1.0,
-    zoom: 3,
+    zoom: 6,
     layers: [OSM]
 });
 
