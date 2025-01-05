@@ -343,7 +343,6 @@ const manageObjects = (function() {
                         _routeLonLat = JSON.parse(JSON.stringify(coords)).map(c => [c[1], c[0]]);
                     }
                     if (smoothTransition) {
-                        console.log(stepInterval + 's')
                         document.documentElement.style.setProperty("--step-transition",  `all ${stepInterval}s linear`);
                     } else {
                         document.documentElement.style.setProperty("--step-transition", 'unset');

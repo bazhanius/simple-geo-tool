@@ -17,8 +17,6 @@ const setSnackbarContent = (obj) => {
     if (obj.type === 'addArray') {
         let tempPayload = JSON.parse(JSON.stringify(obj.payload));
         let text = '';
-        console.log(tempPayload);
-        //tempPayload = tempPayload.filter(x => x !== 0);
         for (let key in tempPayload) {
             if (tempPayload[key] === 0 || key === 'skipped') delete tempPayload[key];
         }
@@ -38,7 +36,6 @@ const setSnackbarContent = (obj) => {
         }
         text += `<br>Skipped <strong>${obj.payload.skipped}</strong> element(s).`
 
-        console.log(tempPayload);
         snackbarContent.innerHTML = text;
     } else {
         snackbarContent.innerHTML = obj.text;
