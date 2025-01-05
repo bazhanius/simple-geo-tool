@@ -37,6 +37,7 @@ const manageObjects = (function() {
                 let followCursor = obj.followCursor;
                 let traversedColor = obj.traversedColor || 'unset';
                 let whiteBorder = obj.whiteBorder;
+                let smoothTransition = obj.smoothTransition;
                 let list = [];
                 let group;
                 let radius = obj.radius ? obj.radius : null;
@@ -340,6 +341,12 @@ const manageObjects = (function() {
                     } else {
                         _routeLatLon = coords;
                         _routeLonLat = JSON.parse(JSON.stringify(coords)).map(c => [c[1], c[0]]);
+                    }
+                    if (smoothTransition) {
+                        console.log(stepInterval + 's')
+                        document.documentElement.style.setProperty("--step-transition",  `all ${stepInterval}s linear`);
+                    } else {
+                        document.documentElement.style.setProperty("--step-transition", 'unset');
                     }
                     if (whiteBorder) {
                         let passedRouteLineBorder = L.polyline((_routeLatLon), {

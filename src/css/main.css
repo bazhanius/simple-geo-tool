@@ -1,3 +1,7 @@
+html {
+    --step-transition: unset;
+}
+
 html, body, * {
     font-family: "Barlow", sans-serif;
     font-size: small;
@@ -328,15 +332,15 @@ code {
 .b-marker-icon-arrow__shadow {
     filter: drop-shadow(0 0 5px rgba(0, 0, 0, 0.5));
 }
-/*
+
 .leaflet-marker-pane > * {
-    -webkit-transition: .3s linear all;
-    -moz-transition: .3s linear all;
-    -o-transition: .3s linear all;
-    -ms-transition: .3s linear all;
-    transition: .3s linear all;
+    -webkit-transition: var(--step-transition, unset);
+    -moz-transition: var(--step-transition, unset);
+    -o-transition: var(--step-transition, unset);
+    -ms-transition: var(--step-transition, unset);
+    transition: var(--step-transition, unset);
 }
-*/
+
 /* legacy */
 .marker-pin {
     width: 30px;
