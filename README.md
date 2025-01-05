@@ -4,8 +4,16 @@
 * [Description](#description)
 * [Main features](#main-features)
 * [JSON format](#json-format)
-  * [Directly specified objects ](#directly-specified-objects )
+  * [Directly specified objects](#directly-specified-objects )
+    * [Point](#point) 
+    * [Circle](#circle)
+    * [Polyline](#polyline)
+    * [Polygon](#polygon)
+    * [Rectangle](#rectangle)
+    * [SVG as Data URI](#svg-as-data-uri)
+    * [Cursor On Route](#cursor-on-route)
   * [Objects based on recently added objects](#objects-based-on-recently-added-objects)
+    * [Group](#group) 
 * [JSON usage](#json-usage)
   * [Text field](#text-field)
   * [URL parameters](#url-parameters)
@@ -77,7 +85,7 @@ Yet another (supposed to be simple) tool to add geo objects on map.
 | <code>flipCoords</code> |Boolean | Default <code>false</code>. Flip lat/lon from <code>"coords"</code>. Useful for copying <code>feature.geometry.coordinates</code> from GeoJSON. Only for <code>"cursorOnRoute"</code>.                                                                                                                                                                                                                                                                           |
 #### Usage example
 
-**Point**
+##### Point
 
 Example with all required parameters (<code>"type"</code>, <code>"coords"</code>) and almost all optional (name of <code>"color"</code>, <code>"azimuth"</code>, <code>"showMarkerPin"</code>, <code>"showMarkerDot"</code>):
 ```json
@@ -98,7 +106,7 @@ Example with all required parameters (<code>"type"</code>, <code>"coords"</code>
 ]
 ```
 
-**Circle**
+##### Circle
 
 Example with all required parameters (<code>type</code>, <code>coords</code>, <code>radius</code>) and some optional (RGBA <code>color</code>, <code>showMarkerPin</code>):
 ```json
@@ -118,7 +126,7 @@ Example with all required parameters (<code>type</code>, <code>coords</code>, <c
 ]
 ```
 
-**Polyline**
+##### Polyline
 
 Example with all required parameters (<code>type</code>, <code>coords</code>) and one optional (HEX <code>color</code>):
 ```json
@@ -144,7 +152,7 @@ Example with all required parameters (<code>type</code>, <code>coords</code>) an
 ]
 ```
 
-**Polygon**
+##### Polygon
 
 Example only with required parameters (<code>type</code>, <code>coords</code>):
 ```json
@@ -177,7 +185,7 @@ Example only with required parameters (<code>type</code>, <code>coords</code>):
 ]
 ```
 
-**Rectangle**
+##### Rectangle
 
 Example only with required parameters (<code>type</code>, <code>coords</code>):
 ```json
@@ -198,7 +206,7 @@ Example only with required parameters (<code>type</code>, <code>coords</code>):
 ]
 ```
 
-**SVG as Data URI**
+##### SVG as Data URI
 
 Example only with required parameters (<code>type</code>, <code>coords</code>):
 ```json
@@ -220,7 +228,7 @@ Example only with required parameters (<code>type</code>, <code>coords</code>):
 ]
 ```
 
-**Cursor On Route**
+##### Cursor On Route
 
 Example with all parameters (required: <code>type</code>, <code>coords</code>, <code>stepDistance</code>, <code>stepInterval</code>; optional: <code>color</code>, <code>traversedColor</code>, <code>weight</code>, <code>whiteBorder</code>, <code>flipCoords</code>, <code>followArrow</code>):
 ```json
@@ -257,6 +265,8 @@ Example with all parameters (required: <code>type</code>, <code>coords</code>, <
 | <code>showMarkerDot</code>        | boolean           | Allows to enable/disable the marker dot for object.                                                                            |
 
 #### Usage example
+
+##### Group
 This will add a <code>"circle"</code> object around the objects with the given IDs:
 ```json
 [
