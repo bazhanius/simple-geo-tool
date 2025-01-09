@@ -4,7 +4,20 @@
  *
  */
 
-let latLonExample = JSON.parse(localStorage.getItem('lastClickedLatLon')) || [55.752318, 37.619814];
+let latLonExample = JSON.parse(localStorage.getItem('lastClickedLatLon')) || await getLocationByIP() || [55.752318, 37.619814];
+
+async function getLocationByIP() {
+    try {
+        const response = await fetch("http://ip-api.com/json/");
+        const json = await response.json();
+        if (typeof json.lat === "number" && typeof json.lon === "number") {
+            return [json.lat, json.lon];
+        }
+    } catch (error) {
+        console.log(error)
+    }
+    return null;
+}
 
 // Define free tile providers https://github.com/leaflet-extras/leaflet-providers
 let OSM = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
