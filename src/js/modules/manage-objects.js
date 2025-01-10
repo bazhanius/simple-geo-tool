@@ -333,6 +333,7 @@ const manageObjects = (function() {
                 }
 
                 if (type === 'cursorOnRoute') {
+                    let _id = counter;
                     let azimuth = (pointFrom, pointTo) => turf.bearingToAzimuth( turf.bearing( turf.point(pointFrom), turf.point(pointTo) ));
                     let _routeLatLon, _routeLonLat;
                     if (flipCoords) {
@@ -408,12 +409,14 @@ const manageObjects = (function() {
                         if (followCursor) {
                             map.setView([p.geometry.coordinates[1], p.geometry.coordinates[0]], map.getZoom());
                         }
+                        // if object deleted, return -1
+                        return objects.findIndex(x => x.id === _id);
                     }
 
                     let index = 0;
                     let interval = setInterval(() => {
-                        updateRoute(index * stepDistance);
-                        if ((index * stepDistance) > length) {
+                        let tick = updateRoute(index * stepDistance);
+                        if ((index * stepDistance) > length || tick === -1) {
                             clearInterval(interval);
                             interval = null;
                         }
