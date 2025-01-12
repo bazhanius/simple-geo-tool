@@ -4,7 +4,9 @@
  *
  */
 
-let latLonExample = JSON.parse(localStorage.getItem('lastClickedLatLon')) || await getLocationByIP() || [55.752318, 37.619814];
+let latLonExample = JSON.parse(localStorage.getItem('lastClickedLatLon'))
+    //|| await getLocationByIP()
+    || [55.752318, 37.619814];
 
 async function getLocationByIP() {
     try {
